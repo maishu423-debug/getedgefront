@@ -20,7 +20,8 @@ class Settings(BaseSettings):
     contact_email: str = ""
 
     metar_poll_seconds: int = 180
-    dsm_poll_seconds: int = 600
+    dsm_poll_seconds: int = 720  # 12 min: polite to IEM (owner: 10-15 min)
+    cli_poll_seconds: int = 900
     forecast_poll_seconds: int = 1800
     model_poll_seconds: int = 900
     stale_metar_minutes: int = 90

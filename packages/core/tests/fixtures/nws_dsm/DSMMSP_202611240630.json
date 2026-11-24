@@ -1,0 +1,14 @@
+{
+    "@context": {
+        "@version": "1.1",
+        "@vocab": "https://api.weather.gov/ontology#"
+    },
+    "@id": "https://api.weather.gov/products/a248e09c-eaa4-4c8f-980a-bfe63ebc61bd",
+    "id": "a248e09c-eaa4-4c8f-980a-bfe63ebc61bd",
+    "wmoCollectiveId": "CXUS43",
+    "issuingOffice": "KMPX",
+    "issuanceTime": "2026-11-24T06:30:00+00:00",
+    "productCode": "DSM",
+    "productName": "ASOS Daily Summary",
+    "productText": "\n000\nCXUS43 KMPX 240630\nDSMMSP\nKMSP DS COR 19/11 551511/ 432359// 55/ 47//9940018/00/00/00/00/00/00/\n00/00/00/00/00/00/00/00/00/00/00/00/00/00/00/00/00/00/00/112/\n25260131/24400130/N/NN/00/0\n\n"
+}

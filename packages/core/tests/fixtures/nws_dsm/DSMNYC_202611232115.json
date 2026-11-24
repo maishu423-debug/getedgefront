@@ -1,0 +1,14 @@
+{
+    "@context": {
+        "@version": "1.1",
+        "@vocab": "https://api.weather.gov/ontology#"
+    },
+    "@id": "https://api.weather.gov/products/85c5b788-c71d-4d65-abec-c9e51c05cbf1",
+    "id": "85c5b788-c71d-4d65-abec-c9e51c05cbf1",
+    "wmoCollectiveId": "CXUS41",
+    "issuingOffice": "KOKX",
+    "issuanceTime": "2026-11-23T21:15:00+00:00",
+    "productCode": "DSM",
+    "productName": "ASOS Daily Summary",
+    "productText": "\n000\nCXUS41 KOKX 232115\nDSMNYC\nKNYC DS 1600 23/11 691339/ 580734// 69/ 58//9790402/00/00/00/00/00/\n00/00/00/00/00/00/00/00/00/00/00/00/-/-/-/-/-/-/-/-/-/31131549/\n29241547\n\n"
+}

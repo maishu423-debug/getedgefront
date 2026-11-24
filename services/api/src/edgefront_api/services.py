@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from edgefront_api import daily
 from edgefront_api import schemas as s
 from edgefront_core.climate import (
     DayBasis,
@@ -305,6 +306,7 @@ def board(
                 venues=venues.get(st.id, []),
                 latest=metar_brief(latest, now) if latest else None,
                 high_so_far=_high_out(reps, st, now),
+                nws_today_high_f=daily.today_high_f(daily.latest_forecast(session, st.id), st, now),
                 is_stale=latest is None
                 or _age(now, latest.observed_at) > settings.stale_metar_minutes,
                 fresh_high=st.id in fresh,

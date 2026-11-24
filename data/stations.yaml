@@ -4,8 +4,12 @@
 #   venue's current market rules and fills market, settlement_source, rules_url and verified_at.
 # - kind: high | low. v1 is highs only (owner, Q16): every mapping stays kind: high and
 #   unverified. Low markets are a later version; the schema already supports them.
-# - dsm_location: set only where a current DSM product was found that names this station
-#   (Phase 1 discovery, 2026-11-24). null = no current DSM found via NWS public channels.
+# - dsm_location / dsm_source: the DSM<LOC> product and where we fetch it (Phase 3, owner Q14/Q17):
+#   nws_api = api.weather.gov (KNYC, KMSP, KSAT); iem = Iowa Environmental Mesonet AFOS archive
+#   (the other 24, issued as CDUS27 by ARTCCs). null = no DSM issued (KBKF). Evidence:
+#   docs/coverage/2026-11-24_dsm_cli.md
+# - cli_location: the CLI<LOC> Daily Climate Report location on api.weather.gov; null = no
+#   current CLI (KDAL, KBKF).
 # - pfm_point: the point-name line of the office's PFM block (office = nws_office) whose
 #   coordinates are clearly nearest this station (Phase 1 discovery, 2026-11-24, <= 3 km and
 #   unambiguous). null = no such point.
@@ -19,6 +23,8 @@
   tz: America/New_York
   day_basis: LST
   dsm_location: NYC
+  dsm_source: nws_api
+  cli_location: NYC
   pfm_point: "Central Park-New York NY"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -29,7 +35,9 @@
   state: NY
   tz: America/New_York
   day_basis: LST
-  dsm_location: null
+  dsm_location: LGA
+  dsm_source: iem
+  cli_location: LGA
   pfm_point: "LaGuardia Airport-Queens NY"
   venues:
     - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -41,7 +49,9 @@
   state: MA
   tz: America/New_York
   day_basis: LST
-  dsm_location: null
+  dsm_location: BOS
+  dsm_source: iem
+  cli_location: BOS
   pfm_point: "Boston-Suffolk MA"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -53,7 +63,9 @@
   state: PA
   tz: America/New_York
   day_basis: LST
-  dsm_location: null
+  dsm_location: PHL
+  dsm_source: iem
+  cli_location: PHL
   pfm_point: "Philadelphia-Philadelphia PA"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -65,7 +77,9 @@
   state: DC
   tz: America/New_York
   day_basis: LST
-  dsm_location: null
+  dsm_location: DCA
+  dsm_source: iem
+  cli_location: DCA
   pfm_point: "Reagan National Airport-Arlington VA"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -77,7 +91,9 @@
   state: GA
   tz: America/New_York
   day_basis: LST
-  dsm_location: null
+  dsm_location: ATL
+  dsm_source: iem
+  cli_location: ATL
   pfm_point: "Atlanta-Fulton GA"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -90,7 +106,9 @@
   state: NC
   tz: America/New_York
   day_basis: LST
-  dsm_location: null
+  dsm_location: CLT
+  dsm_source: iem
+  cli_location: CLT
   pfm_point: "Charlotte-Douglas International Airport-Mecklenburg NC"
   venues:
     - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -101,7 +119,9 @@
   state: FL
   tz: America/New_York
   day_basis: LST
-  dsm_location: null
+  dsm_location: MIA
+  dsm_source: iem
+  cli_location: MIA
   pfm_point: null
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -114,7 +134,9 @@
   state: FL
   tz: America/New_York
   day_basis: LST
-  dsm_location: null
+  dsm_location: JAX
+  dsm_source: iem
+  cli_location: JAX
   pfm_point: "Jacksonville-Duval FL"
   venues:
     - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -125,7 +147,9 @@
   state: MI
   tz: America/Detroit
   day_basis: LST
-  dsm_location: null
+  dsm_location: DTW
+  dsm_source: iem
+  cli_location: DTW
   pfm_point: "Romulus-Wayne MI"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -136,7 +160,9 @@
   state: IL
   tz: America/Chicago
   day_basis: LST
-  dsm_location: null
+  dsm_location: MDW
+  dsm_source: iem
+  cli_location: MDW
   pfm_point: "Chicago Midway Airport-Cook IL"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -147,7 +173,9 @@
   state: IL
   tz: America/Chicago
   day_basis: LST
-  dsm_location: null
+  dsm_location: ORD
+  dsm_source: iem
+  cli_location: ORD
   pfm_point: "Chicago O'Hare International Airport-Cook IL"
   venues:
     - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -159,6 +187,8 @@
   tz: America/Chicago
   day_basis: LST
   dsm_location: MSP
+  dsm_source: nws_api
+  cli_location: MSP
   pfm_point: "Minneapolis-Hennepin MN"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -170,7 +200,9 @@
   state: TN
   tz: America/Chicago
   day_basis: LST
-  dsm_location: null
+  dsm_location: BNA
+  dsm_source: iem
+  cli_location: BNA
   pfm_point: "Nashville-Davidson TN"
   venues:
     - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -181,7 +213,9 @@
   state: OK
   tz: America/Chicago
   day_basis: LST
-  dsm_location: null
+  dsm_location: OKC
+  dsm_source: iem
+  cli_location: OKC
   pfm_point: "Oklahoma City-Oklahoma OK"
   venues:
     - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -192,7 +226,9 @@
   state: TX
   tz: America/Chicago
   day_basis: LST
-  dsm_location: null
+  dsm_location: DFW
+  dsm_source: iem
+  cli_location: DFW
   pfm_point: "DFW Airport-Dallas TX"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -203,7 +239,9 @@
   state: TX
   tz: America/Chicago
   day_basis: LST
-  dsm_location: null
+  dsm_location: DAL
+  dsm_source: iem
+  cli_location: null
   pfm_point: "Dallas Love Field-Dallas TX"
   venues:
     - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -214,7 +252,9 @@
   state: TX
   tz: America/Chicago
   day_basis: LST
-  dsm_location: null
+  dsm_location: AUS
+  dsm_source: iem
+  cli_location: AUS
   pfm_point: "Austin Bergstrom-Travis TX"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -228,6 +268,8 @@
   tz: America/Chicago
   day_basis: LST
   dsm_location: SAT
+  dsm_source: nws_api
+  cli_location: SAT
   pfm_point: "San Antonio Intl-Bexar-BEXAR TX"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -238,7 +280,9 @@
   state: TX
   tz: America/Chicago
   day_basis: LST
-  dsm_location: null
+  dsm_location: HOU
+  dsm_source: iem
+  cli_location: HOU
   pfm_point: null
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -250,7 +294,9 @@
   state: KY
   tz: America/Kentucky/Louisville
   day_basis: LST
-  dsm_location: null
+  dsm_location: SDF
+  dsm_source: iem
+  cli_location: SDF
   pfm_point: "LOUISVILLE-JEFFERSON KY"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -261,7 +307,9 @@
   state: CO
   tz: America/Denver
   day_basis: LST
-  dsm_location: null
+  dsm_location: DEN
+  dsm_source: iem
+  cli_location: DEN
   pfm_point: "Denver Int'l Airport-Denver CO"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -273,6 +321,8 @@
   tz: America/Denver
   day_basis: LST
   dsm_location: null
+  dsm_source: null
+  cli_location: null
   pfm_point: "Buckley AFB-Arapahoe CO"
   venues:
     - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -283,7 +333,9 @@
   state: AZ
   tz: America/Phoenix
   day_basis: LST
-  dsm_location: null
+  dsm_location: PHX
+  dsm_source: iem
+  cli_location: PHX
   pfm_point: "Phoenix-Maricopa AZ"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -295,7 +347,9 @@
   state: CA
   tz: America/Los_Angeles
   day_basis: LST
-  dsm_location: null
+  dsm_location: LAX
+  dsm_source: iem
+  cli_location: LAX
   pfm_point: "Los Angeles Airport CA"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -308,7 +362,9 @@
   state: CA
   tz: America/Los_Angeles
   day_basis: LST
-  dsm_location: null
+  dsm_location: SFO
+  dsm_source: iem
+  cli_location: SFO
   pfm_point: "San Francisco Airport-San Mateo CA"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -320,7 +376,9 @@
   state: WA
   tz: America/Los_Angeles
   day_basis: LST
-  dsm_location: null
+  dsm_location: SEA
+  dsm_source: iem
+  cli_location: SEA
   pfm_point: "Seattle-King WA"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
@@ -333,7 +391,9 @@
   state: NV
   tz: America/Los_Angeles
   day_basis: LST
-  dsm_location: null
+  dsm_location: LAS
+  dsm_source: iem
+  cli_location: LAS
   pfm_point: "Las Vegas-Clark NV"
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}

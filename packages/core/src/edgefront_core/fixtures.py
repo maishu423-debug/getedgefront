@@ -13,16 +13,34 @@ import argparse
 import sys
 from pathlib import Path
 
+import httpx
+
 from edgefront_core.http import get_with_retry, make_client
 from edgefront_core.timeutil import utcnow
 
 FIXTURES = Path(__file__).resolve().parents[2] / "tests" / "fixtures"
 
 
-def capture(source: str, filename: str, url: str, accept: str | None = None) -> Path:
+THIRD_PARTY_UA = {"User-Agent": "EdgeFront/1.0 (getedgefront.com)"}  # no personal contact
+
+
+def capture(
+    source: str,
+    filename: str,
+    url: str,
+    accept: str | None = None,
+    *,
+    third_party: bool = False,
+) -> Path:
+    """`third_party=True` (e.g. IEM): generic User-Agent without the NWS contact email."""
     folder = FIXTURES / source
     folder.mkdir(parents=True, exist_ok=True)
-    with make_client() as client:
+    client_cm = (
+        httpx.Client(headers=THIRD_PARTY_UA, timeout=30, follow_redirects=True)
+        if third_party
+        else make_client()
+    )
+    with client_cm as client:
         fetched_at = utcnow()
         resp = get_with_retry(client, url, headers={"Accept": accept} if accept else None)
     resp.raise_for_status()
@@ -33,8 +51,13 @@ def capture(source: str, filename: str, url: str, accept: str | None = None) -> 
     if not readme.exists():
         readme.write_text(
             f"# Fixtures: {source}\n\nReal upstream responses, saved verbatim. "
-            "Request sent with the NWS User-Agent from CONTEXT.md §4.\n\n"
-            "| File | URL | Fetched (UTC) | HTTP |\n|---|---|---|---|\n",
+            + (
+                "Requests sent with a generic EdgeFront User-Agent (third-party host, no contact "
+                "email).\n\n"
+                if third_party
+                else "Requests sent with the NWS User-Agent from CONTEXT.md §4.\n\n"
+            )
+            + "| File | URL | Fetched (UTC) | HTTP |\n|---|---|---|---|\n",
             encoding="utf-8",
             newline="\n",
         )

@@ -12,6 +12,7 @@ from edgefront_core.models import Base
 
 EXPECTED_TABLES = {
     "stations",
+    "cli_products",
     "station_venues",
     "metar_reports",
     "daily_high_events",

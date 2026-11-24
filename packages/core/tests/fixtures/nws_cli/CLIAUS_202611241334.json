@@ -1,0 +1,14 @@
+{
+    "@context": {
+        "@version": "1.1",
+        "@vocab": "https://api.weather.gov/ontology#"
+    },
+    "@id": "https://api.weather.gov/products/70791275-862c-4758-9a14-a7cb3a39af0c",
+    "id": "70791275-862c-4758-9a14-a7cb3a39af0c",
+    "wmoCollectiveId": "CDUS44",
+    "issuingOffice": "KEWX",
+    "issuanceTime": "2026-11-24T13:34:00+00:00",
+    "productCode": "CLI",
+    "productName": "Climatological Report (Daily)",
+    "productText": "\n000\nCDUS44 KEWX 241334\nCLIAUS\n\nCLIMATE REPORT \nNATIONAL WEATHER SERVICE AUSTIN/SAN ANTONIO\n734 AM CST TUE NOV 24 2026\n\n...................................\n\n...THE AUSTIN BERGSTROM CLIMATE SUMMARY FOR NOVEMBER 24 2026...\nVALID AS OF 0700 AM LOCAL TIME.\n\nCLIMATE NORMAL PERIOD: 1991 TO 2020\nCLIMATE RECORD PERIOD: 1943 TO 2026\n\n\nWEATHER ITEM   OBSERVED TIME   RECORD YEAR NORMAL DEPARTURE           \n                VALUE   (LST)  VALUE       VALUE  FROM               \n                                                  NORMAL           \n................................................................\nTEMPERATURE (F)                                                          \n TODAY                                                               \n  MAXIMUM         52   4:30 AM  87    2010  69    -17                 \n  MINIMUM         49   6:59 AM  26    2003  44      5                 \n  AVERAGE         51                                               \n\nPRECIPITATION (IN)                                                    \n  TODAY            T             2.83 1985   0.08  -0.08              \n  MONTH TO DATE    3.80                      2.23   1.57              \n  SINCE SEP 1      5.99                      9.51  -3.52              \n  SINCE JAN 1     29.49                     32.51  -3.02              \n\n................................................................\n\n\nTHE AUSTIN BERGSTROM CLIMATE NORMALS FOR TOMORROW\n                         NORMAL    RECORD    YEAR                     \n MAXIMUM TEMPERATURE (F)   69        86      2024                      \n MINIMUM TEMPERATURE (F)   44        23      2003                      \n\n\nSUNRISE AND SUNSET                                                    \nNOVEMBER 24 2026......SUNRISE   7:04 AM CST   SUNSET   5:31 PM CST     \nNOVEMBER 25 2026......SUNRISE   7:05 AM CST   SUNSET   5:31 PM CST     \n\n\n-  INDICATES NEGATIVE NUMBERS.\nR  INDICATES RECORD WAS SET OR TIED.\nMM INDICATES DATA IS MISSING.\nT  INDICATES TRACE AMOUNT.\n\n\n\n\n$$\n"
+}

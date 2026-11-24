@@ -27,8 +27,9 @@ def test_metar_job_never_raises_and_records_failure(
     jobs.metar_job(session_factory)  # must not raise
 
 
-def test_scheduler_has_heartbeat_and_metar_jobs(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_scheduler_has_all_jobs(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DATABASE_URL", "sqlite://")
+    monkeypatch.setenv("CONTACT_EMAIL", "ops@example.org")  # placeholder; no request is made
     from edgefront_core import db, settings
 
     settings.get_settings.cache_clear()
@@ -36,7 +37,7 @@ def test_scheduler_has_heartbeat_and_metar_jobs(monkeypatch: pytest.MonkeyPatch)
     try:
         sched = build_scheduler()
         ids = {j.id for j in sched.get_jobs()}
-        assert ids == {"heartbeat", "metar"}
+        assert ids == {"heartbeat", "metar", "cli", "dsm", "forecast"}
     finally:
         settings.get_settings.cache_clear()
         db.get_engine.cache_clear()

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import signal
+from datetime import timedelta
 from types import FrameType
 
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -13,7 +14,7 @@ from edgefront_core.logs import configure_logging
 from edgefront_core.settings import get_settings
 from edgefront_core.timeutil import utcnow
 from edgefront_worker.heartbeat import heartbeat
-from edgefront_worker.jobs import metar_job
+from edgefront_worker.jobs import ProductJobs, metar_job
 
 log = logging.getLogger("edgefront.worker")
 
@@ -44,6 +45,23 @@ def build_scheduler() -> BlockingScheduler:
         next_run_time=utcnow(),  # first run backfills 36 h
         misfire_grace_time=120,
     )
+    products = ProductJobs()
+    start = utcnow()
+    for job_id, fn, seconds, jitter, delay in [
+        ("cli", products.cli, settings.cli_poll_seconds, 60, 20),
+        ("dsm", products.dsm, settings.dsm_poll_seconds, 90, 40),
+        ("forecast", products.forecast, settings.forecast_poll_seconds, 120, 60),
+    ]:
+        scheduler.add_job(
+            fn,
+            "interval",
+            seconds=seconds,
+            jitter=jitter,
+            args=[factory],
+            id=job_id,
+            next_run_time=start + timedelta(seconds=delay),  # stagger the first runs
+            misfire_grace_time=300,
+        )
     return scheduler
 
 

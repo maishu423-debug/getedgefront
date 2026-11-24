@@ -242,3 +242,106 @@ class SourceStatus(BaseModel):
 class StatusResponse(BaseModel):
     generated_at: datetime
     sources: list[SourceStatus]
+
+
+# ---------------------------------------------------------------- daily summaries (Phase 3)
+
+
+class WindOut(BaseModel):
+    dir_deg: int | None
+    speed_mph: int | None
+    time_local: str | None = Field(description="HH:MM, local standard time")
+
+
+class CoversOut(BaseModel):
+    date: date
+    kind: Literal["so_far", "preliminary", "final"] | None = Field(
+        description="DSM: so_far | final. CLI: preliminary (intraday 'valid as of') | final"
+    )
+
+
+class DailySummaryRow(BaseModel):
+    product: Literal["CLI", "DSM"]
+    product_name: str
+    day: Literal["today", "yesterday"]
+    status: Literal["ok", "not_issued_yet", "not_available"]
+    reason: str | None = Field(None, description="Why there is no product, in plain words")
+    covers: CoversOut
+    issuer: str | None = Field(None, description="Issuing office / ARTCC, e.g. KFWD, KZFW")
+    source: Literal["nws_api", "iem"] | None = None
+    source_label: str | None = None
+    attribution: str | None = None
+    product_id: str | None = None
+    issued_at: datetime | None = None
+    valid_as_of_local: str | None = Field(
+        None, description="HH:MM LST: CLI 'valid as of' or the DSM 'DS HHMM' issue time"
+    )
+    is_correction: bool = False
+    issuances_for_day: int = 0
+    max_f: int | None = None
+    max_time_local: str | None = None
+    min_f: int | None = None
+    min_time_local: str | None = None
+    precip_in: float | None = None
+    precip_trace: bool = False
+    normal_high_f: int | None = None
+    normal_low_f: int | None = None
+    departure_high_f: int | None = None
+    departure_low_f: int | None = None
+    peak_wind: WindOut | None = None
+    peak_gust: WindOut | None = None
+    raw_text: str | None = None
+    decode_errors: list[str] = Field(default_factory=list)
+
+
+class DailySummariesResponse(BaseModel):
+    generated_at: datetime
+    station_id: str
+    tz: str
+    times_are: Literal["LST"] = "LST"
+    status: Literal["ok", "none_available"]
+    message: str | None = None
+    today: date
+    yesterday: date
+    rows: list[DailySummaryRow]
+    sources: list[SourceRef]
+
+
+# ---------------------------------------------------------------- NWS forecast (Phase 3)
+
+
+class ForecastPeriodOut(BaseModel):
+    name: str
+    start: datetime
+    end: datetime
+    temperature_f: int | None
+    pop_percent: int | None
+    short: str | None
+    detailed: str | None
+
+
+class HourSlotOut(BaseModel):
+    start: datetime
+    temperature_f: int | None
+    pop_percent: int | None
+    short: str | None
+
+
+class ForecastResponse(BaseModel):
+    generated_at: datetime
+    station_id: str
+    status: Literal["ok", "no_data", "stale"]
+    label: Literal["FORECAST · NWS"] = "FORECAST · NWS"
+    source: SourceRef
+    office: str | None
+    update_time: datetime | None = Field(description="When the office last updated the forecast")
+    fetched_at: datetime | None
+    today_high_f: int | None = Field(
+        description="Today's daytime period (station local date); null once it has ended"
+    )
+    today_note: str | None = None
+    tonight_low_f: int | None
+    today: ForecastPeriodOut | None
+    tonight: ForecastPeriodOut | None
+    hourly: list[HourSlotOut] = Field(description="Next 14 h in 2 h steps (≤ 7 slots)")
+    weather_gov_url: str | None

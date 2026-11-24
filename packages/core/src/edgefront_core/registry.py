@@ -44,6 +44,8 @@ class StationEntry(BaseModel):
     tz: str
     day_basis: Literal["LST", "LOCAL"] = "LST"
     dsm_location: str | None = None
+    dsm_source: Literal["nws_api", "iem"] | None = None
+    cli_location: str | None = Field(None, pattern=r"^[A-Z0-9]{3}$")
     pfm_point: str | None = None
     venues: list[VenueEntry] = Field(default_factory=list)
 
@@ -55,6 +57,12 @@ class StationEntry(BaseModel):
         except (ZoneInfoNotFoundError, ValueError) as exc:
             raise ValueError(f"unknown IANA time zone: {v}") from exc
         return v
+
+    @model_validator(mode="after")
+    def _dsm_source_needs_location(self) -> StationEntry:
+        if self.dsm_source is not None and self.dsm_location is None:
+            raise ValueError(f"{self.id}: dsm_source set without dsm_location")
+        return self
 
     @model_validator(mode="after")
     def _unique_venues(self) -> StationEntry:

@@ -83,6 +83,8 @@ class Station(Base):
     grid_y: Mapped[int | None] = mapped_column(Integer)
     dsm_location: Mapped[str | None] = mapped_column(String(8))
     pfm_point: Mapped[str | None] = mapped_column(String(120))  # PFM point name line
+    cli_location: Mapped[str | None] = mapped_column(String(8))  # CLI<LOC> product location
+    dsm_source: Mapped[str | None] = mapped_column(String(8))  # nws_api | iem | None
     active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     enriched_at: Mapped[datetime | None] = _ts()
     enrichment_source: Mapped[str | None] = mapped_column(Text)
@@ -180,27 +182,91 @@ class DailyHighEvent(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
-class DsmProduct(Base):
-    __tablename__ = "dsm_products"
-    __table_args__ = (Index("ix_dsm_station_date", "station_id", "climate_date"),)
+class CliProduct(Base):
+    """NWS Daily Climate Report (CLI). Every issuance is kept; for a (station, climate_date) the
+    latest final (corrections included) supersedes earlier ones."""
+
+    __tablename__ = "cli_products"
+    __table_args__ = (
+        Index("ix_cli_station_date", "station_id", "climate_date"),
+        CheckConstraint(
+            "report_kind IS NULL OR report_kind IN ('final', 'preliminary')", name="ck_cli_kind"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(BigId, primary_key=True, autoincrement=True)
     station_id: Mapped[str] = mapped_column(ForeignKey("stations.id"))
-    product_id: Mapped[str] = mapped_column(String(64), unique=True)
+    product_id: Mapped[str] = mapped_column(String(64), unique=True)  # api.weather.gov id
+    issuer: Mapped[str | None] = mapped_column(String(8))
+    wmo_header: Mapped[str | None] = mapped_column(String(40))
+    is_correction: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     climate_date: Mapped[date | None] = mapped_column(Date)
-    is_final: Mapped[bool | None] = mapped_column(Boolean)
+    report_kind: Mapped[str | None] = mapped_column(String(12))
+    valid_as_of_local: Mapped[str | None] = mapped_column(String(5))  # "HH:MM" LST
     max_temp_f: Mapped[int | None] = mapped_column(Integer)
-    max_time_local: Mapped[str | None] = mapped_column(String(4))  # HHMM LST as published
+    max_time_local: Mapped[str | None] = mapped_column(String(5))
     min_temp_f: Mapped[int | None] = mapped_column(Integer)
-    min_time_local: Mapped[str | None] = mapped_column(String(4))
+    min_time_local: Mapped[str | None] = mapped_column(String(5))
     precip_in: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
-    peak_wind_kt: Mapped[int | None] = mapped_column(Integer)
-    peak_wind_dir: Mapped[int | None] = mapped_column(Integer)
-    peak_wind_time_local: Mapped[str | None] = mapped_column(String(4))
+    precip_trace: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    normal_high_f: Mapped[int | None] = mapped_column(Integer)
+    normal_low_f: Mapped[int | None] = mapped_column(Integer)
+    departure_high_f: Mapped[int | None] = mapped_column(Integer)
+    departure_low_f: Mapped[int | None] = mapped_column(Integer)
     raw_text: Mapped[str] = mapped_column(Text)
+    raw_hash: Mapped[str] = mapped_column(String(64))
     decode_errors: Mapped[Any | None] = mapped_column(JsonType)
     source: Mapped[str] = mapped_column(String(64))
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ingested_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class DsmProduct(Base):
+    """ASOS Daily Summary. `issue_key` is the DS HHMM issue time ('0700') or 'FINAL' for the
+    next-day final without one; dedupe on (station, climate_date, issue_key, raw_hash)."""
+
+    __tablename__ = "dsm_products"
+    __table_args__ = (
+        Index("ix_dsm_station_date", "station_id", "climate_date"),
+        UniqueConstraint(
+            "station_id", "climate_date", "issue_key", "raw_hash", name="uq_dsm_dedupe"
+        ),
+        CheckConstraint("source IN ('nws_api', 'iem')", name="ck_dsm_source"),
+        CheckConstraint(
+            "report_kind IS NULL OR report_kind IN ('so_far', 'final')", name="ck_dsm_kind"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigId, primary_key=True, autoincrement=True)
+    station_id: Mapped[str] = mapped_column(ForeignKey("stations.id"))
+    product_id: Mapped[str] = mapped_column(String(80), unique=True)  # source-specific id
+    source: Mapped[str] = mapped_column(String(16))  # nws_api | iem
+    issuer: Mapped[str | None] = mapped_column(String(8))
+    wmo_header: Mapped[str | None] = mapped_column(String(40))
+    issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    climate_date: Mapped[date | None] = mapped_column(Date)
+    report_kind: Mapped[str | None] = mapped_column(String(8))
+    issue_key: Mapped[str] = mapped_column(String(5))  # "HHMM" LST or "FINAL"
+    is_correction: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    max_temp_f: Mapped[int | None] = mapped_column(Integer)
+    max_time_local: Mapped[str | None] = mapped_column(String(5))  # "HH:MM" LST
+    min_temp_f: Mapped[int | None] = mapped_column(Integer)
+    min_time_local: Mapped[str | None] = mapped_column(String(5))
+    precip_in: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    precip_trace: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    peak_wind_dir: Mapped[int | None] = mapped_column(Integer)
+    peak_wind_speed: Mapped[int | None] = mapped_column(Integer)
+    peak_wind_time_local: Mapped[str | None] = mapped_column(String(5))
+    peak_gust_dir: Mapped[int | None] = mapped_column(Integer)
+    peak_gust_speed: Mapped[int | None] = mapped_column(Integer)
+    peak_gust_time_local: Mapped[str | None] = mapped_column(String(5))
+    wind_speed_unit: Mapped[str | None] = mapped_column(String(8))
+    raw_text: Mapped[str] = mapped_column(Text)
+    raw_hash: Mapped[str] = mapped_column(String(64))
+    decode_errors: Mapped[Any | None] = mapped_column(JsonType)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     ingested_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -215,9 +281,14 @@ class NwsForecast(Base):
     station_id: Mapped[str] = mapped_column(ForeignKey("stations.id"))
     office: Mapped[str] = mapped_column(String(4))
     generated_at: Mapped[datetime | None] = _ts()
-    update_time: Mapped[datetime | None] = _ts()
+    update_time: Mapped[datetime | None] = _ts()  # forecast updateTime (office edit time)
+    hourly_update_time: Mapped[datetime | None] = _ts()
     periods: Mapped[Any | None] = mapped_column(JsonType)
     hourly: Mapped[Any | None] = mapped_column(JsonType)
+    forecast_expires_at: Mapped[datetime | None] = _ts()
+    hourly_expires_at: Mapped[datetime | None] = _ts()
+    forecast_last_modified: Mapped[str | None] = mapped_column(String(40))
+    hourly_last_modified: Mapped[str | None] = mapped_column(String(40))
     source: Mapped[str] = mapped_column(String(64))
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 

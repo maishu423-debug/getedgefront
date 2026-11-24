@@ -5,6 +5,7 @@
 Rules:
 - Station display fields (name, city, state, tz, day_basis) come from the YAML.
 - dsm_location / pfm_point: a null in the YAML never overwrites a value already stored.
+- dsm_source / cli_location: always taken from the YAML (owner decisions), nulls included.
 - Enrichment fields (lat/lon/elevation/office/grid/official_name) are never touched here.
 - Venues: the YAML is the full truth per station; DB rows not in the YAML are deleted.
 - Stations missing from the YAML are marked inactive (never deleted: they own observations).
@@ -63,6 +64,9 @@ def _station_values(e: StationEntry) -> dict[str, object]:
         "tz": e.tz,
         "day_basis": e.day_basis,
         "active": True,
+        # Source choices are owner decisions: the YAML is authoritative, nulls included.
+        "dsm_source": e.dsm_source,
+        "cli_location": e.cli_location,
     }
     if e.dsm_location is not None:
         values["dsm_location"] = e.dsm_location

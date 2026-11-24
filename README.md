@@ -45,7 +45,14 @@ export DATABASE_URL=sqlite:///./local.db
 uv run python -m edgefront_core.migrate
 uv run python -m edgefront_core.seed             # load data/stations.yaml (idempotent)
 uv run python -m edgefront_core.enrich_stations  # live upstream; needs CONTACT_EMAIL in .env
+uv run python -m edgefront_worker.main           # METAR 3 min, CLI 15 min, DSM 12 min, forecast 30 min
 uv run uvicorn edgefront_api.main:build --factory --port 8000
 uv run python -m edgefront_worker.main
 cd apps/web && pnpm build && API_INTERNAL_URL=http://127.0.0.1:8000 pnpm start
 ```
+
+## Data source notes
+
+- Format notes for the decoded NWS text products: `docs/formats/cli.md`, `docs/formats/dsm.md`.
+- DSM for 24 stations comes from the Iowa Environmental Mesonet (attribution required; see `infra/railway.md`).
+- Coverage check tool (discovery only): `uv run python tools/coverage_dsm_cli.py`.

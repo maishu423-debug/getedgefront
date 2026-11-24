@@ -14,8 +14,8 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from starlette.responses import Response as StarletteResponse
 
+from edgefront_api import daily, services
 from edgefront_api import schemas as s
-from edgefront_api import services
 from edgefront_api.health import check_health
 from edgefront_core.db import get_engine, make_sessionmaker
 from edgefront_core.logs import configure_logging
@@ -134,6 +134,16 @@ def observed(
     if hours not in (6, 24):
         raise HTTPException(http.HTTP_422_UNPROCESSABLE_CONTENT, "hours must be 6 or 24")
     return services.observed(session, st, now, cfg, hours)
+
+
+@router.get("/stations/{station_id}/daily-summaries", response_model=s.DailySummariesResponse)
+def daily_summaries(st: StationDep, session: SessionDep, now: NowDep) -> s.DailySummariesResponse:
+    return daily.daily_summaries(session, st, now)
+
+
+@router.get("/stations/{station_id}/forecast", response_model=s.ForecastResponse)
+def forecast(st: StationDep, session: SessionDep, now: NowDep, cfg: CfgDep) -> s.ForecastResponse:
+    return daily.forecast(session, st, now, cfg)
 
 
 @router.get("/feed/new-highs", response_model=s.FeedResponse)
