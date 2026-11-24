@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EdgeFront — KDFW station page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F2}
+a{color:#0A6E69}a:hover{color:#064F4B}
+.tab{font:500 13px Inter,sans-serif;padding:8px 12px;min-height:36px;border:0;background:transparent;color:#4A5552;border-radius:7px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:#101A1C}
+.tab.on{background:#FFFFFF;color:#101A1C;box-shadow:0 1px 2px rgba(16,26,28,.14)}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;min-height:34px;border:1px solid #CFD5D1;border-radius:999px;background:#FFFFFF;font:600 12px 'JetBrains Mono',monospace;color:#101A1C;cursor:pointer}
+.chip.off{opacity:.42}
+.tgl{font:500 13px Inter,sans-serif;padding:8px 14px;min-height:36px;border:1px solid #CFD5D1;border-radius:8px;background:#FFFFFF;color:#2A3533;cursor:pointer;white-space:nowrap}
+.tgl.on{background:#101A1C;border-color:#101A1C;color:#FFFFFF}
+.tbl{width:100%;border-collapse:collapse;font:400 13px Inter,sans-serif;color:#101A1C}
+.tbl th{font:600 11px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#56625F;text-align:left;padding:10px 12px;border-bottom:1px solid #DDE1DC;white-space:nowrap}
+.tbl td{padding:9px 12px;border-bottom:1px solid #ECEFEC;white-space:nowrap}
+.tbl tr:last-child td{border-bottom:0}
+.mono{font-family:'JetBrains Mono',monospace}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #101A1C; background: #F4F5F2; min-height: 100%">
+
+<!-- Top navigation -->
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE1DC">
+<div style="max-width: 1280px; margin: 0 auto; padding: 14px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+<a href="#top" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #101A1C">
+<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true"><path d="M1 17 C9 17 11 7 17 7 S25 17 33 17" fill="none" stroke="#0A6E69" stroke-width="2.4" stroke-linecap="round"></path><path d="M7 14.6 L10.6 10.2 L12.4 15.2 Z M15.2 7.4 L19.4 3.6 L19.8 8.6 Z M23.4 11.2 L28 8.8 L26.8 14 Z" fill="#0A6E69"></path></svg>
+<span style="font: 700 20px 'Space Grotesk', sans-serif; letter-spacing: -0.02em">EdgeFront</span>
+</a>
+<form style="flex: 1 1 320px; max-width: 520px; display: flex" role="search">
+<label for="q" class="sr">Search stations</label>
+<input id="q" type="search" placeholder="Search station, ICAO code or city — e.g. KDFW, Dallas" style="flex: 1; min-width: 0; height: 42px; box-sizing: border-box; padding: 0 14px; border: 1px solid #CFD5D1; border-radius: 10px; background: #F7F8F6; font: 400 14px Inter, sans-serif; color: #101A1C">
+</form>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: auto">
+<a href="Home.dc.html" style="padding: 10px 12px; font-weight: 600; font-size: 14px; color: #101A1C; text-decoration: none">Stations</a>
+<a href="#map" style="padding: 10px 12px; font-size: 14px; color: #4A5552; text-decoration: none; display: flex; align-items: center; gap: 6px">Map <span style="display: inline-flex; align-items: center; gap: 4px; font: 600 10px Inter, sans-serif; letter-spacing: .05em; padding: 3px 7px; border-radius: 999px; background: #FFF1E2; color: #8A4100"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>PRO</span></a>
+<a href="#sources" style="padding: 10px 12px; font-size: 14px; color: #4A5552; text-decoration: none">Sources</a>
+<a href="#pricing" style="padding: 10px 12px; font-size: 14px; color: #4A5552; text-decoration: none">Pricing</a>
+<a href="#signin" style="margin-left: 8px; padding: 10px 16px; font-size: 14px; font-weight: 600; color: #FFFFFF; background: #101A1C; border-radius: 9px; text-decoration: none">Sign in</a>
+</nav>
+</div>
+</header>
+
+<div style="background: #FFF7E8; border-bottom: 1px solid #F0DDB8">
+<div style="max-width: 1280px; margin: 0 auto; padding: 9px 32px; font-size: 13px; color: #6B4600">Design mockup · every value on this page is generated sample data for layout, not a real KDFW observation or forecast.</div>
+</div>
+
+<main style="max-width: 1280px; margin: 0 auto; padding: 28px 32px 56px; display: flex; flex-direction: column; gap: 24px">
+
+<!-- Station + current conditions + NWS forecast -->
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: stretch">
+<section aria-label="Current conditions" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap">
+<h1 style="margin: 0; font: 700 46px 'Space Grotesk', sans-serif; letter-spacing: -0.03em">KDFW</h1>
+<span style="font-size: 19px; font-weight: 500">Dallas/Fort Worth International Airport, TX</span>
+</div>
+<div class="mono" style="display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; color: #4A5552"><span>32.898°N 97.019°W</span><span>Elev 171 m</span><span>ASOS</span><span>Local time CST (UTC−6)</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; flex: 1">
+<div style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px">
+<span style="font-size: 14px; font-weight: 600; color: #4A5552">Current temperature</span>
+<div style="display: flex; align-items: flex-start; gap: 4px"><span style="font: 600 96px/0.9 'Space Grotesk', sans-serif; letter-spacing: -0.04em; color: #101A1C">{{curT}}</span><span style="font: 500 28px 'Space Grotesk', sans-serif; color: #4A5552; padding-top: 6px">°F</span></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #2A3533"><span style="width: 9px; height: 9px; border-radius: 50%; background: #1A7F4B; box-shadow: 0 0 0 4px #DDF1E5; flex: none"></span><span>Latest METAR <span class="mono">{{curZ}}</span> ({{curLoc}} CST) · {{curAge}}</span></div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px">
+<span style="font-size: 14px; font-weight: 600; color: #8A3A0E">Today's high so far</span>
+<div style="display: flex; align-items: flex-start; gap: 4px"><span style="font: 600 96px/0.9 'Space Grotesk', sans-serif; letter-spacing: -0.04em; color: #C24E12">{{hiT}}</span><span style="font: 500 28px 'Space Grotesk', sans-serif; color: #4A5552; padding-top: 6px">°F</span></div>
+<div style="font-size: 13px; color: #2A3533">From the <span class="mono">{{hiZ}}</span> METAR ({{hiLoc}} CST) · highest hourly METAR since local midnight. The DSM below includes peaks between reports.</div>
+</div>
+</div>
+</section>
+<aside aria-labelledby="h-nws" style="flex: 1 1 340px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; overflow: hidden">
+<div style="padding: 16px 18px; border-bottom: 1px solid #DDE1DC; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h3 id="h-nws" style="margin: 0; font: 600 16px 'Space Grotesk', sans-serif">NWS forecast · Today</h3>
+<span style="font: 600 10px Inter, sans-serif; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; background: #EDE8F6; color: #4B3488">FORECAST</span>
+</div>
+<span style="font-size: 12.5px; color: #56625F">National Weather Service, Fort Worth office (FWD) · issued 3:47 AM CST</span>
+</div>
+<div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="padding: 12px 14px; border-radius: 10px; background: #FBF1EA; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 600; color: #8A3A0E">Today · High</span><span style="font: 600 30px 'Space Grotesk', sans-serif">{{nwsHi}}</span></div>
+<div style="padding: 12px 14px; border-radius: 10px; background: #EAF0F7; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 600; color: #1D4F8A">Tonight · Low</span><span style="font: 600 30px 'Space Grotesk', sans-serif">{{nwsLo}}</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; line-height: 1.5">
+<p style="margin: 0"><strong>Today:</strong> Mostly sunny. South wind 10 to 15 mph, with gusts as high as 25 mph.</p>
+<p style="margin: 0"><strong>Tonight:</strong> Partly cloudy. South wind around 10 mph.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 12px; font-weight: 600; color: #4A5552">Hourly (local time)</span>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px">
+<sc-for list="{{nwsHours}}" as="h" hint-placeholder-count="7">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border-radius: 8px; background: #F4F5F2"><span style="font-size: 11px; color: #56625F">{{h.t}}</span><span class="mono" style="font-size: 14px; font-weight: 600">{{h.v}}</span><span class="mono" style="font-size: 10.5px; color: #56625F">{{h.p}}</span></div>
+</sc-for>
+</div>
+<span style="font-size: 11.5px; color: #56625F">Bottom row: chance of precipitation</span>
+</div>
+<div style="font-size: 12px; color: #56625F; border-top: 1px solid #ECEFEC; padding-top: 12px">Shown as published by the NWS. EdgeFront does not make forecasts. <a href="#nws">Full forecast on weather.gov</a></div>
+</div>
+</aside>
+</div>
+
+<!-- ASOS Daily Summary (DSM) -->
+<section aria-labelledby="h-dsm" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; overflow: hidden">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid #DDE1DC">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="h-dsm" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">ASOS Daily Summary (DSM)</h2>
+<span style="font-size: 12.5px; color: #56625F">NWS product issued by the station's ASOS several times a day · day runs midnight to midnight local standard time</span>
+</div>
+<a href="#dsm-raw" style="font-size: 13px">View product text</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+<div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; border-right: 1px solid #ECEFEC">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><span style="font-size: 14px; font-weight: 600">Today so far · Nov 24</span><span class="mono" style="font-size: 11.5px; color: #56625F">issued 10:30Z (4:30 AM CST)</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{dsmToday}}" as="d" hint-placeholder-count="4"><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11.5px; color: #56625F">{{d.k}}</span><span class="mono" style="font-size: 20px; font-weight: 600">{{d.v}}</span><span style="font-size: 11.5px; color: #56625F">{{d.t}}</span></div></sc-for>
+</div>
+</div>
+<div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; background: #FAFBF9">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><span style="font-size: 14px; font-weight: 600">Yesterday, final · Nov 23</span><span class="mono" style="font-size: 11.5px; color: #56625F">issued 06:30Z (12:30 AM CST)</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{dsmYest}}" as="d" hint-placeholder-count="4"><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11.5px; color: #56625F">{{d.k}}</span><span class="mono" style="font-size: 20px; font-weight: 600">{{d.v}}</span><span style="font-size: 11.5px; color: #56625F">{{d.t}}</span></div></sc-for>
+</div>
+</div>
+</div>
+<div style="padding: 10px 20px; border-top: 1px solid #ECEFEC; font-size: 12px; color: #56625F">Shown as published by the NWS. Max and min come from the ASOS sensor between reports, so they can differ from the hourly METAR high above.</div>
+</section>
+
+<!-- Multi-variable chart -->
+<section aria-labelledby="h-chart" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="h-chart" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">Observed conditions</h2>
+<span style="font-size: 12.5px; color: #56625F">Hourly METAR reports, including SPECI · missing reports are left empty, never filled in</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<a href="#pricing" style="display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px dashed #D9A35A; background: #FFF7EC; color: #8A4100; font-size: 13px; font-weight: 600; text-decoration: none"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>5-minute data · Premium</a>
+<div role="group" aria-label="Time range" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px">
+<sc-for list="{{rangeTabs}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}">{{t.label}}</button></sc-for>
+</div>
+</div>
+</div>
+<div role="group" aria-label="Variables" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{panelTabs}}" as="p" hint-placeholder-count="5"><button class="{{p.cls}}" onClick="{{p.click}}" aria-pressed="{{p.on}}"><span style="display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; background: {{p.col}}"></span>{{p.label}}</button></sc-for>
+</div>
+<div class="mono" style="display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 12.5px; color: #2A3533; padding: 10px 12px; background: #F7F8F6; border-radius: 8px">
+<span style="font-weight: 600">Latest METAR 10:53Z (4:53 AM)</span><span>Temp {{readT}}</span><span>Dew pt {{readD}}</span><span>RH {{readRh}}</span><span>Wind {{readW}}</span><span>Altim {{readA}}</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<sc-if value="{{pTemp}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 600">Temp</span><span style="font-size: 11px; color: #56625F">{{uT}}</span></div>
+<div></div>
+<div class="mono" style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; height: 200px; font-size: 11px; color: #56625F"><sc-for list="{{tempLabels}}" as="l" hint-placeholder-count="4"><span style="line-height: 0">{{l}}</span></sc-for></div>
+<div style="position: relative; height: 200px">
+<svg viewBox="0 0 1000 200" preserveAspectRatio="none" width="100%" height="200" role="img" aria-label="Temperature and dew point over the selected range" style="display: block; overflow: visible">
+<path d="{{gridTemp}}" fill="none" stroke="#E4E8E4" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<path d="{{vTemp}}" fill="none" stroke="#EEF1EE" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<sc-if value="{{hasGap}}" hint-placeholder-val="{{ true }}"><rect x="{{gapX}}" y="0" width="{{gapW}}" height="200" fill="#F1ECE2"></rect></sc-if>
+<path d="{{dewPath}}" fill="none" stroke="#1F5FA8" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+<path d="{{tempPath}}" fill="none" stroke="#C24E12" stroke-width="2.4" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+</svg>
+<sc-if value="{{hasGap}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; top: 6px; left: {{gapLeft}}; transform: translateX(-50%); font-size: 11px; font-weight: 600; color: #7A5A1E; background: #FFFFFF; padding: 2px 6px; border-radius: 5px; border: 1px solid #E8DCC4; white-space: nowrap">No data 03:15–03:45Z</span></sc-if>
+<div style="position: absolute; right: 0; bottom: 8px; display: flex; gap: 14px; font-size: 11.5px; background: rgba(255,255,255,.9); padding: 3px 8px; border-radius: 6px"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 3px; background: #C24E12"></span>Temperature</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 3px; background: #1F5FA8"></span>Dew point</span></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{pRh}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 600">RH*</span><span style="font-size: 11px; color: #56625F">%</span></div>
+<div style="position: relative; height: 110px">
+<svg viewBox="0 0 1000 110" preserveAspectRatio="none" width="100%" height="110" role="img" aria-label="Relative humidity, computed" style="display: block">
+<path d="{{gridSm}}" fill="none" stroke="#E4E8E4" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<path d="{{vSm}}" fill="none" stroke="#EEF1EE" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<sc-if value="{{hasGap}}" hint-placeholder-val="{{ true }}"><rect x="{{gapX}}" y="0" width="{{gapW}}" height="110" fill="#F1ECE2"></rect></sc-if>
+<path d="{{rhPath}}" fill="none" stroke="#6B4FA0" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+</svg>
+<div class="mono" style="position: absolute; left: -64px; top: 0; height: 110px; width: 54px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-size: 11px; color: #56625F"><span style="line-height: 0">100</span><span style="line-height: 0">50</span><span style="line-height: 0">0</span></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{pWind}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 600">Wind</span><span style="font-size: 11px; color: #56625F">kt</span></div>
+<div style="position: relative; height: 110px">
+<svg viewBox="0 0 1000 110" preserveAspectRatio="none" width="100%" height="110" role="img" aria-label="Wind speed and gusts" style="display: block">
+<path d="{{gridSm}}" fill="none" stroke="#E4E8E4" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<path d="{{vSm}}" fill="none" stroke="#EEF1EE" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<sc-if value="{{hasGap}}" hint-placeholder-val="{{ true }}"><rect x="{{gapX}}" y="0" width="{{gapW}}" height="110" fill="#F1ECE2"></rect></sc-if>
+<path d="{{gustPath}}" fill="none" stroke="#7FB8B4" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<path d="{{windPath}}" fill="none" stroke="#0A6E69" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+</svg>
+<div class="mono" style="position: absolute; left: -64px; top: 0; height: 110px; width: 54px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-size: 11px; color: #56625F"><span style="line-height: 0">30</span><span style="line-height: 0">15</span><span style="line-height: 0">0</span></div>
+<div style="position: absolute; right: 0; top: 4px; display: flex; gap: 14px; font-size: 11.5px; background: rgba(255,255,255,.9); padding: 3px 8px; border-radius: 6px"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 3px; background: #0A6E69"></span>Sustained</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 3px; height: 12px; background: #7FB8B4"></span>Gust range</span></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{pPres}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 600">Altim.</span><span style="font-size: 11px; color: #56625F">inHg</span></div>
+<div style="position: relative; height: 110px">
+<svg viewBox="0 0 1000 110" preserveAspectRatio="none" width="100%" height="110" role="img" aria-label="Altimeter setting" style="display: block">
+<path d="{{gridSm}}" fill="none" stroke="#E4E8E4" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<path d="{{vSm}}" fill="none" stroke="#EEF1EE" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<sc-if value="{{hasGap}}" hint-placeholder-val="{{ true }}"><rect x="{{gapX}}" y="0" width="{{gapW}}" height="110" fill="#F1ECE2"></rect></sc-if>
+<path d="{{presPath}}" fill="none" stroke="#3D4A47" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+</svg>
+<div class="mono" style="position: absolute; left: -64px; top: 0; height: 110px; width: 54px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-size: 11px; color: #56625F"><span style="line-height: 0">30.14</span><span style="line-height: 0">30.06</span><span style="line-height: 0">29.98</span></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{pSky}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 600">Sky</span><span style="font-size: 11px; color: #56625F">METAR</span></div>
+<div style="position: relative; height: 34px; background: #F4F5F2; border-radius: 6px; overflow: hidden">
+<sc-for list="{{skyBlocks}}" as="b" hint-placeholder-count="24"><div title="{{b.title}}" style="position: absolute; top: 0; bottom: 0; left: {{b.left}}; width: {{b.width}}; background: {{b.bg}}; color: {{b.fg}}; border-right: 1px solid #FFFFFF; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font: 600 10px 'JetBrains Mono', monospace">{{b.lab}}</div></sc-for>
+</div>
+</div>
+</sc-if>
+
+<div style="display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px">
+<div></div>
+<div style="position: relative; height: 32px">
+<sc-for list="{{ticks}}" as="t" hint-placeholder-count="8"><div style="position: absolute; left: {{t.left}}; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px"><span class="mono" style="font-size: 11px; font-weight: 600">{{t.z}}</span><span style="font-size: 10.5px; color: #56625F">{{t.loc}}</span></div></sc-for>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 11.5px; color: #4A5552; padding-left: 64px">
+<span style="font-weight: 600">Sky cover</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #EEF1EF; border: 1px solid #CFD5D1"></span>Clear</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #D5DEE6"></span>Few</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #A9BBCB"></span>Scattered</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #5F7488"></span>Broken</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #33424F"></span>Overcast</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #F1ECE2; border: 1px solid #E8DCC4"></span>No data received</span>
+</div>
+</div>
+</section>
+
+<!-- Hourly METARs -->
+<section aria-labelledby="h-metar" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; overflow: hidden">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #DDE1DC">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="h-metar" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">Hourly METAR reports</h2>
+<span style="font-size: 12.5px; color: #56625F">Routine reports at :53 past the hour, plus SPECI special reports · newest first</span>
+</div>
+<div role="group" aria-label="METAR view" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px">
+<sc-for list="{{metarTabs}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}">{{t.label}}</button></sc-for>
+</div>
+</div>
+<sc-if value="{{isRaw}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{metars}}" as="m" hint-placeholder-count="12">
+<div style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 16px; padding: 10px 20px; border-bottom: 1px solid #ECEFEC; align-items: baseline">
+<div style="display: flex; flex-direction: column; gap: 2px"><span class="mono" style="font-size: 13px; font-weight: 600">{{m.z}}</span><span style="font-size: 11.5px; color: #56625F">{{m.loc}}</span></div>
+<code class="mono" style="font-size: 13px; line-height: 1.55; color: #101A1C; overflow-wrap: anywhere"><span style="{{m.typeStyle}}">{{m.type}}</span> {{m.body}}</code>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{isDecoded}}" hint-placeholder-val="{{ false }}">
+<div style="overflow-x: auto">
+<table class="tbl">
+<thead><tr><th scope="col">Time (UTC)</th><th scope="col">Local</th><th scope="col">Type</th><th scope="col">Wind</th><th scope="col">Visibility</th><th scope="col">Sky</th><th scope="col">Temp / Dew {{uT}}</th><th scope="col">Altimeter</th><th scope="col">SLP</th></tr></thead>
+<tbody>
+<sc-for list="{{metars}}" as="m" hint-placeholder-count="12">
+<tr><td class="mono" style="font-weight: 600">{{m.z}}</td><td style="color: #4A5552">{{m.loc}}</td><td><span style="{{m.typeStyle}}">{{m.type}}</span></td><td class="mono">{{m.dWind}}</td><td>10 mi</td><td>{{m.dSky}}</td><td class="mono">{{m.dTd}}</td><td class="mono">{{m.dAlt}}</td><td class="mono">{{m.dSlp}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</sc-if>
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 20px; background: #F7F8F6">
+<span style="font-size: 12px; color: #56625F">Reports exactly as transmitted. Decoded view is EdgeFront's reading of the same text.</span>
+<button class="tgl" onClick="{{toggleMore}}">{{moreLabel}}</button>
+</div>
+</section>
+
+<!-- Model guidance -->
+<section aria-labelledby="h-model" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 4px; max-width: 720px">
+<div style="display: flex; align-items: center; gap: 10px">
+<h2 id="h-model" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">Model guidance for KDFW</h2>
+<span style="font: 600 10px Inter, sans-serif; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; background: #EDE8F6; color: #4B3488">MODEL DATA</span>
+</div>
+<span style="font-size: 12.5px; color: #56625F">Third-party forecast models at the station's grid point, with the observed line on top so you can compare. Not EdgeFront forecasts.</span>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<div role="group" aria-label="Variable" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px">
+<sc-for list="{{varTabs}}" as="t" hint-placeholder-count="5"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}">{{t.label}}</button></sc-for>
+</div>
+<div role="group" aria-label="Forecast window" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px">
+<sc-for list="{{spanTabs}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}">{{t.label}}</button></sc-for>
+</div>
+<label class="sr" for="runsel">Model run</label>
+<select id="runsel" style="height: 40px; padding: 0 12px; border: 1px solid #CFD5D1; border-radius: 8px; background: #FFFFFF; font: 500 13px Inter, sans-serif; color: #101A1C"><option>Latest run per model</option><option>Same cycle: 06Z</option><option>Same cycle: 00Z</option></select>
+<button class="{{spreadCls}}" onClick="{{toggleSpread}}" aria-pressed="{{spread}}">GEFS spread</button>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font: 600 10.5px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #56625F">{{g.name}}</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{g.models}}" as="m" hint-placeholder-count="3"><button class="{{m.cls}}" onClick="{{m.click}}" aria-pressed="{{m.on}}"><span style="width: 9px; height: 9px; border-radius: 50%; background: {{m.col}}"></span>{{m.id}}</button></sc-for>
+</div>
+</div>
+</sc-for>
+<div style="display: flex; gap: 6px; margin-left: auto">
+<button class="tgl" onClick="{{allOn}}">All</button>
+<button class="tgl" onClick="{{allOff}}">None</button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px">
+<div class="mono" style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; height: 260px; font-size: 11px; color: #56625F"><sc-for list="{{mLabels}}" as="l" hint-placeholder-count="4"><span style="line-height: 0">{{l}}</span></sc-for></div>
+<div style="position: relative; height: 260px">
+<svg viewBox="0 0 1000 260" preserveAspectRatio="none" width="100%" height="260" role="img" aria-label="Model forecasts compared with observations" style="display: block">
+<path d="{{mGrid}}" fill="none" stroke="#E4E8E4" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<path d="{{mV}}" fill="none" stroke="#EEF1EE" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<rect x="0" y="0" width="{{nowX}}" height="260" fill="#F7F8F6"></rect>
+<sc-if value="{{showBand}}" hint-placeholder-val="{{ true }}"><path d="{{bandPath}}" fill="#C77A16" fill-opacity="0.14" stroke="none"></path></sc-if>
+<sc-for list="{{lines}}" as="m" hint-placeholder-count="9"><path d="{{m.d}}" fill="none" stroke="{{m.col}}" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path></sc-for>
+<path d="{{obsPath}}" fill="none" stroke="#101A1C" stroke-width="3.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+<path d="{{nowLine}}" fill="none" stroke="#101A1C" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"></path>
+</svg>
+<span style="position: absolute; top: 6px; left: {{nowLeft}}; transform: translateX(6px); font-size: 11px; font-weight: 600; background: #FFFFFF; padding: 2px 6px; border-radius: 5px; border: 1px solid #DDE1DC; white-space: nowrap">Now 10:55Z</span>
+<div style="position: absolute; left: 8px; bottom: 8px; display: flex; gap: 14px; font-size: 11.5px; background: rgba(255,255,255,.92); padding: 3px 8px; border-radius: 6px"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 4px; background: #101A1C"></span>Observed (METAR)</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 2px; background: #6E7A77"></span>Model forecasts</span></div>
+</div>
+<div></div>
+<div style="position: relative; height: 32px">
+<sc-for list="{{mTicks}}" as="t" hint-placeholder-count="9"><div style="position: absolute; left: {{t.left}}; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px"><span class="mono" style="font-size: 11px; font-weight: 600">{{t.z}}</span><span style="font-size: 10.5px; color: #56625F">{{t.loc}}</span></div></sc-for>
+</div>
+</div>
+
+<p style="margin: 0; font-size: 12px; color: #56625F">Model output is shown for reference. EdgeFront does not rank, blend or endorse models, and does not make its own forecast.</p>
+</section>
+</main>
+
+<footer style="background: #101A1C; color: #C9D1CE">
+<div style="max-width: 1280px; margin: 0 auto; padding: 36px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 28px; font-size: 13px; line-height: 1.6">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font: 700 18px 'Space Grotesk', sans-serif; color: #FFFFFF">EdgeFront</span>
+<span>Observed weather data with its source and time stamp.</span>
+<span class="mono" style="font-size: 12px">getedgefront.com</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-weight: 600; color: #FFFFFF">Sources on this page</span>
+<span>Observations: FAA/NWS ASOS via NOAA MADIS HFMETAR</span>
+<span>Hourly METAR: NWS / aviation weather feeds</span>
+<span>Forecast: National Weather Service (api.weather.gov)</span>
+<span>Models: NOAA/NCEP, ECMWF open data, NWS</span>
+</div>
+<div id="method" style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-weight: 600; color: #FFFFFF">Time stamps</span>
+<span><span class="mono" style="color: #FFFFFF">Observed</span> when the sensor measured</span>
+<span><span class="mono" style="color: #FFFFFF">Received</span> when the data reached EdgeFront</span>
+<span><span class="mono" style="color: #FFFFFF">Age</span> now minus observed time</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-weight: 600; color: #FFFFFF">About</span>
+<a href="#terms" style="color: #C9D1CE">Terms and data licences</a>
+<a href="#privacy" style="color: #C9D1CE">Privacy</a>
+<a href="#corrections" style="color: #C9D1CE">Report a data problem</a>
+<span style="font-size: 12px">Data is provided as received. You decide how to use it.</span>
+</div>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3300}}'>
+class Component extends DCLogic {
+  st() {
+    return Object.assign({ unit: 'F', range: 24, pTemp: true, pRh: true, pWind: true, pSky: true, pPres: false, metar: 'raw', more: false, raw: false, mVar: 'temp', mSpan: 24, off: {}, spread: true, runs: true }, this.state || {});
+  }
+  rh(t, d) { var tc = (t - 32) * 5 / 9, dc = (d - 32) * 5 / 9; return 100 * Math.exp(17.625 * dc / (243.04 + dc)) / Math.exp(17.625 * tc / (243.04 + tc)); }
+  pad(n) { return (n < 10 ? '0' : '') + n; }
+  hm(hh) { var tot = ((Math.round(hh * 60) % 1440) + 1440) % 1440; return this.pad(Math.floor(tot / 60)) + ':' + this.pad(tot % 60); }
+  loc(hh, withMin) { var tot = ((Math.round((hh - 6) * 60) % 1440) + 1440) % 1440; var H = Math.floor(tot / 60), M = tot % 60; var ap = H >= 12 ? 'PM' : 'AM'; H = H % 12; if (H === 0) H = 12; return withMin ? H + ':' + this.pad(M) + ' ' + ap : H + ' ' + ap; }
+  card(dir) { var c = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW']; return c[Math.round(((dir % 360) + 360) % 360 / 22.5) % 16]; }
+  gen() {
+    if (this._d) return this._d;
+    var seed = 11; var r = function () { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    var N = 288, h0 = 10 + 55 / 60, obs = [];
+    for (var i = 0; i < N; i++) {
+      var hh = h0 + i * 5 / 60, h = hh % 24;
+      var t = 53.5 + 8.5 * Math.cos(2 * Math.PI * (h - 21) / 24) + (r() - 0.5) * 0.6;
+      var d = 40.5 + 1.5 * Math.sin(2 * Math.PI * (h - 15) / 24) + (r() - 0.5) * 0.5; if (d > t - 1) d = t - 1;
+      var w = Math.max(2, 9 + 4 * Math.cos(2 * Math.PI * (h - 20) / 24) + (r() - 0.5) * 4);
+      var gr = r(), gx = r();
+      var g = (w > 10.5 && gr > 0.45) ? w + 6 + gx * 4 : null;
+      var dir = 178 + 14 * Math.sin(2 * Math.PI * h / 24) + (r() - 0.5) * 20;
+      var a = 30.02 + 0.06 * (i / (N - 1)) + 0.012 * Math.sin(2 * Math.PI * h / 12);
+      if (i >= 196 && i <= 202) obs.push({ i: i, hh: hh, gap: true });
+      else obs.push({ i: i, hh: hh, t: t, d: d, w: w, g: g, dir: dir, a: a, rh: this.rh(t, d) });
+    }
+    var sky = ['BKN045','BKN045','SCT050','SCT060','FEW080','CLR','CLR','CLR','CLR','FEW250','FEW250','SCT250','SCT250','FEW250','CLR','CLR','CLR','FEW040','SCT040','SCT045','BKN050','BKN050','SCT050','FEW050'];
+    var met = [];
+    for (var k = 0; k < 24; k++) met.push({ hh: 34 + 53 / 60 - k, type: 'METAR', sky: sky[k] });
+    met.push({ hh: 28 + 12 / 60, type: 'SPECI', sky: 'CLR' });
+    met.sort(function (x, y) { return y.hh - x.hh; });
+    for (var j = 0; j < met.length; j++) {
+      var m = met[j], ii = Math.min(N - 1, Math.max(0, Math.round((m.hh - h0) * 12)));
+      while (obs[ii].gap) ii--;
+      m.o = obs[ii];
+      if (m.type === 'SPECI') m.o = Object.assign({}, obs[ii], { g: obs[ii].w + 10 });
+    }
+    this._d = { obs: obs, met: met, h0: h0, N: N };
+    return this._d;
+  }
+  T(vF, u) { return u === 'F' ? String(Math.round(vF)) : ((vF - 32) * 5 / 9).toFixed(1); }
+  skyText(s) {
+    if (s === 'CLR') return 'Clear below 12,000 ft';
+    var n = { FEW: 'Few', SCT: 'Scattered', BKN: 'Broken', OVC: 'Overcast' }[s.slice(0, 3)];
+    return n + ' ' + (parseInt(s.slice(3), 10) * 100).toLocaleString('en-US') + ' ft';
+  }
+  metar(m) {
+    var o = m.o, day = m.hh >= 24 ? '24' : '23', t = this.hm(m.hh).replace(':', '');
+    var dir = Math.round(o.dir / 10) * 10, ds = (dir < 100 ? '0' : '') + dir;
+    var sp = Math.round(o.w), g = o.g ? 'G' + Math.round(o.g) : '';
+    var tc = (o.t - 32) * 5 / 9, dc = (o.d - 32) * 5 / 9;
+    var f2 = function (v) { var x = Math.round(v); return (x < 0 ? 'M' : '') + (Math.abs(x) < 10 ? '0' : '') + Math.abs(x); };
+    var tg = function (v) { var x = Math.round(Math.abs(v) * 10); return (v < 0 ? '1' : '0') + ('000' + x).slice(-3); };
+    var slp = o.a * 33.8639;
+    var slpCode = ('000' + (Math.round(slp * 10) % 1000)).slice(-3);
+    return { body: 'KDFW ' + day + t + 'Z ' + ds + this.pad(sp) + g + 'KT 10SM ' + m.sky + ' ' + f2(tc) + '/' + f2(dc) + ' A' + Math.round(o.a * 100) + ' RMK AO2 SLP' + slpCode + ' T' + tg(tc) + tg(dc),
+      wind: ds + '° ' + sp + ' kt' + (o.g ? ' G' + Math.round(o.g) : ''), slp: slp.toFixed(1) + ' hPa' };
+  }
+  mval(m, v, h) {
+    var w = 0.6 + 0.4 * Math.sin(h / 5 + m.ph);
+    var T = 54.5 + 9 * Math.cos(2 * Math.PI * (h - 21) / 24) + m.k * 2.2 * w;
+    var D = Math.min(41 + 2 * Math.sin(2 * Math.PI * (h - 15) / 24) + m.k * 1.6 * w - (h > 34 ? 2.5 : 0), T - 1);
+    if (v === 'temp') return T;
+    if (v === 'dew') return D;
+    if (v === 'rh') return this.rh(T, D);
+    if (v === 'wind') return Math.max(1, 10 + 4 * Math.cos(2 * Math.PI * (h - 20) / 24) + m.k * 1.8 * w);
+    return Math.max(0, Math.min(100, 45 + 35 * Math.sin(2 * Math.PI * (h - 8) / 30) + m.k * 14 * w));
+  }
+  renderVals() {
+    var self = this, s = this.st(), D = this.gen(), u = s.unit, obs = D.obs, N = D.N;
+    var uT = u === 'F' ? '°F' : '°C';
+    var set = function (o) { return function () { self.setState(o); }; };
+    var last = obs[N - 1];
+
+    // latest gust in the last hour
+    var lg = null; for (var q = N - 1; q >= N - 12; q--) { if (!obs[q].gap && obs[q].g) { lg = obs[q]; break; } }
+    var latestMet = D.met[0];
+    var cards = [
+      { label: 'Temperature', time: '10:50Z', value: this.T(last.t, u), unit: uT, note: 'Air temperature, 2 m' },
+      { label: 'Dew point', time: '10:50Z', value: this.T(last.d, u), unit: uT, note: 'Spread ' + (u === 'F' ? Math.round(last.t - last.d) + ' °F' : ((last.t - last.d) * 5 / 9).toFixed(1) + ' °C') },
+      { label: 'Relative humidity', time: '10:50Z', value: String(Math.round(last.rh)), unit: '%', note: 'Computed from temp and dew point' },
+      { label: 'Wind', time: '10:50Z', value: String(Math.round(last.w)), unit: 'kt', note: 'From ' + this.card(last.dir) + ' (' + Math.round(last.dir / 10) * 10 + '°)', arrow: true, deg: Math.round(last.dir) },
+      { label: 'Gust', time: lg ? this.hm(lg.hh) + 'Z' : '—', value: lg ? String(Math.round(lg.g)) : '—', unit: lg ? 'kt' : '', note: lg ? 'Highest gust in the last 5-min report' : 'No gust reported in the last hour' },
+      { label: 'Altimeter', time: '10:50Z', value: last.a.toFixed(2), unit: 'inHg', note: (last.a - obs[N - 37].a >= 0 ? 'Up ' : 'Down ') + Math.abs(last.a - obs[N - 37].a).toFixed(2) + ' in 3 h' },
+      { label: 'Visibility', time: '10:50Z', value: '10', unit: 'mi', note: 'Sensor maximum reported' },
+      { label: 'Sky', time: this.hm(latestMet.hh) + 'Z', value: latestMet.sky.slice(0, 3), unit: latestMet.sky === 'CLR' ? '' : (parseInt(latestMet.sky.slice(3), 10) * 100).toLocaleString('en-US') + ' ft', note: 'From hourly METAR (not in 5-min data)' }
+    ];
+
+    var rows = [];
+    for (var i = N - 1; i >= N - 12; i--) {
+      var o = obs[i];
+      var caution = i === N - 4;
+      rows.push({ z: this.hm(o.hh), loc: this.loc(o.hh, true), t: this.T(o.t, u), d: this.T(o.d, u), rh: String(Math.round(o.rh)), wind: Math.round(o.dir / 10) * 10 + '° ' + Math.round(o.w) + ' kt', g: o.g ? String(Math.round(o.g)) : '—', a: o.a.toFixed(2),
+        qc: caution ? 'Caution' : 'Passed', qcStyle: caution ? 'font-size: 12px; font-weight: 600; color: #8A4100; background: #FFF1E2; padding: 2px 8px; border-radius: 999px' : 'font-size: 12px; font-weight: 600; color: #145F38; background: #E3F3EA; padding: 2px 8px; border-radius: 999px' });
+    }
+    var K = function (f) { return ((f - 32) * 5 / 9 + 273.15).toFixed(2); };
+    var rawFields = [
+      { k: 'stationName', v: 'KDFW' }, { k: 'observationTime', v: '2026-11-24T10:50:00Z' }, { k: 'receivedTime', v: '2026-11-24T10:52:41Z' }, { k: 'fetched_at (EdgeFront)', v: '2026-11-24T10:53:05Z' },
+      { k: 'temperature', v: K(last.t) + ' K' }, { k: 'dewpoint', v: K(last.d) + ' K' }, { k: 'windDir', v: Math.round(last.dir) + ' deg' }, { k: 'windSpeed', v: (last.w * 0.5144).toFixed(2) + ' m/s' },
+      { k: 'windGust', v: last.g ? (last.g * 0.5144).toFixed(2) + ' m/s' : '_FillValue' }, { k: 'altimeter', v: Math.round(last.a * 3386.39) + ' Pa' }, { k: 'visibility', v: '16093 m' }, { k: 'temperatureDD (QC)', v: 'V' }
+    ];
+
+    // ---- Observed chart (hourly METAR + SPECI)
+    var span = s.range, he = 34 + 55 / 60, hs = he - span, W = 1000;
+    var pts = D.met.filter(function (m) { return m.hh >= hs; }).slice().sort(function (a, b) { return a.hh - b.hh; });
+    var XH = function (hh) { return ((hh - hs) / span * W).toFixed(1); };
+    var line = function (get, lo, hi, H) { var p = ''; pts.forEach(function (m, k) { p += (k ? 'L' : 'M') + XH(m.hh) + ' ' + (H - (get(m.o) - lo) / (hi - lo) * H).toFixed(1) + ' '; }); return p; };
+    var hgrid = function (H, k) { var p = ''; for (var j = 0; j <= k; j++) { var y = (H * j / k).toFixed(1); p += 'M0 ' + y + ' H1000 '; } return p; };
+    var step = span === 6 ? 1 : 3, ticks = [], vT = '', vS = '';
+    for (var H0 = Math.ceil(hs); H0 <= he; H0++) { var Hd = H0 % 24; if (Hd % step !== 0) continue; var x0 = XH(H0); ticks.push({ left: ((H0 - hs) / span * 100).toFixed(2) + '%', z: this.pad(Hd) + 'Z', loc: this.loc(H0, false) }); vT += 'M' + x0 + ' 0 V200 '; vS += 'M' + x0 + ' 0 V110 '; }
+    var gust = ''; pts.forEach(function (m) { var o3 = m.o; if (o3.g) { var xx = XH(m.hh); gust += 'M' + xx + ' ' + (110 - o3.w / 30 * 110).toFixed(1) + ' L' + xx + ' ' + (110 - o3.g / 30 * 110).toFixed(1) + ' '; } });
+    var hasGap = false;
+    var tl = [66, 56, 46, 36].map(function (v) { return self.T(v, u); });
+    var skyBlocks = [];
+    var cov = { CLR: ['#EEF1EF', '#33424F'], FEW: ['#D5DEE6', '#22303B'], SCT: ['#A9BBCB', '#101A1C'], BKN: ['#5F7488', '#FFFFFF'], OVC: ['#33424F', '#FFFFFF'] };
+    D.met.forEach(function (m) { if (m.type !== 'METAR') return; var a = Math.max(m.hh, hs), b = Math.min(m.hh + 1, he); if (b <= a) return; var c = cov[m.sky.slice(0, 3)]; skyBlocks.push({ left: ((a - hs) / span * 100).toFixed(2) + '%', width: ((b - a) / span * 100).toFixed(2) + '%', bg: c[0], fg: c[1], lab: m.sky.slice(0, 3), title: self.hm(m.hh) + 'Z ' + self.skyText(m.sky) }); });
+
+    // ---- Latest METAR, METAR high since local midnight, DSM
+    var lm = D.met[0].o, hiM = null;
+    D.met.forEach(function (m) { if (m.hh >= 30 && (!hiM || m.o.t > hiM.o.t)) hiM = m; });
+    var dMax = null, dMin = null, pk = null;
+    obs.forEach(function (o) { if (o.gap || o.hh < 30 || o.hh > 34.5) return; if (!dMax || o.t > dMax.t) dMax = o; if (!dMin || o.t < dMin.t) dMin = o; if (o.g && (!pk || o.g > pk.g)) pk = o; });
+    var dsmToday = [
+      { k: 'Max temp', v: this.T(dMax.t, 'F') + '°F', t: 'at ' + this.loc(dMax.hh, true) },
+      { k: 'Min temp', v: this.T(dMin.t, 'F') + '°F', t: 'at ' + this.loc(dMin.hh, true) },
+      { k: 'Precip', v: '0.00 in', t: 'since midnight' },
+      { k: 'Peak gust', v: pk ? Math.round(pk.g) + ' kt' : '—', t: pk ? 'at ' + this.loc(pk.hh, true) : 'none' }
+    ];
+    var dsmYest = [
+      { k: 'Max temp', v: '62°F', t: 'at 2:47 PM' }, { k: 'Min temp', v: '44°F', t: 'at 6:58 AM' },
+      { k: 'Precip', v: '0.00 in', t: 'day total' }, { k: 'Peak gust', v: '24 kt', t: 'at 3:12 PM' }
+    ];
+
+    // ---- METAR list
+    var mets = (s.more ? D.met : D.met.slice(0, 12)).map(function (m) {
+      var x = self.metar(m), o = m.o, sp = m.type === 'SPECI';
+      return { z: self.hm(m.hh) + 'Z', loc: self.loc(m.hh, true), type: m.type, body: x.body, typeStyle: sp ? 'font-weight: 700; color: #8A4100; background: #FFF1E2; padding: 1px 6px; border-radius: 4px' : 'font-weight: 700; color: #0A6E69',
+        dWind: x.wind, dSky: self.skyText(m.sky), dTd: self.T(o.t, u) + ' / ' + self.T(o.d, u), dAlt: o.a.toFixed(2) + ' inHg', dSlp: x.slp };
+    });
+
+    // ---- NWS today
+    var nwsHours = [7, 9, 11, 13, 15, 17, 19].map(function (lh) { var h = lh + 6; var v = 55 + 8.5 * Math.cos(2 * Math.PI * (h - 21) / 24); return { t: (lh > 12 ? lh - 12 : lh) + (lh >= 12 ? 'p' : 'a'), v: self.T(v, u) + '°', p: lh >= 17 ? '10%' : '0%' }; });
+
+    // ---- Models
+    var models = [
+      { id: 'IFS', grp: 'Global', col: '#1F5FA8', k: 0.3, ph: 0.2, lat: 6.5, cyc: [0, 6, 12, 18], prod: 'ECMWF' },
+      { id: 'GFS', grp: 'Global', col: '#C24E12', k: 1.0, ph: 1.1, lat: 3.5, cyc: [0, 6, 12, 18], prod: 'NOAA/NCEP' },
+      { id: 'GEFS', grp: 'Global', col: '#C77A16', k: 0.6, ph: 2.0, lat: 5, cyc: [0, 6, 12, 18], prod: 'NOAA/NCEP (ensemble mean)' },
+      { id: 'HGEFS', grp: 'Global', col: '#7A4310', k: 0.1, ph: 2.7, lat: 5.5, cyc: [0, 6, 12, 18], prod: 'NOAA (hybrid ensemble)' },
+      { id: 'AIFS', grp: 'AI', col: '#B4235A', k: -0.5, ph: 3.4, lat: 6, cyc: [0, 6, 12, 18], prod: 'ECMWF (AI model)' },
+      { id: 'GFS-MOS', grp: 'Statistical', col: '#7D6A00', k: 1.3, ph: 4.0, lat: 4.5, cyc: [0, 6, 12, 18], prod: 'NWS MDL' },
+      { id: 'NBM', grp: 'Statistical', col: '#0A6E69', k: 0.5, ph: 4.6, lat: 1.2, hourly: true, prod: 'NWS (National Blend)' },
+      { id: 'GLMP', grp: 'Statistical', col: '#3F8F3A', k: -0.9, ph: 5.3, lat: 0.5, hourly: true, horizon: 25, prod: 'NWS MDL (gridded LAMP)' },
+      { id: 'PFM', grp: 'NWS', col: '#6B4FA0', k: 0.8, ph: 6.0, lat: 0.5, cyc: [10, 22], prod: 'NWS Fort Worth (point forecast)' }
+    ];
+    var NOW = 10 + 55 / 60, span = s.mSpan, v = s.mVar;
+    var vdef = { temp: [38, 70, uT, 'Temp', 1], dew: [28, 52, uT, 'Dew pt', 0.8], rh: [20, 100, '%', 'RH', 4], wind: [0, 24, 'kt', 'Wind', 0.7], cloud: [0, 100, '%', 'Cloud', 8] }[v];
+    var lo = vdef[0], hi = vdef[1], MH = 260;
+    var MX = function (h) { return ((h - 6) / span * 1000).toFixed(1); };
+    var MY = function (val) { return (MH - (val - lo) / (hi - lo) * MH).toFixed(1); };
+    var fmtV = function (val) { return (v === 'temp' || v === 'dew') ? self.T(val, u) + uT : Math.round(val) + ' ' + vdef[2]; };
+    var off = s.off || {};
+    models.forEach(function (m) {
+      var cy = m.hourly ? Array.from({ length: 24 }, function (_, q) { return q; }) : m.cyc;
+      var latest = null; cy.forEach(function (c) { if (c + m.lat <= NOW) latest = c; });
+      m.run = latest; m.recv = self.hm(latest + m.lat) + 'Z'; m.cy = cy;
+      var end = Math.min(6 + span, m.horizon ? latest + m.horizon : 99);
+      var p = ''; for (var h = 6; h <= end + 0.001; h += 1) p += (h === 6 ? 'M' : 'L') + MX(h) + ' ' + MY(self.mval(m, v, h)) + ' ';
+      m.d = p;
+      var mx = -1e9, mn = 1e9; for (var h2 = 6; h2 <= 30; h2++) { var val = self.mval(m, v, h2); if (val > mx) mx = val; if (val < mn) mn = val; }
+      m.hi = fmtV(mx); m.lo = fmtV(mn);
+    });
+    var lines = models.filter(function (m) { return !off[m.id]; }).map(function (m) { return { d: m.d, col: m.col }; });
+    var obsPath = '';
+    if (v === 'cloud') {
+      var cv = { CLR: 0, FEW: 20, SCT: 45, BKN: 75, OVC: 100 };
+      D.met.slice().reverse().forEach(function (m) { var h = m.hh - 24; if (m.type !== 'METAR' || h < 6) return; obsPath += (obsPath ? 'L' : 'M') + MX(h) + ' ' + MY(cv[m.sky.slice(0, 3)]) + ' '; });
+    } else {
+      var pen = false;
+      D.met.slice().reverse().forEach(function (m) { var o = m.o, h = m.hh - 24; if (h < 6) return; var val = v === 'temp' ? o.t : v === 'dew' ? o.d : v === 'rh' ? o.rh : o.w; obsPath += (pen ? 'L' : 'M') + MX(h) + ' ' + MY(val) + ' '; pen = true; });
+    }
+    var gefs = models[2], up = '', dn = [];
+    for (var h3 = 6; h3 <= 6 + span; h3++) { var c3 = this.mval(gefs, v, h3), sp3 = (1.2 + 0.06 * (h3 - 6)) * vdef[4]; up += (h3 === 6 ? 'M' : 'L') + MX(h3) + ' ' + MY(Math.min(hi, c3 + sp3)) + ' '; dn.unshift('L' + MX(h3) + ' ' + MY(Math.max(lo, c3 - sp3))); }
+    var bandPath = up + dn.join(' ') + ' Z';
+    var mGrid = hgrid(MH, 3), mV = '', mTicks = [], mstep = span === 24 ? 3 : 6;
+    for (var h4 = 6; h4 <= 6 + span; h4 += mstep) { mV += 'M' + MX(h4) + ' 0 V' + MH + ' '; mTicks.push({ left: ((h4 - 6) / span * 100).toFixed(2) + '%', z: this.pad(h4 % 24) + 'Z', loc: this.loc(h4, false) }); }
+    var mLabels = [hi, lo + (hi - lo) * 2 / 3, lo + (hi - lo) / 3, lo].map(function (x) { return (v === 'temp' || v === 'dew') ? self.T(x, u) : String(Math.round(x)); });
+    var nowX = MX(NOW);
+    var groups = ['Global', 'AI', 'Statistical', 'NWS'].map(function (gname) {
+      return { name: gname, models: models.filter(function (m) { return m.grp === gname; }).map(function (m) { var on = !off[m.id]; return { id: m.id, col: m.col, on: on, cls: on ? 'chip' : 'chip off', click: function () { var o2 = Object.assign({}, self.st().off); o2[m.id] = on; self.setState({ off: o2 }); } }; }) };
+    });
+    var allOffMap = {}; models.forEach(function (m) { allOffMap[m.id] = true; });
+    var runRows = models.map(function (m) {
+      var done = '', run = '', sched = '';
+      m.cy.forEach(function (c) { var w = m.hourly ? 0.8 : m.lat; var rect = 'M' + (c / 24 * 1000).toFixed(1) + ' 4 h' + (w / 24 * 1000).toFixed(1) + ' v12 h-' + (w / 24 * 1000).toFixed(1) + ' Z '; if (c + m.lat <= NOW) done += rect; else if (c <= NOW) run += rect; else sched += rect; });
+      return { id: m.id, col: m.col, done: done || 'M0 0', run: run || 'M0 0', sched: sched || 'M0 0' };
+    });
+    var mRows = models.map(function (m) { return { id: m.id, col: m.col, grp: m.grp, run: self.pad(m.run) + 'Z Nov 24', recv: m.recv, hi: m.hi, lo: m.lo, prod: m.prod, rowStyle: off[m.id] ? 'opacity: .45' : '' }; });
+    var tab = function (label, on, click) { return { label: label, on: on, cls: on ? 'tab on' : 'tab', click: click }; };
+
+    return {
+      curT: this.T(lm.t, 'F'), curZ: this.hm(D.met[0].hh) + 'Z', curLoc: this.loc(D.met[0].hh, true), curAge: '2 min ago', hiT: this.T(hiM.o.t, 'F'), hiZ: this.hm(hiM.hh) + 'Z', hiLoc: this.loc(hiM.hh, true), dsmToday: dsmToday, dsmYest: dsmYest,
+      uT: uT, isF: u === 'F', isC: u === 'C', fCls: u === 'F' ? 'tab on' : 'tab', cCls: u === 'C' ? 'tab on' : 'tab', setF: set({ unit: 'F' }), setC: set({ unit: 'C' }),
+      cards: cards, rows: rows, rawFields: rawFields, showRaw: s.raw, toggleRaw: set({ raw: !s.raw }), rawLabel: s.raw ? 'Hide raw record' : 'Show raw record',
+      nwsHi: this.T(63.5, u) + uT, nwsLo: this.T(47, u) + uT, nwsHours: nwsHours,
+      rangeTabs: [tab('6 h', s.range === 6, set({ range: 6 })), tab('24 h', s.range === 24, set({ range: 24 }))],
+      panelTabs: [['Temp & dew point', 'pTemp', '#C24E12'], ['Humidity', 'pRh', '#6B4FA0'], ['Wind', 'pWind', '#0A6E69'], ['Sky', 'pSky', '#5F7488'], ['Pressure', 'pPres', '#3D4A47']].map(function (p) { var on = s[p[1]]; var o = {}; o[p[1]] = !on; return { label: p[0], col: p[2], on: on, cls: on ? 'tgl on' : 'tgl', click: set(o) }; }),
+      pTemp: s.pTemp, pRh: s.pRh, pWind: s.pWind, pSky: s.pSky, pPres: s.pPres,
+      readT: this.T(lm.t, u) + uT, readD: this.T(lm.d, u) + uT, readRh: Math.round(lm.rh) + '%', readW: Math.round(lm.dir / 10) * 10 + '° ' + Math.round(lm.w) + ' kt', readA: lm.a.toFixed(2) + ' inHg',
+      tempPath: line(function (o) { return o.t; }, 36, 66, 200), dewPath: line(function (o) { return o.d; }, 36, 66, 200), rhPath: line(function (o) { return o.rh; }, 0, 100, 110), windPath: line(function (o) { return o.w; }, 0, 30, 110), presPath: line(function (o) { return o.a; }, 29.98, 30.14, 110), gustPath: gust || 'M0 0',
+      gridTemp: hgrid(200, 3), gridSm: hgrid(110, 2), vTemp: vT || 'M0 0', vSm: vS || 'M0 0', tempLabels: tl, ticks: ticks,
+      hasGap: hasGap, gapX: 0, gapW: 0, gapLeft: '0%', skyBlocks: skyBlocks,
+      metarTabs: [tab('Raw', s.metar === 'raw', set({ metar: 'raw' })), tab('Decoded', s.metar === 'dec', set({ metar: 'dec' }))], isRaw: s.metar === 'raw', isDecoded: s.metar === 'dec', metars: mets, toggleMore: set({ more: !s.more }), moreLabel: s.more ? 'Show last 12 hours' : 'Show all 24 hours',
+      varTabs: [['Temp', 'temp'], ['Dew pt', 'dew'], ['Wind', 'wind'], ['Cloud', 'cloud'], ['RH', 'rh']].map(function (p) { return tab(p[0], v === p[1], set({ mVar: p[1] })); }),
+      spanTabs: [tab('Today', span === 24, set({ mSpan: 24 })), tab('48 h', span === 48, set({ mSpan: 48 }))],
+      spread: s.spread, showBand: s.spread && !off.GEFS, spreadCls: s.spread ? 'tgl on' : 'tgl', toggleSpread: set({ spread: !s.spread }),
+      runs: s.runs, runsCls: s.runs ? 'tgl on' : 'tgl', toggleRuns: set({ runs: !s.runs }),
+      groups: groups, allOn: set({ off: {} }), allOff: set({ off: allOffMap }),
+      lines: lines, obsPath: obsPath || 'M0 0', bandPath: bandPath, mGrid: mGrid, mV: mV, mTicks: mTicks, mLabels: mLabels,
+      nowX: nowX, nowLine: 'M' + nowX + ' 0 V' + MH, nowLeft: ((NOW - 6) / span * 100).toFixed(2) + '%',
+      runRows: runRows, runNow: (NOW / 24 * 100).toFixed(2) + '%', mRows: mRows, mVarLabel: vdef[3]
+    };
+  }
+}
+</script>
+</body>
+</html>
