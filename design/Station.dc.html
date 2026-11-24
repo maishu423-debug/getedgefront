@@ -76,7 +76,7 @@ a{color:#0A6E69}a:hover{color:#064F4B}
 <div style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px">
 <span style="font-size: 14px; font-weight: 600; color: #8A3A0E">Today's high so far</span>
 <div style="display: flex; align-items: flex-start; gap: 4px"><span style="font: 600 96px/0.9 'Space Grotesk', sans-serif; letter-spacing: -0.04em; color: #C24E12">{{hiT}}</span><span style="font: 500 28px 'Space Grotesk', sans-serif; color: #4A5552; padding-top: 6px">°F</span></div>
-<div style="font-size: 13px; color: #2A3533">From the <span class="mono">{{hiZ}}</span> METAR ({{hiLoc}} CST) · highest hourly METAR since local midnight. The DSM below includes peaks between reports.</div>
+<div style="font-size: 13px; color: #2A3533">From the <span class="mono">{{hiZ}}</span> METAR ({{hiLoc}} CST) · highest hourly METAR since local midnight. The daily summaries below include peaks between reports.</div>
 </div>
 </div>
 </section>
@@ -111,30 +111,46 @@ a{color:#0A6E69}a:hover{color:#064F4B}
 </aside>
 </div>
 
-<!-- ASOS Daily Summary (DSM) -->
-<section aria-labelledby="h-dsm" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; overflow: hidden">
+<!-- Daily summaries: CLI + DSM -->
+<section aria-labelledby="h-daily" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; overflow: hidden">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid #DDE1DC">
 <div style="display: flex; flex-direction: column; gap: 2px">
-<h2 id="h-dsm" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">ASOS Daily Summary (DSM)</h2>
-<span style="font-size: 12.5px; color: #56625F">NWS product issued by the station's ASOS several times a day · day runs midnight to midnight local standard time</span>
+<h2 id="h-daily" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">Daily summaries</h2>
+<span style="font-size: 12.5px; color: #56625F">Official NWS products for this station · climate day runs midnight to midnight local standard time</span>
 </div>
-<a href="#dsm-raw" style="font-size: 13px">View product text</a>
-</div>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
-<div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; border-right: 1px solid #ECEFEC">
-<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><span style="font-size: 14px; font-weight: 600">Today so far · Nov 24</span><span class="mono" style="font-size: 11.5px; color: #56625F">issued 10:30Z (4:30 AM CST)</span></div>
-<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
-<sc-for list="{{dsmToday}}" as="d" hint-placeholder-count="4"><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11.5px; color: #56625F">{{d.k}}</span><span class="mono" style="font-size: 20px; font-weight: 600">{{d.v}}</span><span style="font-size: 11.5px; color: #56625F">{{d.t}}</span></div></sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px">
+<span style="padding: 4px 10px; border-radius: 999px; background: #E6F2F1; color: #064F4B; font-weight: 600">CLI · Daily Climate Report</span>
+<span style="padding: 4px 10px; border-radius: 999px; background: #EEF1EE; color: #2A3533; font-weight: 600">DSM · ASOS Daily Summary</span>
 </div>
 </div>
-<div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; background: #FAFBF9">
-<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><span style="font-size: 14px; font-weight: 600">Yesterday, final · Nov 23</span><span class="mono" style="font-size: 11.5px; color: #56625F">issued 06:30Z (12:30 AM CST)</span></div>
-<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
-<sc-for list="{{dsmYest}}" as="d" hint-placeholder-count="4"><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11.5px; color: #56625F">{{d.k}}</span><span class="mono" style="font-size: 20px; font-weight: 600">{{d.v}}</span><span style="font-size: 11.5px; color: #56625F">{{d.t}}</span></div></sc-for>
+<div style="overflow-x: auto">
+<table class="tbl">
+<thead><tr><th scope="col">Product</th><th scope="col">Covers</th><th scope="col">Issued</th><th scope="col" style="text-align: right">Max</th><th scope="col" style="text-align: right">Min</th><th scope="col" style="text-align: right">Precip</th><th scope="col" style="text-align: right">Normal hi / lo</th><th scope="col"><span class="sr">Product text</span></th></tr></thead>
+<tbody>
+<sc-for list="{{summaries}}" as="r" hint-placeholder-count="4">
+<tr style="{{r.rowStyle}}">
+<td><div style="display: flex; flex-direction: column; gap: 2px"><span class="mono" style="{{r.tagStyle}}">{{r.prod}}</span><span style="font-size: 11.5px; color: #56625F">{{r.issuer}}</span></div></td>
+<td><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">{{r.covers}}</span><span style="font-size: 11.5px; color: #56625F">{{r.coversNote}}</span></div></td>
+<td><div style="display: flex; flex-direction: column; gap: 2px"><span class="mono">{{r.issued}}</span><span style="font-size: 11.5px; color: #56625F">{{r.issuedLoc}}</span></div></td>
+<sc-if value="{{r.has}}" hint-placeholder-val="{{ true }}">
+<td style="text-align: right"><div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px"><span class="mono" style="font-size: 16px; font-weight: 600; color: #B2450D">{{r.max}}</span><span style="font-size: 11.5px; color: #56625F">{{r.maxT}}</span></div></td>
+<td style="text-align: right"><div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px"><span class="mono" style="font-size: 16px; font-weight: 600; color: #1F5FA8">{{r.min}}</span><span style="font-size: 11.5px; color: #56625F">{{r.minT}}</span></div></td>
+<td class="mono" style="text-align: right">{{r.precip}}</td>
+<td class="mono" style="text-align: right; color: #4A5552">{{r.normal}}</td>
+<td style="text-align: right"><button class="tgl" onClick="{{r.toggle}}" aria-expanded="{{r.open}}">{{r.btn}}</button></td>
+</sc-if>
+<sc-if value="{{r.none}}" hint-placeholder-val="{{ false }}">
+<td colspan="5" style="color: #56625F; font-size: 13px">{{r.emptyText}}</td>
+</sc-if>
+</tr>
+<sc-if value="{{r.open}}" hint-placeholder-val="{{ false }}">
+<tr><td colspan="8" style="background: #F7F8F6; white-space: normal"><div class="mono" style="font-size: 12.5px; color: #4A5552; padding: 6px 0; border-left: 3px solid #DDE1DC; padding-left: 12px">Product text appears here exactly as issued by the NWS, line for line.</div></td></tr>
+</sc-if>
+</sc-for>
+</tbody>
+</table>
 </div>
-</div>
-</div>
-<div style="padding: 10px 20px; border-top: 1px solid #ECEFEC; font-size: 12px; color: #56625F">Shown as published by the NWS. Max and min come from the ASOS sensor between reports, so they can differ from the hourly METAR high above.</div>
+<div style="padding: 10px 20px; border-top: 1px solid #ECEFEC; font-size: 12px; color: #56625F; line-height: 1.5">Shown as published by the NWS. CLI and DSM max/min come from the ASOS sensor, including peaks between hourly reports, so they can differ from the METAR high above. Some markets name one of these products as their settlement source. Check each market's rules. If a product isn't published for a station, its row says so.</div>
 </section>
 
 <!-- Multi-variable chart -->
@@ -508,15 +524,20 @@ class Component extends DCLogic {
     D.met.forEach(function (m) { if (m.hh >= 30 && (!hiM || m.o.t > hiM.o.t)) hiM = m; });
     var dMax = null, dMin = null, pk = null;
     obs.forEach(function (o) { if (o.gap || o.hh < 30 || o.hh > 34.5) return; if (!dMax || o.t > dMax.t) dMax = o; if (!dMin || o.t < dMin.t) dMin = o; if (o.g && (!pk || o.g > pk.g)) pk = o; });
-    var dsmToday = [
-      { k: 'Max temp', v: this.T(dMax.t, 'F') + '°F', t: 'at ' + this.loc(dMax.hh, true) },
-      { k: 'Min temp', v: this.T(dMin.t, 'F') + '°F', t: 'at ' + this.loc(dMin.hh, true) },
-      { k: 'Precip', v: '0.00 in', t: 'since midnight' },
-      { k: 'Peak gust', v: pk ? Math.round(pk.g) + ' kt' : '—', t: pk ? 'at ' + this.loc(pk.hh, true) : 'none' }
-    ];
-    var dsmYest = [
-      { k: 'Max temp', v: '62°F', t: 'at 2:47 PM' }, { k: 'Min temp', v: '44°F', t: 'at 6:58 AM' },
-      { k: 'Precip', v: '0.00 in', t: 'day total' }, { k: 'Peak gust', v: '24 kt', t: 'at 3:12 PM' }
+    var openRow = s.openRow || '';
+    var mk = function (o) {
+      var on = openRow === o.key;
+      o.open = on; o.none = !o.has; o.btn = on ? 'Hide text' : 'Product text';
+      o.toggle = function () { self.setState({ openRow: on ? '' : o.key }); };
+      o.rowStyle = o.has ? '' : 'background: #FAFBF9';
+      o.tagStyle = o.prod.indexOf('CLI') === 0 ? 'font-weight: 600; font-size: 12.5px; color: #064F4B' : 'font-weight: 600; font-size: 12.5px; color: #2A3533';
+      return o;
+    };
+    var summaries = [
+      mk({ key: 'cli-today', prod: 'CLI', issuer: 'NWS Fort Worth (FWD)', covers: 'Today, Nov 24', coversNote: 'preliminary, partial day', issued: '—', issuedLoc: 'not issued yet today', has: false, emptyText: 'No CLI for today yet. When the office issues an afternoon or evening update, it appears here with its "valid as of" time.' }),
+      mk({ key: 'dsm-today', prod: 'DSM', issuer: 'ASOS · KDFW', covers: 'Today, Nov 24', coversNote: 'so far, partial day', issued: '10:30Z', issuedLoc: '4:30 AM CST', has: true, max: this.T(dMax.t, 'F') + '°F', maxT: 'at ' + this.loc(dMax.hh, true), min: this.T(dMin.t, 'F') + '°F', minT: 'at ' + this.loc(dMin.hh, true), precip: '0.00 in', normal: '—' }),
+      mk({ key: 'cli-yest', prod: 'CLI', issuer: 'NWS Fort Worth (FWD)', covers: 'Yesterday, Nov 23', coversNote: 'final', issued: '06:43Z', issuedLoc: '12:43 AM CST', has: true, max: '62°F', maxT: 'at 2:47 PM', min: '44°F', minT: 'at 6:58 AM', precip: '0.00 in', normal: '64° / 43°' }),
+      mk({ key: 'dsm-yest', prod: 'DSM', issuer: 'ASOS · KDFW', covers: 'Yesterday, Nov 23', coversNote: 'final', issued: '06:06Z', issuedLoc: '12:06 AM CST', has: true, max: '62°F', maxT: 'at 2:47 PM', min: '44°F', minT: 'at 6:58 AM', precip: '0.00 in', normal: '—' })
     ];
 
     // ---- METAR list
@@ -587,7 +608,7 @@ class Component extends DCLogic {
     var tab = function (label, on, click) { return { label: label, on: on, cls: on ? 'tab on' : 'tab', click: click }; };
 
     return {
-      curT: this.T(lm.t, 'F'), curZ: this.hm(D.met[0].hh) + 'Z', curLoc: this.loc(D.met[0].hh, true), curAge: '2 min ago', hiT: this.T(hiM.o.t, 'F'), hiZ: this.hm(hiM.hh) + 'Z', hiLoc: this.loc(hiM.hh, true), dsmToday: dsmToday, dsmYest: dsmYest,
+      curT: this.T(lm.t, 'F'), curZ: this.hm(D.met[0].hh) + 'Z', curLoc: this.loc(D.met[0].hh, true), curAge: '2 min ago', hiT: this.T(hiM.o.t, 'F'), hiZ: this.hm(hiM.hh) + 'Z', hiLoc: this.loc(hiM.hh, true), summaries: summaries,
       uT: uT, isF: u === 'F', isC: u === 'C', fCls: u === 'F' ? 'tab on' : 'tab', cCls: u === 'C' ? 'tab on' : 'tab', setF: set({ unit: 'F' }), setC: set({ unit: 'C' }),
       cards: cards, rows: rows, rawFields: rawFields, showRaw: s.raw, toggleRaw: set({ raw: !s.raw }), rawLabel: s.raw ? 'Hide raw record' : 'Show raw record',
       nwsHi: this.T(63.5, u) + uT, nwsLo: this.T(47, u) + uT, nwsHours: nwsHours,
