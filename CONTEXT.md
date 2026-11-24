@@ -115,6 +115,11 @@ All NWS/NOAA requests send `User-Agent: EdgeFront/1.0 (getedgefront.com; ${CONTA
 - **How:** one batched request per run for all registry stations, e.g. `?ids=KNYC,KLGA,...&format=json&hours=3`. Alternatively the bulk cache files listed at `https://aviationweather.gov/data/api/` (check that they exist). **Never** call per page view.
 - **Schedule:** every 3 min (with jitter). Backfill on startup: `hours=36`.
 - **Store:** raw text exactly as received, plus decoded fields (§6.1). Dedupe on (station, observed_at, report_type, raw_text hash). Keep corrections (`COR`) as new rows linked to the original.
+- **Verified 2026-11-24 (Phase 2):**
+  - `GET /api/data/metar?ids=K…,K…&format=json&hours=N` works as described. JSON fields used: `rawOb`, `obsTime` (epoch s), `metarType` (METAR/SPECI), `receiptTime`; we decode `rawOb` ourselves and use aviationweather's decoded fields only to test the parser.
+  - **The response is capped at 400 reports** (newest first). A 28-station × 36 h request silently returned only ~13 h. The worker therefore plans batches (`plan_batches`: ≈ 1.6 reports/h/station, ≤ 300 per request; 36 h backfill = 6 requests of 5 stations; routine 3 h poll = 1 request) and splits any batch that still hits the cap.
+  - **Once a COR exists, only the corrected report is returned**, never the original. The 3-min poller normally stores the original first; the COR row then gets `corrects_report_id` and replaces it everywhere (effective-report rule, §6.3).
+  - Real reports include: a **missing wind group** (`KNYC 241451Z AUTO 10SM CLR …`), `SLPNO`, `FEW000`, `1 1/4SM`, `COR` on SPECIs, and SPECIs without a T group (whole-degree only).
 
 ### 4.2 NWS ASOS Daily Summary (DSM)
 - **What:** NWS text product type `DSM`, issued by each station's ASOS several times a day. It gives max/min temperature **with times**, precipitation and peak wind for the climate day (midnight–midnight **local standard time**), and catches peaks between hourly METARs.
@@ -124,6 +129,10 @@ All NWS/NOAA requests send `User-Agent: EdgeFront/1.0 (getedgefront.com; ${CONTA
   - NOAA tgftp (`https://tgftp.nws.noaa.gov/data/raw/cx/cxusNN.kOOO.dsm.lll.txt`) has files for 20 of the 28, but all except NYC/MSP/SAT are stale (last updated between 2008 and Oct 2026); BOS, ATL, CLT, DTW, OKC, DAL, HOU, BKF have no DSM file at all.
   - A DSM is a one-line coded product per station, e.g. `KNYC DS COR 19/11 641502/ 460700// 64/ 46//0312359/00/…`. Products can be `COR` corrections of older days (the 05:30Z NYC product on 11/24 corrected 19/11).
   - Discovery code: `edgefront_core.enrich_stations` (writes `dsm_location` only when the latest product names the station and is ≤ 7 days old).
+- **Coverage check 2026-11-24 (end of Phase 2, Q14; full table `docs/coverage/2026-11-24_dsm_cli.md`, tool `tools/coverage_dsm_cli.py`):**
+  - **NWS does issue current DSMs for 27 of 28 stations** (not KBKF). 24 of them are transmitted only under WMO heading **CDUS27** by the ARTCCs (`KZNY`, `KZTL`, `KZAU`, `KZFW`, …), which api.weather.gov does not carry; NYC/MSP/SAT also go out as CXUS4x from the WFO, which is why only those three appear there. Some CDUS27 copies have no WMO header in the text and use the intra-day form `KLGA DS 0700 24/11 …`.
+  - **CLI (Daily Climate Report) is current on api.weather.gov for 26 of 28** (`/products/types/CLI/locations/{id without K}`, WMO CDUS4x from the WFO). None current for **KDAL** and **KBKF**.
+  - So for Phase 3: CLI from api.weather.gov (26 stations) + DSM from api.weather.gov (3 stations) are production sources today. The other 24 DSMs need a feed carrying CDUS27, e.g. our LDM with IDS|DDPLUS (Q17). IEM was used for discovery only.
 - **Schedule:** every 10 min.
 - **Parsing:** the DSM is a coded text format. **Build the decoder only from real products** saved as fixtures (several stations, several issuances incl. the next-day final). Store the raw text always. If a field can't be decoded, store null and keep the raw text; don't guess.
 - **Display:** "Today so far" (latest DSM for today's climate day) and "Yesterday, final".
@@ -179,7 +188,7 @@ Store values at the station for each run: `temp`, `dewpt`, `wind_speed` (kt), `c
 - Enrichment command (`python -m edgefront_core.enrich_stations`): fill `lat`, `lon`, `elevation_m`, `official_name` (from NWS `/stations/{id}`, falling back to aviationweather `https://aviationweather.gov/api/data/stationinfo?ids=…&format=json`), `nws_office`, `grid_x`, `grid_y` (from `/points`). `tz` stays as set in the YAML and is **checked** against NWS `timeZone` (all 28 match). `dsm_location` and `pfm_point` are discovered automatically but written only on clear evidence; anything doubtful is printed as a flag. Idempotent (second live run: 0 changes).
 - **Names:** `name` is EdgeFront's short display name from the YAML (board rows); `official_name` is the upstream name (station page title), e.g. "New York City, Central Park". Enrichment never overwrites `name`.
 - **Seed semantics** (`python -m edgefront_core.seed`, idempotent): YAML sets display fields; a null `dsm_location`/`pfm_point` never overwrites a stored value; venues in the YAML are the full truth per station (others deleted); stations missing from the YAML become `active = false`. Docker's one-shot `migrate` service runs migrate + seed.
-- **Venues** carry `kind: high | low` (owner decision 2026-11-24, Q10). Seeded mappings are all `high`; low markets are added once the owner lists them (Q16).
+- **Venues** carry `kind: high | low` (schema, Q10). **v1 is highs only** (Q16): every mapping is `high` and unverified; lows are a later version.
 - Positions: NWS `/stations` coordinates are used. aviationweather positions differ by 1.7–3.1 km for KATL, KCLT, KDAL, KORD, KSAT (flagged, informational).
 
 ### Seed list (illustrative; ALL venue mappings unverified)
@@ -189,7 +198,7 @@ Store values at the station for each run: `temp`, `dewpt`, `wind_speed` (kt), `c
 | KLGA | New York · LaGuardia | America/New_York | Polymarket, Robinhood |
 | KBOS | Boston · Logan | America/New_York | Kalshi, Robinhood |
 | KPHL | Philadelphia Intl | America/New_York | Kalshi, Robinhood |
-| KDCA | Washington · Reagan National | America/New_York | Kalshi, Robinhood |
+| KDCA | Washington DC · Reagan National | America/New_York | Kalshi, Robinhood |
 | KATL | Atlanta · Hartsfield-Jackson | America/New_York | Kalshi, Polymarket, Robinhood |
 | KCLT | Charlotte Douglas | America/New_York | Robinhood |
 | KMIA | Miami Intl | America/New_York | Kalshi, Polymarket, Robinhood |
@@ -243,6 +252,8 @@ YAML shape:
   - `4snTxTxTxsnTnTnTn`: 24-hour max/min, in the midnight-LST report.
 - Store temperatures in °C (numeric(4,1)). Convert to °F only for display, rounded half away from zero to whole °F. Show °F everywhere in v1 (U.S. traders); there is no unit toggle.
 - Use python-metar only if fixture tests prove it handles every group above; otherwise write a focused parser. Either way, **parser tests use real METARs** saved from the API.
+- **Built (Phase 2):** a focused parser, `edgefront_core.parsers.metar` (no python-metar dependency). Test: all 1,117 real reports in `tests/fixtures/aviationweather/metar_36h_batch*.json` decode to the same temperature, dew point, wind, gust, SLP, 6 h and 24 h max/min as aviationweather's own decoding; altimeter within ±1 hPa (they publish hPa, we store inHg as reported). Only differences: we keep `FEW000` layers. Missing groups decode to null, never 0. Weather/RVR tokens are not decoded (kept in `raw_text`).
+- `raw_hash` = sha256 of the whitespace-normalised raw text. `observed_at` comes from the raw `DDHHMMZ` placed in the month of `obsTime` (they agree for every fixture report).
 
 ### 6.2 Local day
 - Each station's **climate day = midnight to midnight local standard time (LST)**, which is how NWS DSM/CLI work. During daylight saving time that is 1:00 AM to 1:00 AM local clock time.
@@ -255,6 +266,12 @@ YAML shape:
 - Return its value, the time and the report it came from, plus `precision` (tenths/whole).
 - UI copy: "From the HH:MMZ METAR (h:mm AM CST) · highest hourly METAR since local midnight. The DSM below includes peaks between reports."
 - **New-high events** (homepage feed + "NEW" badge): when a stored report makes `high_so_far` increase, insert a `daily_high_events` row (from → to). Skip the first report of the day. The "NEW" badge means the event happened within the last 60 min.
+- **Implementation details (Phase 2, `edgefront_core.climate`):**
+  - Climate day is half-open `[start, end)` in UTC. LST: `start = local-standard midnight`. LOCAL basis: clock midnight (23/25 h on DST change days).
+  - A 6-hour group's window is the 6 h ending at the synoptic hour (00/06/12/18Z) nearest the report (ASOS sends it a few minutes before the hour); groups in reports more than 30 min from a synoptic hour are ignored. A window ending exactly at `end` is inside (Q12).
+  - **Effective reports:** one per (observed_at, report_type): the latest COR if any, else the original. High so far, events, the observed chart and the "latest" report all use effective reports; `/metars` lists every row and marks replaced ones `superseded`.
+  - Ties keep the earliest report. The first report *with a temperature* is the day's baseline.
+  - Events are recomputed for each (station, climate day) touched by an ingest and reconciled with the table (late arrivals and CORs can add or withdraw events).
 
 ### 6.4 Freshness
 - `age = now − observed_at`. A station's METAR is **stale** if older than 90 min (configurable): show an amber "Stale · last report X min ago" state.
@@ -305,6 +322,14 @@ All responses include `generated_at` and, per block, `source` + times. Errors di
 | `GET /feed/new-highs?limit=10` | latest daily_high_events with station names |
 
 Add OpenAPI docs in dev only. Use ETag/`Cache-Control: max-age=30` on read endpoints.
+
+**As built in Phase 2** (models in `services/api/src/edgefront_api/schemas.py`; OpenAPI at `/api/v1/docs` when `APP_ENV=dev`):
+- Temperatures are returned as stored °C (`temp_c`, 1 decimal) **and** display °F (`temp_f`, whole, half away from zero). RH is `rh_computed` (Magnus) and labelled as computed.
+- `status`: `ok` | `no_data` (nothing stored yet) | `stale` (latest effective METAR older than `STALE_METAR_MINUTES`); each response carries `source` {source, producer, last_success_at}.
+- `/stations` rows include `zone_group` (by standard UTC offset: Eastern/Central/Mountain/Pacific, Q12), `std_utc_offset_minutes`, `local_time`, `climate_day` {date, basis, start, end, ends_in_minutes, elapsed_fraction}, `fresh_high`, `nws_today_high_f` (null until Phase 3). `?venue=kalshi|polymarket|robinhood`.
+- `/stations/{id}/metars?hours=1..48` (default 24) lists every stored report newest first with `superseded`; `/observed?hours=6|24` returns effective reports oldest first plus `gaps` (> 90 min, never bridged). `/feed/new-highs?limit=1..50`.
+- `/status` lists each source with `healthy` (last success within 3× its schedule); error text is not exposed publicly.
+- Unknown station → 404; invalid parameters → 422. `Cache-Control: public, max-age=30` + strong `ETag` (304 on `If-None-Match`) on read endpoints; `/health` is `no-store`.
 
 ---
 
@@ -416,12 +441,17 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 | Q11 | Phase 1 schema defaults: `metar_reports.corrects_report_id`; `source` on `nws_forecasts` (and `dsm_products`); `model_values` inherits source from `model_runs` | **Applied in Phase 1** |
 | Q12 | Board time-zone groups: group by **standard UTC offset** (Detroit/Louisville → Eastern, Phoenix → Mountain); "Local day ends in" counts to LST midnight (1 AM clock time in DST). Climate day is `[start, end)`; a 6 h window ending exactly at `end` counts as inside | As stated |
 | Q13 | Docker and GitHub not set up yet (owner: "later"). Phase 0's `docker compose up` and green CI are therefore unverified locally | Verified with a local non-Docker run on SQLite; CI `docker` job verifies once a remote exists |
-| Q14 | **DSM is only available for 3 of 28 stations** (KNYC, KMSP, KSAT) via NWS public channels (§4.2). Options: (a) show DSM only where it exists, "Not published for this station" elsewhere; (b) add the NWS Daily Climate Report (CLI) as the daily max/min source (ties into Q9: Kalshi has settled on CLI); (c) look for another official DSM feed. | (a) for now; Phase 3 needs a decision |
-| Q15 | KDCA: YAML state `DC`, aviationweather says `VA` (the airport is in Arlington, VA; NWS calls it "Washington/Reagan National Airport, DC"). Keep DC for display? | Keep DC |
-| Q16 | Which stations/venues have **low**-temperature markets? | None seeded until listed |
+| Q14 | ~~DSM is only available for 3 of 28 stations~~ **Resolved 2026-11-24: (b) + (a) + coverage check.** (1) Before Phase 3, check whether NWS issues DSMs for the other 25 stations using the IEM AFOS archive (`https://mesonet.agron.iastate.edu/cgi-bin/afos/retrieve.py?limit=5&pil=DSM<LOC>&fmt=text`) — **IEM for checking/discovery only, never a production source** (terms not reviewed). (2) Same check for the NWS Daily Climate Report (PIL `CLI<LOC>`) for all 28, via api.weather.gov products and IEM. (3) Phase 3 shows a **"Daily summaries"** block: CLI and/or DSM, whichever exist for the station, each labelled with its product and issue time; if neither exists, say so. Coverage tables delivered at the end of Phase 2 | — |
+| Q15 | ~~KDCA state DC vs VA~~ **Resolved 2026-11-24:** display name "Washington DC · Reagan National"; official name and state stay in the station details | — |
+| Q16 | ~~Which stations have low markets?~~ **Resolved 2026-11-24: v1 is highs only.** All mappings stay `market_kind = high` and unverified; lows are a later version (schema already supports them) | — |
+| Q17 | Can our LDM upstream provide **IDS\|DDPLUS** (NWS text products incl. DSM/CLI/METAR)? Owner to check. **Why it matters (coverage check 2026-11-24):** 24 of our DSMs exist only as WMO **CDUS27** from the ARTCCs, which api.weather.gov does not serve; IDS\|DDPLUS should carry them | Open |
+| Q18 | **KBKF (Buckley SFB)**: no DSM, no current CLI, and METARs are not always hourly (last report was 111 min old at 16:50Z on 2026-11-24, so the board shows it stale). Keep it on the board? | Keep; shown stale when stale |
+| Q19 | **KDAL (Love Field)**: no current CLI (`CLIDAL` has only older products). Its daily summary would be DSM only (via CDUS27, Q17) | "Daily summaries" says none is available until a source exists |
 
 ## 15. Progress log
 - 2026-11-24 — Plan written. Designs: homepage + free-tier station page. Phase 0 not started.
 - 2026-11-24 — Owner decision: 5-minute HFMETAR is Premium only and is **not built in v1** (no ingest, no table, no LDM proxy). v1 phases renumbered 0–6.
 - 2026-11-24 — **Phase 0 (foundation) built** on branch `phase-0-foundation` (local git, no remote yet). Done: uv workspace (core/api/worker, Python 3.12, ruff, mypy strict, pytest); `GET /api/v1/health` (503 when DB down); worker APScheduler heartbeat every 60 s writing `source_health('worker')` + JSON logs; Alembic bootstrap migration `0001` (source_health only); Next.js 16.4 coming-soon page calling API health server-side; tokens + fonts; Vitest + Playwright placeholder; Dockerfiles (Debian slim) + `infra/docker-compose.yml` with one-shot `migrate`; GitHub Actions CI. Verified locally without Docker (SQLite). Left: run `docker compose up` and CI once Docker/GitHub exist (Q13); owner answers Q1, Q9, Q10.
 - 2026-11-24 — **Phase 1 (data model + registry) built** on branch `phase-1-registry`. Done: migration `0002` with all §7 tables except `hf_observations` (+ `market_kind`, `corrects_report_id`, `official_name`, `source` columns); `data/stations.yaml` (28 stations, 46 venue mappings, all unverified, all `high`); idempotent `seed`; `enrich_stations` with live-verified sources (aviationweather stationinfo, NWS `/stations`, `/points`, DSM + PFM product discovery); shared upstream HTTP client with retries; fixture-capture CLI (`python -m edgefront_core.fixtures`); 14 real fixtures. Live result: 28/28 stations with lat/lon/elevation/office/grid, tz verified, `dsm_location` 3/28, `pfm_point` 26/28. Key finding: DSM coverage (Q14). Left: Q14, Q15, Q16; Docker/CI still unverified (Q13).
+- 2026-11-24 — Phase 1 approved and merged to `main`. Owner decisions: Q14 resolved ((b)+(a)+coverage check), Q15 (KDCA display name), Q16 (highs only); Q17 added.
+- 2026-11-24 — **Phase 2 (METAR pipeline) built** on branch `phase-2-metar`. Done: focused METAR parser validated on 1,117 real reports; batched fetch with the newly found **400-report cap** handled; worker job every 180 s with 36 h backfill; dedupe, COR linking; climate day (LST/LOCAL), high so far with the 6 h-group rule, new-high events reconciled at ingest; API `/stations`, `/stations/{id}`, `/current`, `/metars`, `/observed`, `/feed/new-highs`, `/status` with ETag/caching. Live run: 1,118 reports for 28/28 stations (24–29 METARs per station in 24 h), 0 parse errors, 189 events; second poll all duplicates. DSM/CLI coverage check delivered (`docs/coverage/2026-11-24_dsm_cli.md`). Left: Q17–Q19; Docker/CI still unverified (Q13).

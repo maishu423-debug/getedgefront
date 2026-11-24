@@ -2,7 +2,8 @@
 #
 # - Venue mappings are ILLUSTRATIVE and UNVERIFIED (verified: false) until someone checks the
 #   venue's current market rules and fills market, settlement_source, rules_url and verified_at.
-# - kind: high | low. Only high markets are seeded; low markets are added once confirmed (Q10).
+# - kind: high | low. v1 is highs only (owner, Q16): every mapping stays kind: high and
+#   unverified. Low markets are a later version; the schema already supports them.
 # - dsm_location: set only where a current DSM product was found that names this station
 #   (Phase 1 discovery, 2026-11-24). null = no current DSM found via NWS public channels.
 # - pfm_point: the point-name line of the office's PFM block (office = nws_office) whose
@@ -59,7 +60,7 @@
     - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
 
 - id: KDCA
-  name: "Washington · Reagan National"
+  name: "Washington DC · Reagan National"
   city: "Washington"
   state: DC
   tz: America/New_York

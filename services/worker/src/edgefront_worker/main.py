@@ -13,6 +13,7 @@ from edgefront_core.logs import configure_logging
 from edgefront_core.settings import get_settings
 from edgefront_core.timeutil import utcnow
 from edgefront_worker.heartbeat import heartbeat
+from edgefront_worker.jobs import metar_job
 
 log = logging.getLogger("edgefront.worker")
 
@@ -32,6 +33,16 @@ def build_scheduler() -> BlockingScheduler:
         args=[factory],
         id="heartbeat",
         next_run_time=utcnow(),
+    )
+    scheduler.add_job(
+        metar_job,
+        "interval",
+        seconds=settings.metar_poll_seconds,
+        jitter=20,
+        args=[factory],
+        id="metar",
+        next_run_time=utcnow(),  # first run backfills 36 h
+        misfire_grace_time=120,
     )
     return scheduler
 

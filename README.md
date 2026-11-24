@@ -21,7 +21,7 @@ pnpm install
 ```sh
 # Python: lint, format, types, tests (SQLite unless TEST_DATABASE_URL points at Postgres)
 uv run ruff check . && uv run ruff format --check .
-uv run mypy packages/core/src services/api/src services/worker/src conftest.py
+uv run mypy packages/core/src services/api/src services/worker/src conftest.py packages/core/tests services/api/tests services/worker/tests
 uv run pytest
 
 # Web: lint, types, format, unit tests, build
