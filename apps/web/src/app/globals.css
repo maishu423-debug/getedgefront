@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/* Design tokens: CONTEXT.md §10.1. Light theme only in v1 (matches the mockups). */
+@theme {
+  --color-page: #f4f5f2;
+  --color-surface: #ffffff;
+  --color-border: #dde1dc;
+  --color-hairline: #eceeec;
+  --color-ink: #101a1c;
+  --color-text-2: #2a3533;
+  --color-muted: #4a5552;
+  --color-muted-2: #56625f;
+
+  --color-brand: #0a6e69;
+  --color-brand-hover: #064f4b;
+  --color-brand-tint: #e6f2f1;
+
+  --color-temp: #c24e12;
+  --color-high: #b2450d;
+  --color-dewpt: #1f5fa8;
+  --color-rh: #6b4fa0;
+  --color-wind: #0a6e69;
+  --color-gust: #7fb8b4;
+  --color-pressure: #3d4a47;
+  --color-fresh: #1a7f4b;
+  --color-fresh-halo: #ddf1e5;
+  /* Not in §10.1: amber for stale/down states (added Phase 0, see CONTEXT.md §10.1 note). */
+  --color-warn: #b7791f;
+  --color-warn-halo: #fbefd9;
+
+  --color-premium-bg: #fff1e2;
+  --color-premium-text: #8a4100;
+  --color-badge-bg: #ede8f6;
+  --color-badge-text: #4b3488;
+  --color-footer: #101a1c;
+
+  --color-sky-clr: #eef1ef;
+  --color-sky-few: #d5dee6;
+  --color-sky-sct: #a9bbcb;
+  --color-sky-bkn: #5f7488;
+  --color-sky-ovc: #33424f;
+  --color-missing: #f1ece2;
+
+  --color-model-ifs: #1f5fa8;
+  --color-model-gfs: #c24e12;
+  --color-model-aifs: #b4235a;
+  --color-model-gfsmos: #7d6a00;
+  --color-model-nbm: #0a6e69;
+  --color-model-lamp: #3f8f3a;
+  --color-model-pfm: #6b4fa0;
+  --color-observed: #101a1c;
+
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --radius-card: 14px;
+  --radius-stat: 16px;
+  --radius-btn: 9px;
+
+  --container-content: 1280px;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: var(--color-brand);
+}
+a:hover {
+  color: var(--color-brand-hover);
+}

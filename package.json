@@ -1,0 +1,13 @@
+{
+  "name": "edgefront",
+  "private": true,
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "web:dev": "pnpm --filter @edgefront/web dev",
+    "web:build": "pnpm --filter @edgefront/web build",
+    "web:check": "pnpm --filter @edgefront/web check"
+  }
+}

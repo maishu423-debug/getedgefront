@@ -68,7 +68,7 @@ v1 has **no accounts, no payments and no auth**. Premium elements appear as lock
 ### Tech choices
 | Area | Choice |
 |---|---|
-| Frontend | Next.js (current stable, App Router), React, TypeScript (strict), Tailwind CSS, Apache ECharts, `next/font/google` (Space Grotesk, Inter, JetBrains Mono) |
+| Frontend | Next.js 16.4 (App Router, `cacheComponents: true`, Turbopack, `output: "standalone"`), React 19, TypeScript (strict), Tailwind CSS v4 (tokens in `globals.css` `@theme`), Apache ECharts, `next/font/google` (Space Grotesk, Inter, JetBrains Mono). Live data is read at request time with `await connection()` inside `<Suspense>`, so `next build` never calls the API; ~60 s freshness is done with `"use cache"` + `cacheLife` (Phase 4), not the old `revalidate` export. Bundled docs: `apps/web/node_modules/next/dist/docs/` |
 | Backend | Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 + Alembic, psycopg 3, httpx |
 | Jobs | APScheduler (in the worker process), with jitter and per-job locks |
 | Weather formats | `metar` (python-metar) or own parser for METAR (see §6.1); `herbie-data` + `cfgrib`/`eccodes` (GFS/NBM GRIB); `ecmwf-opendata` (IFS/AIFS) |
@@ -77,9 +77,13 @@ v1 has **no accounts, no payments and no auth**. Premium elements appear as lock
 | Local dev | Docker Compose: postgres, api, worker, web |
 | Deploy | Railway: services `web`, `api`, `worker`, `postgres`; Dockerfile per service |
 
-### Repository layout (target)
+### Repository layout (as built in Phase 0)
 ```
-edgefront/
+GetEdgeFront/                 ← repo root
+  pyproject.toml, uv.lock     ← uv workspace (core, api, worker); ruff/mypy/pytest config
+  conftest.py                 ← shared DB fixtures (TEST_DATABASE_URL = Postgres, else temp SQLite)
+  package.json, pnpm-workspace.yaml, pnpm-lock.yaml, .nvmrc (Node 24 LTS)
+  .github/workflows/ci.yml    ← python + web + docker jobs
   CONTEXT.md                  ← this file
   design/                     ← UI mockups (reference only, see §10)
     Home.dc.html
@@ -89,7 +93,8 @@ edgefront/
   apps/web/                   ← Next.js
   services/api/               ← FastAPI app
   services/worker/            ← scheduler + jobs
-  packages/core/              ← edgefront_core (models, parsers, utils)
+  packages/core/              ← edgefront_core (settings, db, models, logs, parsers, utils)
+    src/edgefront_core/migrations/  ← Alembic; apply with `python -m edgefront_core.migrate`
     tests/fixtures/           ← real upstream samples + README of where each came from
   infra/
     docker-compose.yml
@@ -309,7 +314,8 @@ A nightly worker job prunes and logs row counts and DB size. Alert in logs when 
 Mockups: `design/Home.dc.html` and `design/Station.dc.html`. They are written in a design-tool format (`<x-dc>` templates + a `DCLogic` class with **sample data generators**). Use them for **layout, copy, colours, spacing and states only**. Rebuild the UI in Next.js + Tailwind + ECharts; do not copy the runtime, and never ship the sample data.
 
 ### 10.1 Design tokens
-- Colours: page `#F4F5F2`; surface `#FFFFFF`; border `#DDE1DC`; hairline `#ECEFEC`; ink `#101A1C`; text-2 `#2A3533`; muted `#4A5552` / `#56625F`; brand teal `#0A6E69` (hover `#064F4B`, tint `#E6F2F1`); temperature `#C24E12`, high emphasis `#B2450D`; dew point `#1F5FA8`; RH `#6B4FA0`; wind `#0A6E69`, gust `#7FB8B4`; pressure `#3D4A47`; fresh `#1A7F4B` (halo `#DDF1E5`); premium/lock bg `#FFF1E2` text `#8A4100`; forecast/model badge bg `#EDE8F6` text `#4B3488`; footer `#101A1C`.
+- Colours: page `#F4F5F2`; surface `#FFFFFF`; border `#DDE1DC`; hairline `#ECEFEC`; ink `#101A1C`; text-2 `#2A3533`; muted `#4A5552` / `#56625F`; brand teal `#0A6E69` (hover `#064F4B`, tint `#E6F2F1`); temperature `#C24E12`, high emphasis `#B2450D`; dew point `#1F5FA8`; RH `#6B4FA0`; wind `#0A6E69`, gust `#7FB8B4`; pressure `#3D4A47`; fresh `#1A7F4B` (halo `#DDF1E5`); stale/down amber `#B7791F` (halo `#FBEFD9`; added in Phase 0, the mockups define no stale colour); premium/lock bg `#FFF1E2` text `#8A4100`; forecast/model badge bg `#EDE8F6` text `#4B3488`; footer `#101A1C`.
+- Implemented as Tailwind v4 theme tokens in `apps/web/src/app/globals.css` (e.g. `bg-page`, `text-ink`, `text-brand`, `bg-fresh`, `font-display`, `font-mono`).
 - Sky cover: CLR `#EEF1EF`, FEW `#D5DEE6`, SCT `#A9BBCB`, BKN `#5F7488`, OVC `#33424F`; missing data `#F1ECE2`.
 - Model colours: IFS `#1F5FA8`, GFS `#C24E12`, GEFS `#C77A16`, HGEFS `#7A4310`, AIFS `#B4235A`, GFS-MOS `#7D6A00`, NBM `#0A6E69`, LAMP `#3F8F3A`, PFM `#6B4FA0`; observed line `#101A1C` (3 px).
 - Type: headings Space Grotesk 600–700; body Inter; all numbers, times, station codes and METAR text in JetBrains Mono.
@@ -369,6 +375,8 @@ Each phase ends with: tests passing, a short demo note, CONTEXT.md updated, and 
 
 ## 13. Environment variables (`.env.example`)
 ```
+APP_ENV=dev                               # dev | test | prod (OpenAPI docs at /api/v1/docs only in dev)
+LOG_LEVEL=INFO
 DATABASE_URL=postgresql+psycopg://edgefront:edgefront@postgres:5432/edgefront
 API_INTERNAL_URL=http://api:8000          # web → api (Railway: http://api.railway.internal:PORT)
 CONTACT_EMAIL=                            # used in NWS User-Agent (owner to supply)
@@ -390,7 +398,13 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 | Q6 | Verified station-to-venue list | Seed list, flagged unverified |
 | Q7 | Day basis per venue (LST vs local calendar) | LST for all |
 | Q8 | Premium price points | "Coming soon", no prices |
+| Q9 | Ingest the NWS Daily Climate Report (CLI)? Kalshi has historically settled on it; it is not in the v1 source list. Also verify the claim that Kalshi moved to The Weather Company on 2026-08-14 | Not ingested; board footnote kept generic |
+| Q10 | `station_venues` PK (station_id, venue) allows one market per venue+station, but venues run both high and low markets. Add `market_kind` (high/low) to the key? | Ask before Phase 1 migration |
+| Q11 | Phase 1 schema defaults (proceed unless owner objects): `metar_reports.corrects_report_id` (nullable FK) to link COR rows; `source` column on `nws_forecasts`; `model_values` inherits source from `model_runs` | As stated |
+| Q12 | Board time-zone groups: group by **standard UTC offset** (Detroit/Louisville → Eastern, Phoenix → Mountain); "Local day ends in" counts to LST midnight (1 AM clock time in DST). Climate day is `[start, end)`; a 6 h window ending exactly at `end` counts as inside | As stated |
+| Q13 | Docker and GitHub not set up yet (owner: "later"). Phase 0's `docker compose up` and green CI are therefore unverified locally | Verified with a local non-Docker run on SQLite; CI `docker` job verifies once a remote exists |
 
 ## 15. Progress log
 - 2026-11-24 — Plan written. Designs: homepage + free-tier station page. Phase 0 not started.
 - 2026-11-24 — Owner decision: 5-minute HFMETAR is Premium only and is **not built in v1** (no ingest, no table, no LDM proxy). v1 phases renumbered 0–6.
+- 2026-11-24 — **Phase 0 (foundation) built** on branch `phase-0-foundation` (local git, no remote yet). Done: uv workspace (core/api/worker, Python 3.12, ruff, mypy strict, pytest); `GET /api/v1/health` (503 when DB down); worker APScheduler heartbeat every 60 s writing `source_health('worker')` + JSON logs; Alembic bootstrap migration `0001` (source_health only); Next.js 16.4 coming-soon page calling API health server-side; tokens + fonts; Vitest + Playwright placeholder; Dockerfiles (Debian slim) + `infra/docker-compose.yml` with one-shot `migrate`; GitHub Actions CI. Verified locally without Docker (SQLite). Left: run `docker compose up` and CI once Docker/GitHub exist (Q13); owner answers Q1, Q9, Q10.

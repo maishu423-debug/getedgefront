@@ -1,0 +1,65 @@
+[project]
+name = "edgefront"
+version = "0.1.0"
+description = "EdgeFront monorepo (uv workspace root)"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/core", "services/api", "services/worker"]
+
+[tool.uv.sources]
+edgefront-core = { workspace = true }
+edgefront-api = { workspace = true }
+edgefront-worker = { workspace = true }
+
+[dependency-groups]
+dev = [
+  "edgefront-core",
+  "edgefront-api",
+  "edgefront-worker",
+  "pytest>=8.3",
+  "ruff>=0.8",
+  "mypy>=1.13",
+  "httpx>=0.28",
+]
+
+# ---------- ruff ----------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["packages/core/src", "services/api/src", "services/worker/src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "S", "C4", "DTZ", "RUF", "SIM", "PT"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101"]
+"**/migrations/**" = ["N999"]
+
+# ---------- mypy ----------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+mypy_path = ["packages/core/src", "services/api/src", "services/worker/src"]
+explicit_package_bases = true
+namespace_packages = true
+
+[[tool.mypy.overrides]]
+module = ["apscheduler.*"]
+ignore_missing_imports = true
+
+# ---------- pytest ----------
+[tool.pytest.ini_options]
+testpaths = ["packages/core/tests", "services/api/tests", "services/worker/tests"]
+addopts = "-ra --strict-markers --import-mode=importlib"
+filterwarnings = [
+  # Starlette's TestClient nags about httpx; harmless for tests.
+  "ignore:Using `httpx` with `starlette.testclient`",
+]

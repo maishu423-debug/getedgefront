@@ -1,0 +1,66 @@
+# Local stack: docker compose -f infra/docker-compose.yml up --build
+# Reads ../.env (copy .env.example to .env first).
+name: edgefront
+
+x-python-env: &python-env
+  DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://edgefront:edgefront@postgres:5432/edgefront}
+  APP_ENV: ${APP_ENV:-dev}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  CONTACT_EMAIL: ${CONTACT_EMAIL:-}
+  METAR_POLL_SECONDS: ${METAR_POLL_SECONDS:-180}
+  DSM_POLL_SECONDS: ${DSM_POLL_SECONDS:-600}
+  FORECAST_POLL_SECONDS: ${FORECAST_POLL_SECONDS:-1800}
+  MODEL_POLL_SECONDS: ${MODEL_POLL_SECONDS:-900}
+  STALE_METAR_MINUTES: ${STALE_METAR_MINUTES:-90}
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: edgefront
+      POSTGRES_PASSWORD: edgefront
+      POSTGRES_DB: edgefront
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edgefront -d edgefront"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # One-shot: apply Alembic migrations before api/worker start.
+  migrate:
+    build: { context: .., dockerfile: services/api/Dockerfile }
+    command: ["python", "-m", "edgefront_core.migrate"]
+    environment: *python-env
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  api:
+    build: { context: .., dockerfile: services/api/Dockerfile }
+    environment:
+      <<: *python-env
+      PORT: "8000"
+    ports: ["8000:8000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    build: { context: .., dockerfile: services/worker/Dockerfile }
+    environment: *python-env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    restart: unless-stopped
+
+  web:
+    build: { context: .., dockerfile: apps/web/Dockerfile }
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    ports: ["3000:3000"]
+    depends_on:
+      api: { condition: service_healthy }
+
+volumes:
+  pgdata:
