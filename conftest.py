@@ -7,8 +7,12 @@ otherwise against a throwaway SQLite file so the suite runs without a database s
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Iterator
 from pathlib import Path
+
+# Test helpers shared by the core tests (`import core_fixtures`).
+sys.path.insert(0, str(Path(__file__).parent / "packages" / "core" / "tests"))
 
 import pytest
 from sqlalchemy import Engine, text

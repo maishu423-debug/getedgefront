@@ -5,3 +5,5 @@
 *.woff2 binary
 *.grib2 binary
 *.gz binary
+# Upstream fixtures are kept byte-for-byte as received.
+packages/core/tests/fixtures/** -text

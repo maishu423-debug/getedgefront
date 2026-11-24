@@ -43,6 +43,8 @@ Without Docker (any SQLAlchemy URL; SQLite works for the Phase 0 skeleton):
 ```sh
 export DATABASE_URL=sqlite:///./local.db
 uv run python -m edgefront_core.migrate
+uv run python -m edgefront_core.seed             # load data/stations.yaml (idempotent)
+uv run python -m edgefront_core.enrich_stations  # live upstream; needs CONTACT_EMAIL in .env
 uv run uvicorn edgefront_api.main:build --factory --port 8000
 uv run python -m edgefront_worker.main
 cd apps/web && pnpm build && API_INTERNAL_URL=http://127.0.0.1:8000 pnpm start

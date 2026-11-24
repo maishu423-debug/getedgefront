@@ -23,5 +23,5 @@ def test_json_formatter_includes_extra_fields() -> None:
 
 def test_user_agent_uses_contact_email(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CONTACT_EMAIL", "ops@example.org")
-    s = Settings(_env_file=None)  # type: ignore[call-arg]
+    s = Settings(_env_file=None)
     assert s.user_agent == "EdgeFront/1.0 (getedgefront.com; ops@example.org)"

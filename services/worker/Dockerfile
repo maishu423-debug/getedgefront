@@ -21,6 +21,7 @@ COPY services/worker/pyproject.toml services/worker/pyproject.toml
 RUN uv sync --frozen --no-dev --package edgefront-worker --no-install-workspace
 
 COPY packages/core packages/core
+COPY data data
 COPY services/worker services/worker
 RUN uv sync --frozen --no-dev --package edgefront-worker
 

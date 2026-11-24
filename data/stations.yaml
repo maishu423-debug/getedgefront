@@ -1,0 +1,338 @@
+# EdgeFront station registry (CONTEXT.md §5). Loaded by: python -m edgefront_core.seed
+#
+# - Venue mappings are ILLUSTRATIVE and UNVERIFIED (verified: false) until someone checks the
+#   venue's current market rules and fills market, settlement_source, rules_url and verified_at.
+# - kind: high | low. Only high markets are seeded; low markets are added once confirmed (Q10).
+# - dsm_location: set only where a current DSM product was found that names this station
+#   (Phase 1 discovery, 2026-11-24). null = no current DSM found via NWS public channels.
+# - pfm_point: the point-name line of the office's PFM block (office = nws_office) whose
+#   coordinates are clearly nearest this station (Phase 1 discovery, 2026-11-24, <= 3 km and
+#   unambiguous). null = no such point.
+# - Seed semantics: a null dsm_location/pfm_point never overwrites a stored value; venues
+#   below are the full truth for each station.
+
+- id: KNYC
+  name: "New York · Central Park"
+  city: "New York"
+  state: NY
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: NYC
+  pfm_point: "Central Park-New York NY"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KLGA
+  name: "New York · LaGuardia"
+  city: "New York"
+  state: NY
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "LaGuardia Airport-Queens NY"
+  venues:
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KBOS
+  name: "Boston · Logan"
+  city: "Boston"
+  state: MA
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Boston-Suffolk MA"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KPHL
+  name: "Philadelphia Intl"
+  city: "Philadelphia"
+  state: PA
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Philadelphia-Philadelphia PA"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KDCA
+  name: "Washington · Reagan National"
+  city: "Washington"
+  state: DC
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Reagan National Airport-Arlington VA"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KATL
+  name: "Atlanta · Hartsfield-Jackson"
+  city: "Atlanta"
+  state: GA
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Atlanta-Fulton GA"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KCLT
+  name: "Charlotte Douglas"
+  city: "Charlotte"
+  state: NC
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Charlotte-Douglas International Airport-Mecklenburg NC"
+  venues:
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KMIA
+  name: "Miami Intl"
+  city: "Miami"
+  state: FL
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: null
+  pfm_point: null
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KJAX
+  name: "Jacksonville Intl"
+  city: "Jacksonville"
+  state: FL
+  tz: America/New_York
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Jacksonville-Duval FL"
+  venues:
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KDTW
+  name: "Detroit Metro"
+  city: "Detroit"
+  state: MI
+  tz: America/Detroit
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Romulus-Wayne MI"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KMDW
+  name: "Chicago · Midway"
+  city: "Chicago"
+  state: IL
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Chicago Midway Airport-Cook IL"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KORD
+  name: "Chicago · O'Hare"
+  city: "Chicago"
+  state: IL
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Chicago O'Hare International Airport-Cook IL"
+  venues:
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KMSP
+  name: "Minneapolis–St Paul"
+  city: "Minneapolis"
+  state: MN
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: MSP
+  pfm_point: "Minneapolis-Hennepin MN"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KBNA
+  name: "Nashville Intl"
+  city: "Nashville"
+  state: TN
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Nashville-Davidson TN"
+  venues:
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KOKC
+  name: "Oklahoma City · Will Rogers"
+  city: "Oklahoma City"
+  state: OK
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Oklahoma City-Oklahoma OK"
+  venues:
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KDFW
+  name: "Dallas/Fort Worth Intl"
+  city: "Dallas"
+  state: TX
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "DFW Airport-Dallas TX"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KDAL
+  name: "Dallas · Love Field"
+  city: "Dallas"
+  state: TX
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Dallas Love Field-Dallas TX"
+  venues:
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KAUS
+  name: "Austin-Bergstrom"
+  city: "Austin"
+  state: TX
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Austin Bergstrom-Travis TX"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KSAT
+  name: "San Antonio Intl"
+  city: "San Antonio"
+  state: TX
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: SAT
+  pfm_point: "San Antonio Intl-Bexar-BEXAR TX"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KHOU
+  name: "Houston · Hobby"
+  city: "Houston"
+  state: TX
+  tz: America/Chicago
+  day_basis: LST
+  dsm_location: null
+  pfm_point: null
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KSDF
+  name: "Louisville · Muhammad Ali Intl"
+  city: "Louisville"
+  state: KY
+  tz: America/Kentucky/Louisville
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "LOUISVILLE-JEFFERSON KY"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KDEN
+  name: "Denver Intl"
+  city: "Denver"
+  state: CO
+  tz: America/Denver
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Denver Int'l Airport-Denver CO"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KBKF
+  name: "Denver · Buckley"
+  city: "Denver"
+  state: CO
+  tz: America/Denver
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Buckley AFB-Arapahoe CO"
+  venues:
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KPHX
+  name: "Phoenix · Sky Harbor"
+  city: "Phoenix"
+  state: AZ
+  tz: America/Phoenix
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Phoenix-Maricopa AZ"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KLAX
+  name: "Los Angeles Intl"
+  city: "Los Angeles"
+  state: CA
+  tz: America/Los_Angeles
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Los Angeles Airport CA"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KSFO
+  name: "San Francisco Intl"
+  city: "San Francisco"
+  state: CA
+  tz: America/Los_Angeles
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "San Francisco Airport-San Mateo CA"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KSEA
+  name: "Seattle–Tacoma"
+  city: "Seattle"
+  state: WA
+  tz: America/Los_Angeles
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Seattle-King WA"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+    - {venue: robinhood, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
+
+- id: KLAS
+  name: "Las Vegas · Harry Reid"
+  city: "Las Vegas"
+  state: NV
+  tz: America/Los_Angeles
+  day_basis: LST
+  dsm_location: null
+  pfm_point: "Las Vegas-Clark NV"
+  venues:
+    - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}

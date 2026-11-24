@@ -28,10 +28,11 @@ services:
       timeout: 3s
       retries: 20
 
-  # One-shot: apply Alembic migrations before api/worker start.
+  # One-shot: apply Alembic migrations and seed the station registry before api/worker start.
+  # Enrichment is a manual one-off (needs CONTACT_EMAIL): docker compose run --rm migrate python -m edgefront_core.enrich_stations
   migrate:
     build: { context: .., dockerfile: services/api/Dockerfile }
-    command: ["python", "-m", "edgefront_core.migrate"]
+    command: ["sh", "-c", "python -m edgefront_core.migrate && python -m edgefront_core.seed"]
     environment: *python-env
     depends_on:
       postgres: { condition: service_healthy }

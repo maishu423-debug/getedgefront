@@ -1,0 +1,260 @@
+{
+    "@context": {
+        "@version": "1.1",
+        "@vocab": "https://api.weather.gov/ontology#"
+    },
+    "@graph": [
+        {
+            "@id": "https://api.weather.gov/products/797f72b6-cfe9-47fb-96e8-55fc65f16c4d",
+            "id": "797f72b6-cfe9-47fb-96e8-55fc65f16c4d",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-24T05:30:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/661622d4-0dc9-4f76-a4c7-0b98157ca269",
+            "id": "661622d4-0dc9-4f76-a4c7-0b98157ca269",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-24T05:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/85c5b788-c71d-4d65-abec-c9e51c05cbf1",
+            "id": "85c5b788-c71d-4d65-abec-c9e51c05cbf1",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-23T21:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/86b0a803-25ce-4ab9-8485-da2ee6a88af4",
+            "id": "86b0a803-25ce-4ab9-8485-da2ee6a88af4",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-23T20:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/6e8027c6-4064-437b-8908-fd900f21ac5c",
+            "id": "6e8027c6-4064-437b-8908-fd900f21ac5c",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-23T05:30:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/b02cced9-01f2-4484-b67a-97c85e46bad0",
+            "id": "b02cced9-01f2-4484-b67a-97c85e46bad0",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-23T05:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/123ec4cc-c8f8-47d1-bf42-e8e7a4302067",
+            "id": "123ec4cc-c8f8-47d1-bf42-e8e7a4302067",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-22T21:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/cc8c686a-9a93-42cf-a36a-545066fc9244",
+            "id": "cc8c686a-9a93-42cf-a36a-545066fc9244",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-22T20:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/45c4e7ad-1f7d-4ec9-b82b-d7a6aeb62272",
+            "id": "45c4e7ad-1f7d-4ec9-b82b-d7a6aeb62272",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-22T05:30:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/081ceddb-59e1-4133-b103-59b388dcd134",
+            "id": "081ceddb-59e1-4133-b103-59b388dcd134",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-22T05:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/13828036-a4fb-4ea4-9ab4-f3dfdc18e5d3",
+            "id": "13828036-a4fb-4ea4-9ab4-f3dfdc18e5d3",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-21T21:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/8bacdf56-ce31-4da2-9920-40ae697f18eb",
+            "id": "8bacdf56-ce31-4da2-9920-40ae697f18eb",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-21T20:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/30b0b123-c604-4810-8a3c-db0942243e7f",
+            "id": "30b0b123-c604-4810-8a3c-db0942243e7f",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-21T05:30:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/17e5367e-514c-4912-8c34-7eed4ffc4887",
+            "id": "17e5367e-514c-4912-8c34-7eed4ffc4887",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-21T05:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d34d3901-a462-4c26-bea4-e04d53ec3169",
+            "id": "d34d3901-a462-4c26-bea4-e04d53ec3169",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-20T21:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/9449136a-1f43-4642-b2f2-5f0d7adc871c",
+            "id": "9449136a-1f43-4642-b2f2-5f0d7adc871c",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-20T20:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d0922e55-2768-4c95-a21c-e517789ad712",
+            "id": "d0922e55-2768-4c95-a21c-e517789ad712",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-20T05:30:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/f54fd987-5496-4984-97ac-946023e818b8",
+            "id": "f54fd987-5496-4984-97ac-946023e818b8",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-20T05:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/44d932e3-d8c8-4fa6-8b1c-5256a40d3132",
+            "id": "44d932e3-d8c8-4fa6-8b1c-5256a40d3132",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-19T21:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/d45b0150-3f63-43b3-a43b-5e927bb61bcf",
+            "id": "d45b0150-3f63-43b3-a43b-5e927bb61bcf",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-19T20:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/97acef80-0bf7-4161-9a7a-25259de16ab7",
+            "id": "97acef80-0bf7-4161-9a7a-25259de16ab7",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-19T05:30:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/705887ba-8a2f-4005-a6c7-d5732a81c29d",
+            "id": "705887ba-8a2f-4005-a6c7-d5732a81c29d",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-19T05:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/b75ce3a4-2afc-4e31-85e5-1a0697e0c013",
+            "id": "b75ce3a4-2afc-4e31-85e5-1a0697e0c013",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-18T21:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/9f1245ca-ccd2-49fc-99c1-82818826df77",
+            "id": "9f1245ca-ccd2-49fc-99c1-82818826df77",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-18T20:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/2759655f-66bb-4a5a-92e6-8b805476a4bd",
+            "id": "2759655f-66bb-4a5a-92e6-8b805476a4bd",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-18T05:30:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/ff258b95-922c-4c9a-8b9e-2896ed66a93d",
+            "id": "ff258b95-922c-4c9a-8b9e-2896ed66a93d",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-18T05:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/a0a81305-d19a-4e74-b22b-09b60ccb23c4",
+            "id": "a0a81305-d19a-4e74-b22b-09b60ccb23c4",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-17T21:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        },
+        {
+            "@id": "https://api.weather.gov/products/77d20b67-3351-464c-9e6c-a24a07f69805",
+            "id": "77d20b67-3351-464c-9e6c-a24a07f69805",
+            "wmoCollectiveId": "CXUS41",
+            "issuingOffice": "KOKX",
+            "issuanceTime": "2026-11-17T20:15:00+00:00",
+            "productCode": "DSM",
+            "productName": "ASOS Daily Summary"
+        }
+    ]
+}

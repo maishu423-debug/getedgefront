@@ -119,12 +119,18 @@ All NWS/NOAA requests send `User-Agent: EdgeFront/1.0 (getedgefront.com; ${CONTA
 ### 4.2 NWS ASOS Daily Summary (DSM)
 - **What:** NWS text product type `DSM`, issued by each station's ASOS several times a day. It gives max/min temperature **with times**, precipitation and peak wind for the climate day (midnight–midnight **local standard time**), and catches peaks between hourly METARs.
 - **Source:** api.weather.gov products endpoints, e.g. `/products/types/DSM/locations/{LOC}` then `/products/{id}`. `{LOC}` is the 3-letter product location; it is often the station ID without "K" but **not always**, so it lives in the registry as `dsm_location`.
+- **Verified 2026-11-24 (Phase 1) — coverage problem, see Q14:**
+  - `/products/types/DSM/locations` lists only **164** locations nationwide. Of our 28 stations only **NYC, MSP, SAT** have current DSMs there (each product's text starts `KNYC DS …` / `KMSP DS …` / `KSAT DS …`). The other 25 return an empty `@graph`.
+  - NOAA tgftp (`https://tgftp.nws.noaa.gov/data/raw/cx/cxusNN.kOOO.dsm.lll.txt`) has files for 20 of the 28, but all except NYC/MSP/SAT are stale (last updated between 2008 and Oct 2026); BOS, ATL, CLT, DTW, OKC, DAL, HOU, BKF have no DSM file at all.
+  - A DSM is a one-line coded product per station, e.g. `KNYC DS COR 19/11 641502/ 460700// 64/ 46//0312359/00/…`. Products can be `COR` corrections of older days (the 05:30Z NYC product on 11/24 corrected 19/11).
+  - Discovery code: `edgefront_core.enrich_stations` (writes `dsm_location` only when the latest product names the station and is ≤ 7 days old).
 - **Schedule:** every 10 min.
 - **Parsing:** the DSM is a coded text format. **Build the decoder only from real products** saved as fixtures (several stations, several issuances incl. the next-day final). Store the raw text always. If a field can't be decoded, store null and keep the raw text; don't guess.
 - **Display:** "Today so far" (latest DSM for today's climate day) and "Yesterday, final".
 
 ### 4.3 NWS forecast
 - **Source:** `https://api.weather.gov/points/{lat},{lon}` once per station (store office, gridX, gridY in the registry), then `/gridpoints/{office}/{x},{y}/forecast` and `/forecast/hourly`.
+- **Verified 2026-11-24:** `/points` returns `properties.gridId`, `gridX`, `gridY`, `cwa`, `timeZone`, `forecast`, `forecastHourly`. We store `gridId` as `nws_office` (it is the office used in `/gridpoints`). Send coordinates with 4 decimals (NWS redirects longer ones). All 28 stations resolved; `gridId == cwa` for all.
 - **Schedule:** every 30 min per station; honour `Cache-Control`/`Expires`; retry with backoff on 5xx (the API has frequent transient errors).
 - **Display:** today's high (daytime period) and tonight's low, short text for Today/Tonight, a 7-slot hourly strip (temp + precip chance), issued time and office. If today's daytime period has passed, show "—" for the high rather than tomorrow's.
 
@@ -141,6 +147,7 @@ Store values at the station for each run: `temp`, `dewpt`, `wind_speed` (kt), `c
 | **IFS** | ECMWF | ECMWF open data via `ecmwf-opendata` (or AWS mirror) | GRIB2 0.25° | Params `2t`, `2d`, `10u`, `10v`, `tcc`. Licence **CC BY 4.0, attribution required** |
 | **AIFS** | ECMWF | ECMWF open data, `model="aifs-single"` | GRIB2 0.25° | Different file naming from IFS: use the package. CC BY 4.0 |
 
+- **PFM verified 2026-11-24:** `/products/types/PFM/locations/{office}` → latest `/products/{id}`. Each point block is a UGC line, a point-name line and a lat/lon line. UGC zone codes repeat within one product, so the registry key `pfm_point` is the **point-name line** (e.g. `Central Park-New York NY`). Offices format the lat/lon line differently: `40.78N  73.97W Elev. 16 ft` (OKX) vs `36.07N 115.16W Elev. (Average Over 2.5KM Grid Box): 2181 ft` (VEF); the parser handles both. A point is assigned only if it is ≤ 3 km from the station and no other point is within twice that distance. Result: 26/28 stations; KMIA (nearest "Miami" point 4.9 km) and KHOU (no Hobby point in PFMHGX) → "Not available for this station".
 - **Later (not v1):** GEFS (and the "GEFS spread" toggle), HGEFS (source unknown: open question Q2).
 - **Do not use Open-Meteo** (its free tier is non-commercial, and it would put a middleman between us and the original runs).
 - **Schedule:** poll every 10–15 min for new cycles. Process each new run once: download, extract all registry stations in one pass, store, record `available_at` (when we first saw it) and `fetched_at`.
@@ -169,7 +176,11 @@ Store values at the station for each run: `temp`, `dewpt`, `wind_speed` (kt), `c
 - File: `data/stations.yaml`, loaded into the `stations` and `station_venues` tables by an idempotent seed command (`python -m edgefront_core.seed`).
 - Each venue mapping carries `verified: false` until someone checks the venue's current market rules and fills `rules_url` and `verified_at`. **Unverified mappings still show**, and a site-wide note says venue labels are being verified.
 - Venues settle on **different stations and sources**, often for the same city (e.g. NYC: Kalshi → KNYC Central Park; Polymarket/Robinhood → KLGA LaGuardia). Kalshi markets historically settle on the NWS Daily Climate Report (CLI); one recent source says Kalshi moved daily temperature settlement to The Weather Company data from Aug 14, 2026; Polymarket and Robinhood markets often name a Weather Underground station history. **Verify each.**
-- Enrichment command (`python -m edgefront_core.enrich_stations`): fill `lat`, `lon`, `elevation_m`, `name` (from aviationweather station info or NWS `/stations/{id}`), `nws_office`, `grid_x`, `grid_y` (from `/points`), `tz` (IANA). `dsm_location` and `pfm_point` must be checked by hand.
+- Enrichment command (`python -m edgefront_core.enrich_stations`): fill `lat`, `lon`, `elevation_m`, `official_name` (from NWS `/stations/{id}`, falling back to aviationweather `https://aviationweather.gov/api/data/stationinfo?ids=…&format=json`), `nws_office`, `grid_x`, `grid_y` (from `/points`). `tz` stays as set in the YAML and is **checked** against NWS `timeZone` (all 28 match). `dsm_location` and `pfm_point` are discovered automatically but written only on clear evidence; anything doubtful is printed as a flag. Idempotent (second live run: 0 changes).
+- **Names:** `name` is EdgeFront's short display name from the YAML (board rows); `official_name` is the upstream name (station page title), e.g. "New York City, Central Park". Enrichment never overwrites `name`.
+- **Seed semantics** (`python -m edgefront_core.seed`, idempotent): YAML sets display fields; a null `dsm_location`/`pfm_point` never overwrites a stored value; venues in the YAML are the full truth per station (others deleted); stations missing from the YAML become `active = false`. Docker's one-shot `migrate` service runs migrate + seed.
+- **Venues** carry `kind: high | low` (owner decision 2026-11-24, Q10). Seeded mappings are all `high`; low markets are added once the owner lists them (Q16).
+- Positions: NWS `/stations` coordinates are used. aviationweather positions differ by 1.7–3.1 km for KATL, KCLT, KDAL, KORD, KSAT (flagged, informational).
 
 ### Seed list (illustrative; ALL venue mappings unverified)
 | Station | Name | TZ | Venues (unverified) |
@@ -260,14 +271,16 @@ YAML shape:
 
 All timestamps are `timestamptz` (UTC). Every observation and product row keeps `source`, `fetched_at` and `ingested_at`.
 
-- `stations` (id PK `KNYC`, name, city, state, lat, lon, elevation_m, tz, day_basis, nws_office, grid_x, grid_y, dsm_location, pfm_point, active bool, created_at, updated_at)
-- `station_venues` (station_id FK, venue enum[kalshi, polymarket, robinhood], market, settlement_source, rules_url, verified bool, verified_at) — PK (station_id, venue)
-- `metar_reports` (id, station_id, report_type, observed_at, raw_text, raw_hash, is_correction, temp_c, dewpt_c, temp_precision, wind_dir_deg, wind_vrb bool, wind_kt, gust_kt, vis_mi, sky jsonb, altim_inhg, slp_hpa, max6h_c, min6h_c, max24h_c, min24h_c, source, fetched_at, ingested_at) — UNIQUE (station_id, observed_at, report_type, raw_hash); index (station_id, observed_at desc)
-- `daily_high_events` (id, station_id, climate_date, from_c, to_c, report_id FK, observed_at)
-- `dsm_products` (id, station_id, product_id UNIQUE, issued_at, climate_date, is_final, max_temp_f, max_time_local, min_temp_f, min_time_local, precip_in, peak_wind_kt, peak_wind_dir, peak_wind_time_local, raw_text, decode_errors jsonb, fetched_at)
-- `nws_forecasts` (id, station_id, office, generated_at, update_time, periods jsonb, hourly jsonb, fetched_at) — keep latest 3 per station
+Built in Phase 1 as Alembic revisions `0001` (source_health) + `0002` (everything else). A test asserts the migrated schema equals the ORM models. JSON columns are JSONB on Postgres.
+
+- `stations` (id PK `KNYC`, name, **official_name**, city, state, lat, lon, elevation_m, tz, day_basis ∈ {LST, LOCAL}, nws_office, grid_x, grid_y, dsm_location, pfm_point, active bool, **enriched_at, enrichment_source**, created_at, updated_at)
+- `station_venues` (station_id FK, venue enum[kalshi, polymarket, robinhood], **market_kind enum[high, low]**, market, settlement_source, rules_url, verified bool, verified_at) — PK (station_id, venue, **market_kind**)
+- `metar_reports` (id, station_id, report_type ∈ {METAR, SPECI}, observed_at, raw_text, raw_hash (sha256), is_correction, **corrects_report_id** (FK self, nullable), temp_c, dewpt_c, temp_precision, wind_dir_deg, wind_vrb bool, wind_kt, gust_kt, vis_mi, sky jsonb, altim_inhg, slp_hpa, max6h_c, min6h_c, max24h_c, min24h_c, source, fetched_at, ingested_at) — UNIQUE (station_id, observed_at, report_type, raw_hash); index (station_id, observed_at desc)
+- `daily_high_events` (id, station_id, climate_date, from_c, to_c, report_id FK, observed_at, created_at)
+- `dsm_products` (id, station_id, product_id UNIQUE, issued_at, climate_date, is_final, max_temp_f, max_time_local, min_temp_f, min_time_local, precip_in, peak_wind_kt, peak_wind_dir, peak_wind_time_local, raw_text, decode_errors jsonb, **source**, fetched_at, **ingested_at**)
+- `nws_forecasts` (id, station_id, office, generated_at, update_time, periods jsonb, hourly jsonb, **source**, fetched_at) — keep latest 3 per station
 - `model_runs` (model, cycle_time, available_at, fetched_at, status, source_url, notes) — PK (model, cycle_time)
-- `model_values` (model, cycle_time, station_id, valid_time, variable, value, unit, is_computed, grid_lat, grid_lon) — PK (model, cycle_time, station_id, valid_time, variable)
+- `model_values` (model, cycle_time, station_id, valid_time, variable, value, unit, is_computed, grid_lat, grid_lon) — PK (model, cycle_time, station_id, valid_time, variable); FK (model, cycle_time) → model_runs ON DELETE CASCADE. Source comes from the parent `model_runs` row.
 - `hf_observations` (**v2, do not create in v1**) (station_id, observed_at, temp_c, dewpt_c, wind_dir_deg, wind_kt, gust_kt, altim_pa, vis_m, qc jsonb, file_name, file_modified_at, ingested_at) — PK (station_id, observed_at)
 - `source_health` (source PK, last_success_at, last_attempt_at, last_error_at, last_error, last_item_time, notes)
 
@@ -391,7 +404,7 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 ## 14. Open questions (owner)
 | # | Question | Default until answered |
 |---|---|---|
-| Q1 | Contact email for the NWS User-Agent | Placeholder env var; must be set before deploy |
+| Q1 | ~~Contact email for the NWS User-Agent~~ **Answered 2026-11-24:** owner supplied it; it lives only in `.env` / deploy env vars (`CONTACT_EMAIL`), never in the repo | — |
 | Q2 | Source of HGEFS | Not in v1 |
 | Q3 | `madis-publisher` cadence (run `systemctl cat madis-publisher.service`) | Needed for Premium (v2) |
 | Q5 | Pricing page: collect emails for a waitlist? | No; "Coming soon" only |
@@ -399,12 +412,16 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 | Q7 | Day basis per venue (LST vs local calendar) | LST for all |
 | Q8 | Premium price points | "Coming soon", no prices |
 | Q9 | Ingest the NWS Daily Climate Report (CLI)? Kalshi has historically settled on it; it is not in the v1 source list. Also verify the claim that Kalshi moved to The Weather Company on 2026-08-14 | Not ingested; board footnote kept generic |
-| Q10 | `station_venues` PK (station_id, venue) allows one market per venue+station, but venues run both high and low markets. Add `market_kind` (high/low) to the key? | Ask before Phase 1 migration |
-| Q11 | Phase 1 schema defaults (proceed unless owner objects): `metar_reports.corrects_report_id` (nullable FK) to link COR rows; `source` column on `nws_forecasts`; `model_values` inherits source from `model_runs` | As stated |
+| Q10 | ~~Add `market_kind` (high/low) to `station_venues`?~~ **Answered 2026-11-24: yes, both.** Built in migration 0002 | — |
+| Q11 | Phase 1 schema defaults: `metar_reports.corrects_report_id`; `source` on `nws_forecasts` (and `dsm_products`); `model_values` inherits source from `model_runs` | **Applied in Phase 1** |
 | Q12 | Board time-zone groups: group by **standard UTC offset** (Detroit/Louisville → Eastern, Phoenix → Mountain); "Local day ends in" counts to LST midnight (1 AM clock time in DST). Climate day is `[start, end)`; a 6 h window ending exactly at `end` counts as inside | As stated |
 | Q13 | Docker and GitHub not set up yet (owner: "later"). Phase 0's `docker compose up` and green CI are therefore unverified locally | Verified with a local non-Docker run on SQLite; CI `docker` job verifies once a remote exists |
+| Q14 | **DSM is only available for 3 of 28 stations** (KNYC, KMSP, KSAT) via NWS public channels (§4.2). Options: (a) show DSM only where it exists, "Not published for this station" elsewhere; (b) add the NWS Daily Climate Report (CLI) as the daily max/min source (ties into Q9: Kalshi has settled on CLI); (c) look for another official DSM feed. | (a) for now; Phase 3 needs a decision |
+| Q15 | KDCA: YAML state `DC`, aviationweather says `VA` (the airport is in Arlington, VA; NWS calls it "Washington/Reagan National Airport, DC"). Keep DC for display? | Keep DC |
+| Q16 | Which stations/venues have **low**-temperature markets? | None seeded until listed |
 
 ## 15. Progress log
 - 2026-11-24 — Plan written. Designs: homepage + free-tier station page. Phase 0 not started.
 - 2026-11-24 — Owner decision: 5-minute HFMETAR is Premium only and is **not built in v1** (no ingest, no table, no LDM proxy). v1 phases renumbered 0–6.
 - 2026-11-24 — **Phase 0 (foundation) built** on branch `phase-0-foundation` (local git, no remote yet). Done: uv workspace (core/api/worker, Python 3.12, ruff, mypy strict, pytest); `GET /api/v1/health` (503 when DB down); worker APScheduler heartbeat every 60 s writing `source_health('worker')` + JSON logs; Alembic bootstrap migration `0001` (source_health only); Next.js 16.4 coming-soon page calling API health server-side; tokens + fonts; Vitest + Playwright placeholder; Dockerfiles (Debian slim) + `infra/docker-compose.yml` with one-shot `migrate`; GitHub Actions CI. Verified locally without Docker (SQLite). Left: run `docker compose up` and CI once Docker/GitHub exist (Q13); owner answers Q1, Q9, Q10.
+- 2026-11-24 — **Phase 1 (data model + registry) built** on branch `phase-1-registry`. Done: migration `0002` with all §7 tables except `hf_observations` (+ `market_kind`, `corrects_report_id`, `official_name`, `source` columns); `data/stations.yaml` (28 stations, 46 venue mappings, all unverified, all `high`); idempotent `seed`; `enrich_stations` with live-verified sources (aviationweather stationinfo, NWS `/stations`, `/points`, DSM + PFM product discovery); shared upstream HTTP client with retries; fixture-capture CLI (`python -m edgefront_core.fixtures`); 14 real fixtures. Live result: 28/28 stations with lat/lon/elevation/office/grid, tz verified, `dsm_location` 3/28, `pfm_point` 26/28. Key finding: DSM coverage (Q14). Left: Q14, Q15, Q16; Docker/CI still unverified (Q13).
