@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     stale_metar_minutes: int = 90
 
     heartbeat_seconds: int = 60
+    # CI's Docker smoke test runs the worker with upstream jobs off (no CONTACT_EMAIL there, and
+    # CI must never contact NOAA/NWS/IEM). Always true in deployed environments.
+    worker_upstream_enabled: bool = True
 
     @property
     def user_agent(self) -> str:
