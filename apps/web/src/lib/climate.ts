@@ -45,7 +45,7 @@ export function climateDayBounds(nowMs: number, tz: string): ClimateBounds {
   };
 }
 
-/** "7 h 55 m" until `endMs` (never negative). */
+/** "3 h 10 m" until `endMs` (never negative). */
 export function formatCountdown(endMs: number, nowMs: number): string {
   const mins = Math.max(0, Math.ceil((endMs - nowMs) / MIN));
   const h = Math.floor(mins / 60);

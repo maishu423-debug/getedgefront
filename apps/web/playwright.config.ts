@@ -1,5 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// Runs against a running stack (web + API with real data): E2E_BASE_URL, default localhost:3000.
 const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
 export default defineConfig({
@@ -8,6 +9,16 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: "list",
+  timeout: 45_000,
   use: { baseURL, trace: "on-first-retry" },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "desktop-1440",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+    },
+    {
+      name: "phone-375",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 375, height: 812 }, hasTouch: true },
+    },
+  ],
 });

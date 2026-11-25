@@ -35,7 +35,9 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-JsonType = JSON().with_variant(JSONB(), "postgresql")
+# none_as_null: Python None is stored as SQL NULL, not the JSON literal "null" (so
+# `decode_errors IS NULL` means "no errors").
+JsonType = JSON(none_as_null=True).with_variant(JSONB(none_as_null=True), "postgresql")
 BigId = BigInteger().with_variant(Integer(), "sqlite")
 TempC = Numeric(4, 1, asdecimal=True)
 

@@ -4,7 +4,7 @@
  * only rendered after mount (see components/RelativeAge.tsx).
  */
 
-/** "2026-11-24T21:05:12Z" → "21:05Z". "—" for missing/invalid input (never invents a time). */
+/** "2026-11-24T14:51:00Z" → "14:51Z". "—" for missing/invalid input (never invents a time). */
 export function formatZulu(iso: string | null | undefined): string {
   if (!iso) return "—";
   const d = new Date(iso);

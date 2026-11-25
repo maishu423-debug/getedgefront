@@ -34,15 +34,22 @@ export async function apiGetUncached<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+type Cached<T> = { notFound: true } | { notFound: false; data: T };
+
 /**
  * Cached GET shared across requests, revalidated about every 60 s.
- * `expire` under 5 minutes keeps it out of build-time prerendering (resolved at request time),
- * so `next build` never calls the API. Errors are thrown, never cached.
+ * A 404 is returned as a value: errors thrown across a `use cache` boundary lose their class,
+ * so `instanceof ApiNotFound` would never match outside. Other errors are thrown and never cached.
  */
-async function apiGetCached<T>(path: string): Promise<T> {
+async function apiGetCached<T>(path: string): Promise<Cached<T>> {
   "use cache";
   cacheLife({ stale: 30, revalidate: 60, expire: 240 });
-  return apiGetUncached<T>(path);
+  try {
+    return { notFound: false, data: await apiGetUncached<T>(path) };
+  } catch (err) {
+    if (err instanceof ApiNotFound) return { notFound: true };
+    throw err;
+  }
 }
 
 export type Result<T> = { ok: true; data: T } | { ok: false; notFound: boolean; error: string };
@@ -53,7 +60,9 @@ export async function load<T>(path: string): Promise<Result<T>> {
   // The shared 60 s cache below still applies across requests.
   await connection();
   try {
-    return { ok: true, data: await apiGetCached<T>(path) };
+    const r = await apiGetCached<T>(path);
+    if (r.notFound) return { ok: false, notFound: true, error: `not found: ${path}` };
+    return { ok: true, data: r.data };
   } catch (err) {
     return {
       ok: false,

@@ -47,8 +47,8 @@ uv run python -m edgefront_core.seed             # load data/stations.yaml (idem
 uv run python -m edgefront_core.enrich_stations  # live upstream; needs CONTACT_EMAIL in .env
 uv run python -m edgefront_worker.main           # METAR 3 min, CLI 15 min, DSM 12 min, forecast 30 min
 uv run uvicorn edgefront_api.main:build --factory --port 8000
-uv run python -m edgefront_worker.main
 cd apps/web && pnpm build && API_INTERNAL_URL=http://127.0.0.1:8000 pnpm start
+# then, with the stack running: pnpm --filter @edgefront/web test:e2e  (Playwright, 1440 + 375 px)
 ```
 
 ## Data source notes

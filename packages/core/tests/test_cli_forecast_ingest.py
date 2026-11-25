@@ -228,3 +228,12 @@ def test_forecast_persistent_5xx_fails_one_station_only(
         h = s.get(SourceHealth, "forecast")
         assert h is not None
         assert h.last_success_at is not None
+
+
+def test_no_decode_errors_is_sql_null(session_factory: sessionmaker[Session]) -> None:
+    """Regression: 'no errors' must be SQL NULL (not JSON 'null'), so IS NULL queries work."""
+    _stations(session_factory)
+    run_cli_ingest(session_factory, FakeCli().lister(), now=lambda: NOW)
+    with session_scope(session_factory) as s:
+        assert s.scalar(select(func.count()).where(CliProduct.decode_errors.is_not(None))) == 0
+        assert (s.scalar(select(func.count()).where(CliProduct.decode_errors.is_(None))) or 0) > 0
