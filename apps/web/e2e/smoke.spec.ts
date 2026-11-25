@@ -71,6 +71,7 @@ test.describe("station pages", () => {
       "Daily summaries",
       "Observed conditions",
       "Hourly METAR reports",
+      "Model guidance for Dallas/Fort Worth Intl",
     ]) {
       await expect(page.getByRole("heading", { name })).toBeVisible();
     }
@@ -114,6 +115,59 @@ test.describe("station pages", () => {
     await expect(page.getByRole("combobox", { name: "Search stations" })).toBeVisible();
     const res = await page.goto("/no-such-page");
     expect(res?.status()).toBe(404);
+  });
+});
+
+test.describe("model guidance", () => {
+  const section = (page: Page) =>
+    page.locator("section", { has: page.getByRole("heading", { name: /^Model guidance for / }) });
+
+  test("KDFW shows at least 6 models, a lazy chart and run lines", async ({ page }) => {
+    await page.goto("/station/KDFW");
+    const s = section(page);
+    await s.scrollIntoViewIfNeeded();
+    await expect(s.getByText("MODEL DATA", { exact: true })).toBeVisible();
+    await expect(s.locator('[aria-label^="Model guidance chart"] canvas')).toHaveCount(1);
+    const on = s.locator('button[aria-pressed="true"]').filter({ hasNotText: /^(Temp|Today)$/ });
+    // chips that are available and switched on (variable/span tabs excluded by name)
+    const chips = s.locator('[role="group"][aria-label$=" models"] button[aria-pressed]');
+    expect(await chips.count()).toBeGreaterThanOrEqual(6);
+    expect(await on.count()).toBeGreaterThanOrEqual(6);
+    await expect(s.getByRole("list", { name: "Model runs shown" })).toContainText("run ");
+    await expect(s.getByText(/© ECMWF, open data licensed under CC BY 4\.0/)).toBeVisible();
+    await noHorizontalScroll(page);
+  });
+
+  test("KMIA: PFM chip is disabled and explains why", async ({ page }) => {
+    await page.goto("/station/KMIA");
+    const s = section(page);
+    const pfm = s.getByRole("button", { name: /PFM/ });
+    await expect(pfm).toHaveAttribute("aria-disabled", "true");
+    await pfm.focus();
+    await expect(s.getByRole("tooltip")).toContainText("no PFM point");
+    await expect(s.getByRole("list", { name: "Model runs shown" })).toContainText(
+      "Not available for this station",
+    );
+  });
+
+  test("variable, window and chips are kept in the URL", async ({ page }) => {
+    await page.goto("/station/KDFW");
+    const s = section(page);
+    await s.getByRole("group", { name: "Variable" }).getByRole("button", { name: "Wind" }).click();
+    await expect(page).toHaveURL(/mvar=wind/);
+    await s
+      .getByRole("group", { name: "Forecast window" })
+      .getByRole("button", { name: "48 h" })
+      .click();
+    await expect(page).toHaveURL(/mspan=48h/);
+    await s.getByRole("button", { name: /^NBM/ }).click();
+    await expect(page).toHaveURL(/mhide=nbm/);
+    await page.reload();
+    const s2 = section(page);
+    await expect(s2.getByRole("button", { name: "Wind" })).toHaveAttribute("aria-pressed", "true");
+    await expect(s2.getByRole("button", { name: "48 h" })).toHaveAttribute("aria-pressed", "true");
+    await expect(s2.getByRole("button", { name: /^NBM/ })).toHaveAttribute("aria-pressed", "false");
+    await expect(s2.getByText(/Model wind speed for 48 h/)).toBeVisible();
   });
 });
 

@@ -21,7 +21,8 @@ export default function Home() {
               Observed weather at the U.S. stations weather markets settle on.
             </h1>
             <p className="text-[17px] leading-normal text-[#3A4644]">
-              Hourly METARs, NWS daily climate reports and ASOS daily summaries, and NWS forecasts
+              Hourly METARs, NWS daily climate reports and ASOS daily summaries, NWS forecasts and
+              model guidance (GFS, ECMWF IFS and AIFS, NBM, GFS-MOS, LAMP and NWS point forecasts)
               for every Kalshi, Polymarket and Robinhood temperature station, each with its source
               and time stamp.
             </p>

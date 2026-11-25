@@ -58,6 +58,49 @@ const SOURCES: SourceCard[] = [
   },
 ];
 
+/** Model guidance (Phase 5). Shown as MODEL DATA on station pages; never blended or ranked. */
+const MODEL_SOURCES: SourceCard[] = [
+  {
+    title: "GFS (Global Forecast System)",
+    producer: "NOAA / NCEP",
+    uses: "2 m temperature, dew point and relative humidity, 10 m wind, total cloud cover at the nearest land grid point (0.25°), hourly to 54 h. Only these fields are downloaded (byte ranges).",
+    cadence:
+      "Checked every 15 minutes for the 00/06/12/18Z runs; each step is stored as soon as it is published. Files from the NOAA Open Data bucket on AWS, NOMADS as a fallback.",
+    licence: "U.S. government data, public domain.",
+    keys: ["model_gfs"],
+    url: "https://registry.opendata.aws/noaa-gfs-bdp-pds/",
+  },
+  {
+    title: "ECMWF IFS and AIFS (open data)",
+    producer: "European Centre for Medium-Range Weather Forecasts",
+    uses: "IFS (the ECMWF physics model, 3-hourly) and AIFS Single (ECMWF's machine-learning model, 6-hourly): 2 m temperature and dew point, 10 m wind and total cloud cover at the nearest land grid point (0.25°) to 54 h. Relative humidity is computed from temperature and dew point.",
+    cadence: "Checked every 15 minutes for the 00/06/12/18Z runs.",
+    licence:
+      "ECMWF open data, licensed under Creative Commons Attribution 4.0 (CC BY 4.0). Attribution: contains ECMWF open data © ECMWF. EdgeFront extracts the values at each station's grid point and converts units (K → °F, m/s → kt, fraction → %).",
+    keys: ["model_ifs", "model_aifs"],
+    url: "https://www.ecmwf.int/en/forecasts/datasets/open-data",
+  },
+  {
+    title: "NWS station guidance: NBM, GFS-MOS, LAMP",
+    producer:
+      "National Weather Service (National Blend of Models; Meteorological Development Laboratory)",
+    uses: "The station text bulletins on NOMADS: NBM hourly (NBH, first ~25 h) then 3-hourly (NBS); GFS MOS (MAV, 3-hourly, cloud as categories); GFS LAMP (LAV, hourly for 25 h, cloud as categories). Temperature, dew point, wind and cloud as printed; relative humidity computed.",
+    cadence: "Checked every 15 minutes: NBM and LAMP update hourly, GFS-MOS four times a day.",
+    licence: "U.S. government data, public domain.",
+    keys: ["model_nbm", "model_gfs_mos", "model_lamp"],
+    url: "https://nomads.ncep.noaa.gov/",
+  },
+  {
+    title: "NWS Point Forecast Matrices (PFM)",
+    producer: "National Weather Service forecast offices (api.weather.gov)",
+    uses: "The 3-hourly temperature, dew point, relative humidity, wind (mph, shown in kt) and cloud category for the forecast point at the station (26 of 28 stations; KMIA and KHOU have no point within 3 km).",
+    cadence: "Checked every 15 minutes; offices issue new matrices a few times a day.",
+    licence: "U.S. government data, public domain.",
+    keys: ["model_pfm"],
+    url: "https://www.weather.gov/documentation/services-web-api",
+  },
+];
+
 function Health({ s }: { s: SourceStatus | undefined }) {
   if (!s) return <span className="text-muted-2">No status</span>;
   return (
@@ -115,14 +158,18 @@ const DEFS: [string, string][] = [
     "METARs are point readings, usually once an hour. The ASOS Daily Summary (DSM) and the NWS Daily Climate Report (CLI) report the day's true maximum and minimum from the sensor, including peaks between hourly reports, so they can be higher (or lower) than the METAR high. Intraday CLI and DSM issues cover the day so far; the final issue arrives after local midnight. Markets name their own settlement source: read each market's rules.",
   ],
   [
+    "Model guidance",
+    "Third-party model output, labelled MODEL DATA. Each model shows its latest run: values only at the model's own valid times (never interpolated), at the nearest land grid point (land fraction at least 0.5) or the NWS forecast point, with no height or bias adjustment. “Received” is when EdgeFront first got the run; a run received more than twice the model's usual interval ago is marked stale. Cloud categories (CL, FW, SC, BK, OV; PFM B1/B2) are plotted at fixed midpoints and shown as categories. “Today” is the climate day; “48 h” starts at the climate day's start. EdgeFront does not rank, blend or endorse models.",
+  ],
+  [
     "Units",
-    "Temperatures in °F, rounded to whole degrees (half away from zero) from the reported °C. METAR wind in knots; DSM and CLI wind in mph, as published.",
+    "Temperatures in °F, rounded to whole degrees (half away from zero) from the reported °C. METAR wind in knots; DSM and CLI wind in mph, as published. Model wind in knots (PFM is published in mph and converted).",
   ],
 ];
 
 export default function SourcesPage() {
   return (
-    <PageShell active="sources" iem>
+    <PageShell active="sources" iem ecmwf>
       <main
         id="main"
         className="mx-auto flex w-full max-w-[960px] flex-col gap-8 px-4 pt-10 pb-16 sm:px-8"
@@ -140,7 +187,7 @@ export default function SourcesPage() {
           <h2 id="h-src" className="sr-only">
             Data sources
           </h2>
-          {SOURCES.map((s) => (
+          {[...SOURCES, ...MODEL_SOURCES].map((s) => (
             <article
               key={s.title}
               className="flex flex-col gap-3 rounded-[14px] border border-border bg-surface p-5"
@@ -168,9 +215,6 @@ export default function SourcesPage() {
               </a>
             </article>
           ))}
-          <p className="text-[13px] text-muted-2">
-            Model guidance sources are added here when model data launches.
-          </p>
         </section>
         <section aria-labelledby="h-defs" className="flex flex-col gap-3">
           <h2 id="h-defs" className="font-display text-2xl font-semibold">

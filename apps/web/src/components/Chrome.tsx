@@ -100,7 +100,12 @@ export function Footer({ ecmwf = false, iem = false }: { ecmwf?: boolean; iem?: 
           <span>METAR: NOAA Aviation Weather Center</span>
           <span>Daily summaries, forecasts: National Weather Service</span>
           {iem ? <span>DSM via Iowa Environmental Mesonet, Iowa State University</span> : null}
-          {ecmwf ? <span>Contains ECMWF data, CC BY 4.0</span> : null}
+          {ecmwf ? (
+            <span>
+              Models: NOAA/NCEP (GFS), NWS (NBM, GFS-MOS, LAMP, PFM); IFS and AIFS contain ECMWF
+              open data © ECMWF, CC BY 4.0
+            </span>
+          ) : null}
           <Link href="/sources" className="text-[#C9D1CE] underline hover:text-white">
             All sources and definitions
           </Link>
@@ -134,10 +139,13 @@ export function PageShell({
   children,
   active,
   iem,
+  ecmwf,
 }: {
   children: React.ReactNode;
   active?: "stations" | "pricing" | "sources";
   iem?: boolean;
+  /** Pages that show IFS/AIFS values carry the CC BY 4.0 attribution. */
+  ecmwf?: boolean;
 }) {
   return (
     <>
@@ -149,7 +157,7 @@ export function PageShell({
       </a>
       <Header active={active} />
       {children}
-      <Footer iem={iem} />
+      <Footer iem={iem} ecmwf={ecmwf} />
     </>
   );
 }

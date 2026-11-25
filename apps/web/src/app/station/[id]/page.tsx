@@ -7,6 +7,7 @@ import { CurrentCards } from "@/components/station/CurrentCards";
 import { DailySummaries } from "@/components/station/DailySummaries";
 import { ForecastCard } from "@/components/station/ForecastCard";
 import { MetarReports } from "@/components/station/MetarReports";
+import { ModelGuidance } from "@/components/station/ModelGuidance";
 import { ObservedChart } from "@/components/station/ObservedChart";
 import { StationSearch } from "@/components/StationSearch";
 import { NoData, Skeleton, UpstreamDown } from "@/components/states";
@@ -15,6 +16,7 @@ import {
   getDaily,
   getForecast,
   getMetars,
+  getModels,
   getObserved,
   getStation,
   getStations,
@@ -72,7 +74,7 @@ export default async function StationPage({ params }: PageProps<"/station/[id]">
   const { id } = await params;
   if (!KNOWN.has(id)) notFound();
   return (
-    <PageShell active="stations">
+    <PageShell active="stations" iem ecmwf>
       <Suspense fallback={<StationSkeleton />}>
         <StationContent params={params} />
       </Suspense>
@@ -159,13 +161,14 @@ async function StationContent({ params }: { params: PageProps<"/station/[id]">["
     );
   }
   const st = stRes.data.station;
-  const [cur, fc, daily, obs, metars, all] = await Promise.all([
+  const [cur, fc, daily, obs, metars, all, models] = await Promise.all([
     getCurrent(sid),
     getForecast(sid),
     getDaily(sid),
     getObserved(sid),
     getMetars(sid),
     getStations(),
+    getModels(sid),
   ]);
   const searchList = all.ok
     ? all.data.stations.map(({ id: i, name, city, state, aliases }) => ({
@@ -214,7 +217,12 @@ async function StationContent({ params }: { params: PageProps<"/station/[id]">["
       )}
 
       <MetarReports data={metars.ok ? metars.data : null} tz={st.tz} failed={!metars.ok} />
-      {/* Model guidance (Phase 5) goes here. */}
+      <ModelGuidance
+        initial={models.ok ? models.data : null}
+        stationId={sid}
+        stationName={st.name}
+        tz={st.tz}
+      />
     </main>
   );
 }

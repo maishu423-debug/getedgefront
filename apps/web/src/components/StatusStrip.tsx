@@ -31,6 +31,34 @@ function Item({ label, src }: { label: string; src: SourceStatus | undefined }) 
   );
 }
 
+const MODEL_KEYS: [string, string][] = [
+  ["model_ifs", "IFS"], ["model_gfs", "GFS"], ["model_aifs", "AIFS"], ["model_gfs_mos", "GFS-MOS"],
+  ["model_nbm", "NBM"], ["model_lamp", "LAMP"], ["model_pfm", "PFM"],
+]; // prettier-ignore
+
+/** "06Z" for a cycle on the hour, "13:30Z" otherwise. */
+function cycleLabel(iso: string | null): string {
+  if (!iso) return "—";
+  const z = formatZulu(iso);
+  return z.endsWith(":00Z") ? z.replace(":00Z", "Z") : z;
+}
+
+function Models({ by }: { by: Map<string, SourceStatus> }) {
+  const items = MODEL_KEYS.map(([k, label]) => ({ label, s: by.get(k) })).filter((x) => x.s);
+  if (!items.length) return null;
+  return (
+    <span>
+      Models in:{" "}
+      {items.map(({ label, s }, i) => (
+        <span key={label} className={s!.healthy && s!.last_item_time ? "" : "text-[#F2B572]"}>
+          {i ? " · " : ""}
+          {label} {s!.last_item_time ? cycleLabel(s!.last_item_time) : "none yet"}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 /** Dark data-status strip (homepage). Refreshes every 60 s while the tab is visible. */
 export function StatusStrip({ initial }: { initial: StatusResponse | null }) {
   const { data, failed } = usePolling<StatusResponse | null>("/api/status", initial);
@@ -72,6 +100,7 @@ export function StatusStrip({ initial }: { initial: StatusResponse | null }) {
               )}
             </span>
             <Item label="NWS forecasts updated" src={by.get("forecast")} />
+            <Models by={by} />
             {failed ? (
               <span className="text-[#F2B572]">refresh failed, showing last status</span>
             ) : null}

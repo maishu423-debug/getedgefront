@@ -1,7 +1,13 @@
 /** Pure helpers for the model guidance section: URL state, series mapping, labels, summary. */
 
 import { formatLocalTime, formatZulu } from "@/lib/time";
-import type { ModelPoint, ModelSeries, ModelSpan, ModelsResponse, ModelVariable } from "@/lib/types";
+import type {
+  ModelPoint,
+  ModelSeries,
+  ModelSpan,
+  ModelsResponse,
+  ModelVariable,
+} from "@/lib/types";
 
 export const VARIABLES: { key: ModelVariable; label: string; long: string }[] = [
   { key: "temp", label: "Temp", long: "temperature" },
@@ -184,7 +190,9 @@ export function runLine(m: ModelSeries, nowMs: number | null): string {
   if (m.grid?.distance_km !== null && m.grid?.distance_km !== undefined) {
     parts.push(
       `${m.grid.point_name && m.group === "nws" ? "point" : "grid point"} ${m.grid.distance_km.toFixed(1)} km away` +
-        (m.grid.height_m !== null && m.group !== "nws" ? `, model height ${Math.round(m.grid.height_m)} m` : ""),
+        (m.grid.height_m !== null && m.group !== "nws"
+          ? `, model height ${Math.round(m.grid.height_m)} m`
+          : ""),
     );
   }
   if (r.stale && nowMs !== null) {
@@ -215,9 +223,13 @@ export function summarize(data: ModelsResponse, visible: Set<string>, tz: string
     if (!visible.has(m.id) || !m.available) continue;
     if (m.kind === "categorical") {
       const cats = [...new Set(m.points.map((p) => p.category).filter(Boolean))];
-      parts.push(`${m.label} ${m.run ? runLabel(m.run.cycle_time) : ""}: ${cats.join(", ") || "no values in this window"}`);
+      parts.push(
+        `${m.label} ${m.run ? runLabel(m.run.cycle_time) : ""}: ${cats.join(", ") || "no values in this window"}`,
+      );
     } else {
-      parts.push(`${m.label} ${m.run ? runLabel(m.run.cycle_time) : ""}: ${range(m.points, data.unit) ?? "no values in this window"}`);
+      parts.push(
+        `${m.label} ${m.run ? runLabel(m.run.cycle_time) : ""}: ${range(m.points, data.unit) ?? "no values in this window"}`,
+      );
     }
   }
   const obs = range(data.observed.points, data.unit);
