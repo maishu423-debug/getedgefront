@@ -1,0 +1,728 @@
+ KBOS   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  33 36 39 41 42 42 42 41 40 39 39 39 38 38 38 38 38 38 38 38 38 38 38 38 39 
+ DPT  18 20 22 24 25 24 25 25 26 26 27 26 27 27 28 28 29 28 28 29 29 30 30 31 32 
+ WDR  35 36 01 03 06 06 07 07 07 07 07 07 07 07 06 06 05 05 04 04 05 05 05 06 06 
+ WSP  07 06 06 06 07 08 07 08 08 08 07 07 07 07 07 07 08 08 09 10 11 12 12 13 15 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  1  2  3  4  3  3  2  3  3  4  3  2  2  1  1  2  0 
+ POS  87 83 78 70 65 63 54 47 40 38 38 38 38 36 36 32 28 24 23 23 22 18 15 10 10 
+ TYP   S  S  S  S  S  S  S  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  FW SC SC BK BK BK BK BK BK BK SC SC FW FW SC BK OV BK OV OV OV OV OV OV OV 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  6  6  6  5 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  6  6  6  5 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KDCA   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  38 41 43 46 46 48 48 49 48 48 48 48 47 47 47 48 48 47 48 47 48 47 48 48 48 
+ DPT  25 26 29 30 31 32 33 33 33 33 34 37 38 38 40 40 41 42 43 44 43 45 44 46 45 
+ WDR  03 03 04 04 04 04 05 04 04 04 04 04 04 03 04 04 03 02 03 03 04 04 03 04 04 
+ WSP  11 12 11 12 14 14 15 15 16 17 19 18 21 20 22 21 25 26 28 30 33 34 33 40 38 
+ WGS  NG NG NG NG NG NG NG NG NG 25 27 25 26 26 28 27 NG 30 NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  1  2  2  3  7  9 10 23 35 47 61 75 90 97100100100 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y 
+ P01   0  0  0  0  1  2  7  7  9  7  7  8  8  9 14 24 32 49 55 69 73 76 84 90100 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y  Y 
+ P06                  3                17                74                95    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  1  1  1  2  2  0  1  0  0  0  0  0  0  0  1  5  7  8 11 11 12 17 24 26 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  L  L  L  M  M 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS  27 19 12  7  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  2  3  2 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   6  6  6  6  6  6  6  6  6  6  6  6  6  5  5  5  5  5  4  4  3  3  3  3  3 
+ CCG   6  6  7  7  6  6  6  6  6  6  6  6  5  5  6  5  5  5  4  4  3  3  3  3  3 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  5  5  5  5  4  3  2 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  6  5  5  5  5  2  1 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N HZ BR BR BR BR BR FG 
+                                                                                 
+ KLGA   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  38 40 42 43 44 44 45 45 45 45 45 45 44 44 44 44 43 43 43 42 41 41 42 42 43 
+ DPT  23 24 24 23 23 24 25 27 28 29 30 31 31 31 32 33 33 34 34 34 35 36 36 37 38 
+ WDR  03 05 05 05 05 05 05 05 05 06 06 07 07 06 06 06 06 06 06 06 06 06 05 05 05 
+ WSP  08 09 10 11 10 10 11 10 11 12 14 14 15 15 15 15 16 18 18 19 20 21 24 26 29 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 25 24 26 27 29 NG 33 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  7 13 19 36 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  2  3  5  6  8 19 43 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y 
+ P06                  0                 0                 2                35    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  1  1  0  0  0  0  0  0  0  0  0  0  0  0  1  2  3  4  6 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  1  1  0  0  0  0  0  0  0  2  1  0  0  0  0  0  0  0  0  0  1  2  3 
+ POS  54 50 48 38 27 20 13  8  1  3  6 10  9 10 12 11 11 12 12 12 12  9  8  5  6 
+ TYP   S  S  S  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  FW SC BK BK BK BK BK BK BK BK BK OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  5  5  5  5  5  5  5  5  4  4  4  4  4 
+ CCG   8  8  8  8  8  8  8  8  7  6  6  5  5  5  5  5  5  5  4  4  4  4  4  4  4 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  5 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KNYC   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  36 38 40 42 43 43 44 44 44 43 43 43 43 42 43 42 42 42 42 42 42 42 42 42 44 
+ DPT  21 22 23 22 22 22 23 26 28 29 30 31 31 30 30 31 32 32 33 34 35 35 36 37 37 
+ WDR  05 05 05 05 05 05 05 05 05 05 06 07 06 07 07 07 07 06 06 06 06 06 05 06 06 
+ WSP  06 06 08 07 08 08 07 08 09 06 09 09 09 08 10 10 09 08 10 13 12 16 17 16 16 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG 19 18 18 20 20 19 21 23 22 26 26 24 25 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  7 13 19 35 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  2  3  5  6  8 19 44 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y 
+ P06                  0                 0                 2                35    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  1  1  0  0  0  0  0  0  0  0  0  0  0  0  1  2  3  4  6 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  1  1  1  2  1  1  2  1  1  2  1  0  0  0  0  0  0  0  0  0  1  2  1 
+ POS  55 51 50 42 33 29 22 15  7  7  8 10 10 10 12 11 10 11 11 12 12  9  8  5  3 
+ TYP   S  S  S  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  CL CL FW CL SC SC SC FW FW BK OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  6  5  5  5  5  5  5  5  4  4  4  4  4 
+ CCG   8  8  8  8  8  8  8  8  8  6  7  7  5  5  5  5  5  5  5  4  4  4  4  4  4 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  5 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KPHL   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  37 40 42 44 46 47 48 47 46 46 46 46 45 45 45 45 45 44 45 44 45 46 46 47 46 
+ DPT  24 24 25 26 27 28 30 30 30 30 32 33 34 35 35 36 36 36 36 36 36 37 38 40 41 
+ WDR  03 04 04 05 05 05 05 06 05 05 05 05 05 06 05 05 05 05 05 04 04 04 04 04 05 
+ WSP  09 10 10 10 10 11 12 12 12 13 12 14 14 14 15 16 17 19 21 22 25 26 29 28 29 
+ WGS  NG NG NG NG NG NG NG 20 19 NG 19 23 23 22 23 24 24 26 28 27 31 32 34 32 34 
+ PPO   0  0  0  0  0  6  4  3  0  0  0  0  0  1  1  2  3  4 13 23 31 43 55 68 80 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y  Y  Y  Y 
+ P01   0  0  0  0  0  0  0  2  3  2  1  1  1  1  3  5  4  5  9 13 23 46 58 63 62 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y  Y  Y  Y 
+ P06                  0                 5                 9                85    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  1  1  1  1  1  1  1  0  0  0  0  0  1  1  1  0  3  6  7  8  9  9 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS  34 24 18 11  3  0  0  2  5  3  2  2  0  0  0  0  0  0  0  0  0  0  0  1  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  BK OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   8  8  8  7  7  8  8  6  6  6  6  5  5  5  6  6  6  6  5  5  4  4  4  4  4 
+ CCG   8  8  8  8  8  8  8  8  6  6  5  5  5  5  8  8  7  7  6  5  5  4  4  4  4 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  6  5  3 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  6  6  5  5  3 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N BR BR 
+                                                                                 
+ KATL   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  48 48 48 49 50 50 47 48 47 46 46 46 46 46 46 46 48 48 48 48 48 49 49 48 49 
+ DPT  28 27 27 29 31 33 35 36 39 40 41 41 42 42 41 42 43 44 45 44 44 45 45 45 45 
+ WDR  08 08 07 07 07 07 06 06 06 06 06 06 06 05 05 05 02 01 36 35 33 32 32 30 29 
+ WSP  21 22 20 21 20 19 18 18 17 17 18 19 19 16 15 15 11 09 09 09 09 09 09 09 08 
+ WGS  NG NG NG NG 25 26 25 26 23 22 NG NG NG NG NG NG NG NG NG NG NG NG NG 18 16 
+ PPO   0  0  0  0  0  0  8 17 27 39 48 53 58 60 69 76 76 78 77 73 67 61 52 48 43 
+ PCO   N  N  N  N  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y 
+ P01   0  0  1  1  2  3  6  8 21 30 50 56 65 62 51 51 50 50 50 47 42 33 28 30  9 
+ PC1   N  N  N  N  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  N  Y  N 
+ P06                  4                82                87                74    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   2  2  2  0  0  1  2  2  5  5 10 12 10 11  9  9 11 11  9  8  8  6  6  8  8 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  L  N  L  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   5  5  5  5  5  5  5  4  4  3  3  3  3  3  3  3  3  3  3  3  3  2  2  3  2 
+ CCG   5  5  5  5  5  5  4  4  4  4  3  3  3  3  3  3  3  3  3  2  2  3  3  3  3 
+ VIS   7  7  7  7  7  7  7  7  7  7  4  4  5  5  5  5  5  5  5  5  5  5  5  5  4 
+ CVS   7  7  7  7  7  7  7  7  7  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5  4 
+ OBV   N  N  N  N  N  N  N  N  N BR BR BR BR BR BR BR BR BR BR BR BR BR BR BR BR 
+                                                                                 
+ KCLT   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  43 43 42 43 43 42 42 42 43 42 42 45 46 47 47 49 47 48 47 48 47 48 49 49 49 
+ DPT  26 27 29 33 34 36 38 41 41 42 42 44 44 45 45 44 46 45 46 47 46 47 47 47 45 
+ WDR  02 03 03 02 02 02 02 03 03 03 03 03 03 03 03 03 03 03 03 02 02 02 36 34 36 
+ WSP  16 18 18 17 17 18 17 19 19 20 21 23 24 24 25 24 27 26 25 21 20 18 14 11 11 
+ WGS  23 25 23 24 25 25 25 26 26 25 NG NG NG NG NG 28 NG 31 30 25 NG 25 20 19 18 
+ PPO  14 29 53 42 53 64 82 91 91100100100100100100100100100100 97 92 86 75 59 52 
+ PCO   N  N  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y 
+ P01   0 23 36 52 57 63 73 78 78 77 80 79 78 72 76 76 67 54 61 58 47 25 18 11  9 
+ PC1   N  N  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  N  N  N  N 
+ P06                 87                96                95                84    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   1  0  7 11 15 14 15 20 21 25 28 32 26 24 20 19 18 20 17 17 14 11 10  8  6 
+ CC1   N  N  N  L  L  L  L  L  L  M  M  M  M  M  L  L  L  L  L  L  L  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS   0  0  0  2  4  6  5  4  2  1  0  0  0  0  1  1  2  2  1  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   6  6  6  5  4  4  3  3  3  3  3  3  3  3  3  3  3  3  3  3  3  3  3  4  4 
+ CCG   6  6  6  5  4  4  3  3  3  3  3  3  3  3  3  3  3  3  3  3  3  3  4  4  4 
+ VIS   7  7  7  6  6  5  5  5  4  4  4  4  5  5  5  5  4  4  5  5  5  5  5  5  5 
+ CVS   7  7  7  5  7  5  5  5  4  4  5  5  5  5  5  5  5  5  5  5  5  5  5  5  5 
+ OBV   N  N  N  N BR BR BR BR BR BR BR BR BR BR BR BR BR BR BR BR  N  N  N  N  N 
+                                                                                 
+ KJAX   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  54 54 53 53 54 53 54 56 54 54 55 54 55 55 55 54 55 54 53 54 54 54 54 54 53 
+ DPT  49 51 52 53 54 53 54 54 54 54 53 53 53 53 53 52 52 53 52 53 52 51 51 50 49 
+ WDR  02 02 02 02 02 02 02 02 02 01 01 36 34 33 30 30 30 30 29 28 26 27 26 26 26 
+ WSP  12 12 12 13 12 12 13 12 11 10 10 10 09 10 09 07 07 08 09 09 10 10 11 10 11 
+ WGS  22 21 20 20 19 19 20 19 19 18 19 NG NG NG NG NG NG NG NG NG NG NG 21 20 20 
+ PPO  22 49 59 66 77 84 75 67 56 46 32 23 18 13  7  3  2  2  1  2  4  2  3  2  0 
+ PCO   N  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0 33 63 69 67 59 38 26 27 18  9 10  5  5  5  9  5  6  6  5  8  5  4  4  4 
+ PC1   N  Y  Y  Y  Y  Y  Y  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                 93                64                15                15    
+ LP1   0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   5  4  9 23 19 10  9  6  4  2  1  0  0  0  1  2  2  4  4  6  8  4  3  3  1 
+ CC1   N  N  N  L  L  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   4  3  3  3  3  3  3  3  3  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2 
+ CCG   4  3  3  3  3  3  3  3  3  2  2  2  3  3  2  2  2  2  2  2  2  2  3  3  3 
+ VIS   7  7  5  5  5  5  5  5  5  5  5  6  5  5  5  5  5  5  5  5  5  7  7  7  7 
+ CVS   7  5  5  5  5  5  5  5  5  5  5  6  6  5  5  5  5  6  7  7  5  5  5  5  6 
+ OBV   N  N BR BR BR BR BR BR BR FG FG FG BR BR BR BR BR BR BR BR BR BR  N  N  N 
+                                                                                 
+ KMIA   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  71 78 73 72 72 74 75 74 77 74 73 72 72 71 71 70 70 69 69 68 69 68 68 68 70 
+ DPT  71 75 71 71 71 72 73 73 73 73 70 69 69 69 69 69 69 68 68 68 68 68 68 68 68 
+ WDR  01 10 16 16 15 16 16 18 20 18 24 24 25 26 25 25 25 26 26 26 26 25 26 27 26 
+ WSP  05 06 08 08 13 18 17 15 14 08 07 07 05 06 06 05 05 09 08 08 09 08 09 07 07 
+ WGS  NG NG 17 17 21 25 25 24 NG 18 NG NG NG NG NG NG NG NG NG 18 NG 18 20 17 18 
+ PPO  91 85 88 87 78 72 72 78 84 76 65 48 38 31 21 11  6  1  1  0  0  0  0  0  1 
+ PCO   Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  N  N  N  N  N  N  N  N  N  N  N 
+ P01 100 93 85 77 74 68 74 86 87 68 44 18  4  3  2  2  2  2  2  2  1  1  1  1  0 
+ PC1   Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                100                97                 7                 3    
+ LP1   0  0  0  0  0  0  1  0 18 12  7  2  1  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  L  L  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1  91 73 68 53 49 48 54 56 61 52 33 15  6  6  4  7  6  8  5  2  0  0  0  0  0 
+ CC1   H  H  H  H  H  H  H  H  H  H  M  L  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV BK 
+ CIG   5  4  4  5  4  4  4  4  4  3  4  4  4  6  6  6  6  6  6  6  6  6  6  6  6 
+ CCG   4  4  4  6  5  4  4  4  5  4  4  4  4  8  5  8  6  6  6  6  6  6  6  6  6 
+ VIS   5  4  5  5  5  5  4  3  4  3  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   5  4  5  5  4  4  4  3  5  3  5  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N BR BR BR BR  N BR BR BR BR BR  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KDTW   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  34 35 36 39 42 43 43 43 42 41 39 38 38 38 37 37 37 37 37 37 37 38 38 37 38 
+ DPT  25 26 25 25 25 25 26 26 26 26 26 26 26 26 28 28 29 29 29 30 30 31 31 31 31 
+ WDR  05 05 04 05 05 05 05 05 05 05 06 05 05 06 06 06 06 06 06 06 06 05 05 05 05 
+ WSP  09 08 10 11 12 11 11 11 12 12 10 09 10 09 09 08 09 08 09 09 08 10 10 10 11 
+ WGS  NG NG NG NG NG 19 NG 18 NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 20 
+ PPO   0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  2 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  1  2  1  1  1  2 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 1                 3    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   2  3  3  2  2  2  1  1  1  0  0  0  0  0  1  1  1  0  0  0  0  0  0  0  0 
+ POS  86 84 76 60 42 36 41 43 48 38 29 22 18 14 13 14 15 14 11  8  6  4  3  1  0 
+ TYP   S  S  S  S  R  R  R  R  S  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV BK BK SC SC SC SC FW FW BK BK SC SC BK BK OV OV OV OV OV OV OV OV 
+ CIG   5  5  6  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  6  6  6  6  6  6  6 
+ CCG   5  5  5  8  8  8  8  8  8  8  7  8  8  6  8  8  6  6  6  6  6  5  5  5  5 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KMDW   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  34 36 38 40 40 40 41 42 41 41 41 41 41 40 41 40 40 40 40 38 39 39 40 40 41 
+ DPT  25 25 25 25 25 25 26 26 26 26 27 27 28 28 28 28 29 29 30 32 31 32 31 32 33 
+ WDR  07 07 08 08 08 07 07 07 06 07 07 06 06 06 06 06 05 05 05 04 04 04 04 04 04 
+ WSP  07 09 10 12 14 13 13 13 14 15 14 12 14 13 13 13 12 12 12 12 13 13 14 15 15 
+ WGS  NG NG NG NG NG 20 21 20 22 NG NG NG NG NG NG NG NG NG NG NG NG 20 NG 22 23 
+ PPO   0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  1  2  5  5  4  6  3  3  3  3  3  3  3  3  3  3  4  5  5  6 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  1                10                 5                10    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  1  1  1  1  1  1  2  2  2  2  1  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   1  1  1  0  0  0  0  0  1  1  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS  88 86 80 78 73 74 65 53 44 37 29 23 15  6  1  1  0  0  0  0  1  0  0  1  0 
+ TYP   S  S  S  S  S  S  S  S  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV BK BK BK BK OV OV BK BK OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   8  8  8  8  7  6  6  6  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CCG   8  8  8  8  8  6  6  6  6  6  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KMSP   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  28 29 30 33 35 36 38 38 39 37 34 32 31 29 29 28 28 27 27 27 25 25 24 24 24 
+ DPT  19 20 19 18 16 16 15 14 13 11 10 10 12 13 13 13 14 15 15 15 15 15 15 15 14 
+ WDR  12 12 12 12 12 11 11 10 09 09 09 10 10 10 10 10 09 08 08 07 08 06 05 03 02 
+ WSP  05 05 05 06 05 05 05 05 05 04 05 04 04 04 03 03 03 03 03 03 03 03 03 03 04 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   1  1  1  1  0  0  0  0  0  0  0  1  1  1  1  1  1  0  1  1  1  1  1  1  2 
+ POS  99 99 99 99100100100 97 94 99100100 99 99 99 99 99100 99100 99 99 98 96 96 
+ TYP   S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S 
+ CLD  OV OV OV OV OV BK BK BK OV OV OV OV OV BK CL SC SC SC BK OV BK SC SC SC SC 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KORD   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  34 35 39 39 40 41 40 42 41 40 39 40 40 40 40 40 40 41 40 40 39 39 40 40 40 
+ DPT  22 24 25 25 26 27 27 28 28 29 29 27 27 28 29 29 30 31 32 32 33 33 33 34 34 
+ WDR  07 07 07 08 07 06 06 06 06 06 06 06 06 05 05 05 05 04 04 04 04 03 04 04 04 
+ WSP  07 09 11 15 13 15 14 16 17 15 14 14 13 13 13 12 12 12 12 11 12 12 14 15 15 
+ WGS  NG NG NG NG NG NG 21 NG NG 22 NG NG NG NG NG NG NG NG NG NG NG NG 22 23 21 
+ PPO   0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  2  5  3  4  5  3  3  3  3  3  3  3  3  3  4  4  4  5 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                10                 5                 8    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  1  1  1  1  1  1  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   2  2  1  0  0  0  0  0  1  1  1  2  1  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS  74 78 79 77 73 75 66 55 46 41 36 33 23 12  5  5  4  3  2  0  1  0  0  1  0 
+ TYP   S  S  S  S  S  S  S  S  S  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV BK BK BK BK BK BK BK OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   8  8  8  8  7  6  6  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CCG   8  8  8  8  6  6  6  6  6  6  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KSDF   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  36 38 38 40 40 42 44 47 48 47 46 46 45 45 44 44 43 44 44 45 44 43 42 42 43 
+ DPT  32 31 31 30 31 31 31 30 30 31 30 30 30 30 30 32 33 33 35 36 39 41 41 41 41 
+ WDR  04 05 05 05 05 04 03 03 03 03 04 04 04 04 04 04 05 05 04 04 04 03 02 02 01 
+ WSP  06 06 06 07 06 07 07 07 08 08 08 08 09 10 10 08 09 08 09 09 09 08 11 11 10 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO  37 28 25 20 15 13 11 12  7  6  5  6  7  9 12 24 35 46 59 76 81 89 95 96100 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y 
+ P01  75 26 10  4  7  4  3  2  2  2  4  6  5  4  5 12 14 33 39 59 67 66 70 67 68 
+ PC1   Y  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y 
+ P06                 95                11                54                89    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1  14  9  5  3  2  0  1  2  0  1  1  1  1  2  3  5  7  7  8  9 11 10  8 10 12 
+ CC1   L  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  L  N  N  N  L 
+ POZ   6  7  6  5  2  2  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS  12 13 14 11  9  7  4  3  1  0  0  0  1  2  3  1  3  3  3  3  3  3  2  2  2 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   5  6  6  6  6  6  6  6  7  7  7  7  7  7  6  6  6  6  6  4  4  4  3  4  3 
+ CCG   6  6  6  6  6  6  6  7  7  7  7  7  7  7  7  7  6  6  6  5  4  4  4  4  4 
+ VIS   4  5  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  5  5  5  5  5  4 
+ CVS   4  5  5  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  5  5  5  5  5  5 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N BR BR BR 
+                                                                                 
+ KAUS   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  37 39 44 47 51 53 55 57 58 59 57 50 45 42 40 39 38 38 37 36 36 35 34 34 33 
+ DPT  33 34 35 34 33 32 30 28 27 25 25 26 27 28 29 30 29 28 28 27 27 26 26 25 25 
+ WDR  33 33 34 35 35 35 35 35 35 35 35 36 36 35 35 35 33 34 33 33 34 33 34 34 34 
+ WSP  06 06 09 11 10 10 10 10 10 09 08 06 05 05 04 04 03 04 05 05 06 05 05 06 06 
+ WGS  NG NG NG NG NG 17 NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  1  1  0  4  2  0  1  0  0  0  0  0  0  0  0  0  0  0  1  5  8 11  9 
+ POS   7  8  5  3  4  4  4  8 10  7  8  5  6  8  9  6  5  5  6  7  8 18 32 47 30 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  S  R 
+ CLD  CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL FW 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  5  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KBNA   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  44 46 48 49 52 57 59 59 60 57 54 52 51 50 49 47 48 45 44 44 44 44 44 43 42 
+ DPT  33 34 34 35 35 35 35 35 34 34 34 35 35 36 36 37 37 39 40 40 41 41 41 41 40 
+ WDR  04 04 04 04 04 04 03 04 03 02 02 36 36 36 35 35 34 34 34 34 33 33 33 33 33 
+ WSP  05 05 04 05 05 06 07 07 07 06 06 07 06 06 05 05 05 05 06 06 06 06 06 07 08 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 16 NG 
+ PPO   6  9 12 29 26  8  7  6  6  7 10 12 14 16 18 31 44 55 63 69 75 84 87 88 95 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y  Y 
+ P01  26 47 27 16  9  7  4  3  2  3  3  6  8 19 21 20 25 41 40 52 69 67 67 65 63 
+ PC1   N  Y  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y 
+ P06                 67                12                65                88    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   9 16 10  5  3  2  2  2  2  2  3  4  3  5  4  4  5  4  7 10 13 13 13 13 11 
+ CC1   L  L  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  L  L  L  L  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  1 
+ POS   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  2  4  4  5  3  3  3  2  2 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   7  6  6  6  6  7  7  6  6  7  6  6  6  6  6  6  6  6  5  4  3  3  3  3  3 
+ CCG   7  6  6  7  6  7  7  6  6  7  6  6  6  6  6  6  6  6  6  6  4  3  3  3  3 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  5 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  6  5  5  5  5  5 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N BR 
+                                                                                 
+ KDAL   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  35 36 39 42 46 48 51 52 53 53 51 49 46 45 43 42 40 39 38 37 36 35 34 34 33 
+ DPT  30 30 30 29 26 26 25 22 21 21 21 21 23 24 24 24 24 25 24 25 25 24 24 24 23 
+ WDR  33 33 33 34 34 34 34 34 34 34 34 34 34 35 35 35 35 35 35 35 35 34 34 34 33 
+ WSP  06 07 09 10 11 11 10 10 10 09 08 05 05 06 06 06 06 06 06 05 06 06 05 06 06 
+ WGS  NG NG NG NG NG 18 17 17 NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO  17  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   3  6  8  6  3  4  3  0  1  0  0  0  0  2  5  4  3  2  4  7  9 13 15 18 17 
+ POS  30 29 24 18 13 10  7 10 11  8  9  6 14 22 31 21 13  5  5  5  5 15 28 43 33 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  S  S 
+ CLD  CL FW FW FW CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KDFW   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  35 35 38 42 45 47 50 51 53 52 50 47 45 43 43 41 40 39 37 36 35 34 33 33 32 
+ DPT  29 29 28 26 24 24 23 22 21 21 22 21 22 23 23 24 24 24 25 25 25 25 24 23 23 
+ WDR  33 33 34 35 34 35 35 35 35 35 35 34 34 34 34 35 35 35 35 35 34 34 34 33 33 
+ WSP  08 09 11 11 12 11 11 11 11 10 09 08 08 09 09 09 08 09 09 09 09 08 08 08 09 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO  17  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   5  8  9  7  4  5  3  0  1  0  0  0  0  2  5  4  3  3  6  9 11 16 18 20 19 
+ POS  33 32 27 20 16 12  8 10 11  8  9  6 14 23 31 21 13  5  6  8  8 18 31 45 35 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  S  S  S 
+ CLD  CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KHOU   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  41 43 47 51 55 57 60 61 62 61 59 56 54 52 50 48 46 46 45 44 43 42 41 41 40 
+ DPT  34 34 33 31 30 29 27 27 26 25 25 26 27 27 27 27 26 26 26 26 25 25 25 25 25 
+ WDR  33 33 34 33 33 33 33 33 33 33 33 34 34 33 33 33 33 34 34 34 34 34 34 34 34 
+ WSP  10 10 12 12 13 14 13 14 13 11 11 07 07 06 06 06 06 06 06 07 07 07 06 07 08 
+ WGS  NG NG NG NG 21 21 21 21 20 19 NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  1  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  2  0 
+ POS   0  1  0  0  0  1  1  3  3  2  4  2  3  4  5  3  2  2  3  3  5  7 12 21 12 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  CL CL CL CL CL CL CL CL CL CL FW FW CL CL CL CL CL CL CL CL CL CL CL CL CL 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KOKC   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  25 26 30 34 38 40 42 44 45 44 42 37 35 33 33 31 30 29 28 27 25 25 25 25 24 
+ DPT  22 23 24 24 23 21 20 20 21 20 21 21 21 22 23 22 22 21 21 21 20 20 20 20 20 
+ WDR  35 36 36 01 01 01 02 01 01 01 01 01 01 01 01 01 36 36 36 36 36 35 35 35 34 
+ WSP  06 06 08 09 10 09 09 09 10 09 08 08 07 07 07 07 07 07 07 07 07 07 07 07 08 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ  11 12 14 12  9  7  6  3  4  4  5  7 11 19 24 21 16 10 10  9 10 13 13 14 17 
+ POS  80 81 82 71 54 36 24 20 16 19 28 35 40 44 49 49 49 49 51 56 53 56 60 63 61 
+ TYP   S  S  S  S  S  S  R  R  R  R  R  R  S  S  S  S  S  S  S  S  S  S  S  S  S 
+ CLD  CL FW FW FW FW CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KSAT   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  36 38 42 47 51 54 56 58 59 59 58 54 51 48 45 44 42 40 39 38 37 36 36 36 35 
+ DPT  32 33 32 32 30 29 27 27 26 26 27 27 28 29 30 30 30 29 28 28 27 27 27 25 26 
+ WDR  31 32 34 35 35 35 34 34 34 35 35 36 36 35 35 34 34 33 34 34 34 34 35 35 34 
+ WSP  05 06 08 08 08 07 08 08 08 07 07 04 04 04 04 04 04 04 05 05 05 06 06 05 05 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  3  2  0  4  3  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  3  5  4 
+ POS  10 10  7  4  4  4  5  9 11  7  8  5  4  5  6  4  4  5  5  4  5 10 18 29 18 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL CL 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KBKF   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  28 28 30 38 42 45 46 47 48 47 44 39 36 35 33 32 33 33 33 33 33 31 31 31 31 
+ DPT   7  8 10 12 14 14 13 14 13 13 14 15 15 15 16 16 16 15 15 15 15 16 16 14 15 
+ WDR  21 17 15 13 08 08 08 08 09 09 10 11 13 15 17 18 17 18 20 20 20 20 21 20 20 
+ WSP  05 05 04 05 05 05 05 05 06 06 06 06 07 07 07 08 07 08 07 07 07 06 06 06 06 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   3  3  3  3  2  1  1  0  0  0  0  0  1  1  1  2  2  2  4  5  5  6  6  6  6 
+ POS  94 96 94 86 71 60 53 49 50 54 58 65 70 78 88 88 87 87 76 66 56 55 52 55 49 
+ TYP   S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S 
+ CLD  FW FW FW FW SC SC SC FW FW FW SC SC SC SC FW SC SC SC SC BK BK BK BK BK BK 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  5  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KDEN   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  29 27 30 37 41 43 45 46 47 47 45 40 36 33 31 31 31 33 32 32 33 33 33 33 31 
+ DPT  12 12 13 15 16 15 15 14 14 14 15 15 16 16 15 16 15 15 15 16 15 15 15 16 15 
+ WDR  26 19 22 17 10 09 10 09 10 10 10 11 13 15 16 18 18 19 20 22 23 24 24 24 23 
+ WSP  05 05 05 05 06 07 07 07 07 07 07 07 07 08 08 08 08 07 07 07 08 07 07 08 08 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   3  3  3  3  2  1  1  1  0  0  0  0  1  1  2  2  2  2  4  5  5  6  7  7  7 
+ POS  92 94 95 89 73 59 54 52 55 58 59 65 76 90 98 98 93 87 69 53 38 42 45 54 47 
+ TYP   S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  S  R  R  S  S  S 
+ CLD  FW SC FW FW SC SC FW FW FW SC SC SC SC SC FW BK BK BK BK BK BK BK BK BK BK 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  5  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KLAS   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  44 44 45 49 53 56 59 60 62 62 62 61 60 58 56 55 54 54 53 52 51 50 49 48 48 
+ DPT  27 27 28 28 28 28 28 27 27 26 26 26 27 27 28 28 28 28 29 29 29 28 28 28 28 
+ WDR  24 22 23 26 01 01 03 04 03 03 02 02 33 29 27 28 27 30 27 28 26 25 22 24 29 
+ WSP  02 02 02 02 01 02 03 04 04 04 04 03 03 03 04 04 04 04 04 04 04 04 04 04 04 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  1  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   1  1  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS   7  5  3  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  SC BK BK BK BK BK BK BK BK BK BK BK BK BK SC CL CL CL CL CL CL CL CL CL CL 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KPHX   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  53 53 55 60 64 68 71 73 74 75 75 73 70 68 66 64 62 61 60 58 58 57 56 56 55 
+ DPT  38 36 36 36 34 33 30 30 30 29 29 30 31 32 33 34 35 36 36 36 36 36 35 35 34 
+ WDR  16 12 14 10 08 08 07 06 07 05 07 07 05 07 09 06 08 08 09 12 08 14 16 10 08 
+ WSP  03 04 03 05 09 11 09 10 09 08 08 07 05 05 04 04 04 03 03 03 03 02 03 03 03 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  CL CL CL SC BK SC SC SC SC SC BK BK BK BK BK SC SC SC SC SC SC FW CL CL CL 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KLAX   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  58 58 59 62 65 68 72 73 73 73 71 70 68 65 65 65 64 64 65 65 63 61 60 59 59 
+ DPT  38 37 37 37 37 37 37 39 41 41 43 47 48 50 47 45 46 42 42 41 39 39 39 38 38 
+ WDR  05 05 06 04 06 03 30 27 27 27 27 27 27 29 32 34 01 36 01 03 03 04 04 04 03 
+ WSP  03 03 04 04 04 04 04 06 07 08 08 08 07 06 05 04 04 04 03 03 03 02 03 03 03 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                  0                 0                 0                 0    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  1  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  BK BK BK BK BK BK BK BK BK SC FW FW FW FW CL CL CL CL CL CL CL CL CL CL CL 
+ CIG   8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   7  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KSEA   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  57 57 56 56 56 56 57 57 57 57 56 56 55 55 54 54 53 54 54 55 54 54 54 53 53 
+ DPT  40 41 41 42 42 42 43 43 43 43 44 44 44 44 45 45 45 44 43 43 44 44 45 46 46 
+ WDR  16 17 16 16 16 17 16 17 17 16 15 15 15 15 16 15 16 15 15 15 16 16 17 17 19 
+ WSP  19 17 17 18 15 14 12 12 13 11 09 09 11 13 14 13 17 16 14 13 18 19 18 17 13 
+ WGS  27 25 24 25 23 22 NG NG NG NG NG NG 20 22 23 22 25 24 23 23 26 27 26 25 21 
+ PPO  20 37 39 39 43 45 41 41 40 40 42 38 46 53 57 65 70 75 78 80 79 82 83 84 82 
+ PCO   N  N  N  Y  Y  Y  Y  Y  N  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y 
+ P01   1 35 33 31 24 31 26 25 17 16 22 29 42 46 61 85 84 79 75 83 84100100100 80 
+ PC1   N  Y  Y  N  N  Y  N  N  N  N  N  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y  Y 
+ P06                 53                53                97               100    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   4  7 13 13 10 12 10  9  8  8  8  7  8  9 16 15 11  9 10 12 15 17 19 21 27 
+ CC1   N  N  L  L  N  L  N  N  N  N  N  N  N  N  L  L  L  N  N  L  L  M  M  M  H 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  1  1  1  1 
+ POS   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV OV 
+ CIG   6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  5  5  5  5 
+ CCG   6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6  6 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
+ KSFO   GFS LAMP GUIDANCE  11/25/2026  1230 UTC                                  
+ UTC  13 14 15 16 17 18 19 20 21 22 23 00 01 02 03 04 05 06 07 08 09 10 11 12 13 
+ TMP  56 56 56 56 57 58 58 59 59 59 60 60 58 58 58 57 57 57 56 55 55 54 53 53 52 
+ DPT  54 54 54 55 54 54 54 54 54 53 54 54 55 54 54 54 53 52 52 52 51 51 51 50 50 
+ WDR  12 11 10 09 08 06 05 02 36 01 36 35 34 32 36 05 08 31 30 30 31 30 26 22 25 
+ WSP  02 03 03 03 03 04 04 04 04 03 04 04 05 05 04 03 03 03 03 02 02 03 02 02 03 
+ WGS  NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG NG 
+ PPO  12 12 12 12  8  3  2  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ PCO   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P01   7  8  9 12  6  3  3  3  1  0  0  0  0  0  0  0  1  1  1  1  0  0  0  0  0 
+ PC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ P06                 15                 5                 1                 1    
+ LP1   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ LC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ CP1   3  4  4  3  3  2  2  2  2  1  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ CC1   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+ POZ   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ POS   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+ TYP   R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R  R 
+ CLD  OV OV OV OV OV OV OV OV OV BK BK BK BK BK SC FW FW SC SC SC BK BK SC BK BK 
+ CIG   6  6  6  6  5  6  6  5  6  6  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ CCG   6  6  6  6  5  6  6  6  6  6  8  6  8  8  8  8  8  8  8  8  8  8  8  8  8 
+ VIS   7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7  7 
+ CVS   7  7  6  6  6  7  7  5  6  7  7  7  7  7  7  7  7  7  7  6  6  7  5  6  4 
+ OBV   N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N  N 
+                                                                                 
