@@ -35,6 +35,9 @@ def build_scheduler() -> BlockingScheduler:
         id="heartbeat",
         next_run_time=utcnow(),
     )
+    if not settings.worker_upstream_enabled:
+        log.warning("upstream jobs disabled (WORKER_UPSTREAM_ENABLED=false): heartbeat only")
+        return scheduler
     scheduler.add_job(
         metar_job,
         "interval",

@@ -9,7 +9,7 @@ from decimal import Decimal
 
 import pytest
 from sqlalchemy import Engine, inspect, select, text
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DataError, IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from edgefront_core.db import session_scope
@@ -36,6 +36,7 @@ def test_ci_really_uses_postgres(engine: Engine) -> None:
 
 def _station(s: Session, sid: str = "KTST") -> None:
     s.add(Station(id=sid, name=sid, city="x", state="TX", tz="America/Chicago"))
+    s.flush()  # no ORM relationships, so the unit of work does not order the parent first
 
 
 def test_session_timezone_is_utc_and_timestamptz_roundtrips(
@@ -87,7 +88,7 @@ def test_jsonb_roundtrip_and_query(session_factory: sessionmaker[Session]) -> No
 def test_native_enums_reject_unknown_values(session_factory: sessionmaker[Session]) -> None:
     with session_scope(session_factory) as s:
         _station(s)
-    with pytest.raises(IntegrityError), session_scope(session_factory) as s:
+    with pytest.raises((IntegrityError, DataError)), session_scope(session_factory) as s:
         s.execute(
             text(
                 "INSERT INTO station_venues (station_id, venue, market_kind) "
