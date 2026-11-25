@@ -1,6 +1,7 @@
 """Subset the three site fonts for self-hosting (Phase 6 B1: mobile LCP).
 
-    uv run --no-project --with fonttools --with brotli python -I tools/subset_fonts.py <src_dir> <out_dir>
+    uv run --no-project --with fonttools --with brotli python -I \
+        tools/subset_fonts.py <src_dir> <out_dir>
 
 Sources are the Latin `woff2` files next/font downloads from Google Fonts (all SIL Open Font
 License 1.1, which allows subsetting and self-hosting; licence notes in
@@ -18,8 +19,9 @@ from fontTools import subset
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
 
-# Basic Latin, Latin-1 Supplement, and the few symbols the UI uses:
-# – — ‘ ’ “ ” • … ‹ › ⁄ € → ← ↑ ↓ − ≤ ≥ ≈ ✓ (and ·, °, ×, © are in Latin-1).
+# Basic Latin, Latin-1 Supplement (incl. middle dot, degree, multiplication sign, copyright),
+# and the few extra symbols the UI uses: en/em dash, curly quotes, bullet, ellipsis, angle
+# quotes, fraction slash, euro, arrows, minus sign, less/greater-or-equal, almost-equal, check.
 UNICODES = (
     list(range(0x20, 0x7F))
     + list(range(0xA0, 0x100))
