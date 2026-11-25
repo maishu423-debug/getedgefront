@@ -142,3 +142,11 @@ describe("summary and chart option", () => {
     expect(hidden.series.map((x) => x.name)).toEqual(["_frame", "Observed (METAR)"]);
   });
 });
+
+describe("PFM categories", () => {
+  it("tooltip value shows the PFM code and its sky-cover range", () => {
+    expect(
+      fmtPointValue({ ...pt(z(25, 15), 59.5, "B1"), category_range: "> 50% and ≤ 69%" }, "pct"),
+    ).toBe("B1 (broken (B1), sky cover > 50% and ≤ 69%)");
+  });
+});

@@ -43,7 +43,15 @@ here.
 | `web` | pnpm install → lint → typecheck → prettier → Vitest → `next build` (the build never calls the API) |
 | `docker` | build all images, bring the stack up, check API health, the homepage and a worker heartbeat |
 
-## Running the Python tests against Postgres locally (Docker Desktop)
+## Where Postgres is tested (owner rule, 2026-11-25)
+
+**There is no Docker and no Postgres on the development machine, and none will be installed.**
+Local development and the local test run use SQLite (`uv run pytest`; the 12 Postgres-only tests
+are skipped locally). Postgres is verified **only** by the `python` job in GitHub Actions, which
+runs the whole suite plus migrate up → down → up against a Postgres 16 service container with
+`REQUIRE_POSTGRES=1`. **A phase is done only when that job is green.**
+
+## (Reference only) Running the Python tests against Postgres with Docker
 
 One line, from the repo root:
 

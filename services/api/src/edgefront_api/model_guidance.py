@@ -34,13 +34,21 @@ DISPLAY_UNIT: dict[str, Literal["degF", "kt", "pct"]] = {
 VARIABLE_LABEL = {
     "temp": "temperature", "dewpt": "dew point", "wind": "wind", "cloud": "cloud", "rh": "RH",
 }  # fmt: skip
-# Text-product cloud codes → §6.5 plotting midpoints. PFM B1/B2 (two "broken" classes) plot at
-# the BKN midpoint until the owner decides otherwise (CONTEXT §14 Q25).
+# MOS / LAMP cloud codes → §6.5 plotting midpoints (METAR octa classes).
 CATEGORY_MIDPOINT = {
     "CL": CLOUD_MIDPOINT["CLR"], "FW": CLOUD_MIDPOINT["FEW"], "SC": CLOUD_MIDPOINT["SCT"],
     "BK": CLOUD_MIDPOINT["BKN"], "OV": CLOUD_MIDPOINT["OVC"],
-    "B1": CLOUD_MIDPOINT["BKN"], "B2": CLOUD_MIDPOINT["BKN"],
 }  # fmt: skip
+# PFM codes have their own sky-cover ranges (NWS "Point Forecast Matrices Product Specifications",
+# Table 2 "PFM Sky Cover Codes"): plotted at the midpoint of each range (owner Q25).
+PFM_CATEGORY: dict[str, tuple[float, str]] = {
+    "CL": (2.5, "0% to ≤ 5%"),
+    "FW": (15.0, "> 5% and ≤ 25%"),
+    "SC": (37.5, "> 25% and ≤ 50%"),
+    "B1": (59.5, "> 50% and ≤ 69%"),
+    "B2": (78.0, "> 69% and ≤ 87%"),
+    "OV": (93.5, "> 87% and ≤ 100%"),
+}
 
 
 def _whole(x: float) -> float:
@@ -49,9 +57,13 @@ def _whole(x: float) -> float:
     return float(r if d >= 0 else -r)
 
 
-def display_value(variable: str, value: float | None, category: str | None) -> float | None:
+def display_value(
+    variable: str, value: float | None, category: str | None, model: str = ""
+) -> float | None:
     """Canonical stored value → display unit (whole °F / kt / %); categories → midpoint."""
     if category is not None:
+        if model == "pfm":
+            return PFM_CATEGORY[category][0] if category in PFM_CATEGORY else None
         return float(CATEGORY_MIDPOINT[category]) if category in CATEGORY_MIDPOINT else None
     if value is None:
         return None
@@ -209,8 +221,13 @@ def _series(
     points = [
         s.ModelPoint(
             valid_time=utc(v.valid_time),
-            value=display_value(variable, v.value, v.category),
+            value=display_value(variable, v.value, v.category, info.id),
             category=v.category,
+            category_range=(
+                PFM_CATEGORY[v.category][1]
+                if info.id == "pfm" and v.category in PFM_CATEGORY
+                else None
+            ),
             is_computed=v.is_computed,
         )
         for v in rows

@@ -9,6 +9,13 @@ Capture: `uv run python tools/capture_pfm.py [--cycles N] [--offices …]`.
 Source: `https://api.weather.gov/products/types/PFM/locations/{office}` (newest first) →
 `/products/{id}` → `productText`.
 
+Specification: NWS *Point Forecast Matrices Product Specifications Document* (product category
+PFM), `https://www.weather.gov/media/notification/dir/PFM_Specifications.pdf`, linked from NWSI
+10-503 §4.5; fetched 2026-11-25T17:32Z with the EdgeFront User-Agent. It confirms what the samples
+show: TEMP/DEWPT "in degrees F", WIND SPD "in miles per hour (MPH)" (calm = `00`), values "right
+justified in the column below the hour", and "day and date labels are left justified above the
+6:00 a.m. local time hour" (the decoder's Date-row anchor).
+
 All 35 station blocks in the fixtures (all 26 registry points) decode with 0 errors.
 
 ## Point block
@@ -61,7 +68,19 @@ knows the DST forms (EDT/CDT/MDT/PDT) for the summer; the UTC row check below ca
 | `Dewpt` | dewpt | °F | |
 | `RH` | rh | % | the **product's own RH** (not computed) |
 | `Wind spd` | wind | **mph** (stored native, converted to kt for display) | the public NWS forecast unit; owner spec Phase 5 |
-| `Clouds` | cloud | category `CL FW SC B1 B2 OV` | `B1`/`B2` split "broken"; both plot at the BKN midpoint (§6.5) with the code shown — Q25 |
+| `Clouds` | cloud | category `CL FW SC B1 B2 OV` | plotted at the midpoint of the PFM's own ranges (table below, owner Q25) with code + range in the tooltip |
+
+**PFM sky cover codes** (spec Table 2 "PFM Sky Cover Codes", opaque cloud in percent) and the
+plotting midpoint EdgeFront uses:
+
+| Code | Spec range | Spec expression | Plotted at |
+|---|---|---|---|
+| CL | 0% to ≤ 5% | SUNNY or CLEAR | 2.5 % |
+| FW | > 5% and ≤ 25% | SUNNY or MOSTLY CLEAR | 15 % |
+| SC | > 25% and ≤ 50% | MOSTLY SUNNY or PARTLY CLOUDY | 37.5 % |
+| B1 | > 50% and ≤ 69% | PARTLY SUNNY or MOSTLY CLOUDY | 59.5 % |
+| B2 | > 69% and ≤ 87% | MOSTLY CLOUDY or CONSIDERABLE CLOUDINESS | 78 % |
+| OV | > 87% and 100% | CLOUDY or OVERCAST | 93.5 % |
 
 Cells are read **by column position**: each value is right-aligned with its UTC hour token.
 Blank cells (before the forecast starts, or no value) are skipped.

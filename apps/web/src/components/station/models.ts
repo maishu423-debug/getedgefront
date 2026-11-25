@@ -130,7 +130,12 @@ export function fmtValue(v: number | null, unit: ModelsResponse["unit"]): string
 }
 
 export function fmtPointValue(p: ModelPoint, unit: ModelsResponse["unit"]): string {
-  if (p.category) return `${p.category} (${CATEGORY_LABEL[p.category] ?? "category"})`;
+  if (p.category) {
+    const name = CATEGORY_LABEL[p.category] ?? "category";
+    return p.category_range
+      ? `${p.category} (${name}, sky cover ${p.category_range})`
+      : `${p.category} (${name})`;
+  }
   return fmtValue(p.value, unit) + (p.is_computed ? " (computed)" : "");
 }
 

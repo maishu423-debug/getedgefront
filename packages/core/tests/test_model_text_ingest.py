@@ -182,7 +182,15 @@ def test_nbm_partial_until_nbs_arrives(session_factory: sessionmaker[Session]) -
     ("model", "files", "now", "cycle", "first_valid", "temp_f", "cloud"),
     [
         ("gfs_mos", {"mav": "2026112506"}, (14, 50), (6, 0), (12, 0), 36.0, "CL"),
-        ("lamp", {"lav": "202611251330"}, (14, 50), (13, 30), (14, 0), 35.0, "CL"),
+        (
+            "lamp",
+            {"lav": "202611251330", "lavx": "202611251330"},
+            (14, 50),
+            (13, 30),
+            (14, 0),
+            35.0,
+            "CL",
+        ),
     ],
 )
 def test_mav_and_lav(
@@ -308,3 +316,32 @@ def test_pfm_ingest_two_issuances(session_factory: sessionmaker[Session]) -> Non
     # Nothing new on the next poll
     again = PfmIngest(lister).run(session_factory, now + timedelta(minutes=15))
     assert again.new_products == 0
+
+
+def test_lamp_extended_continues_the_25h_bulletin(session_factory: sessionmaker[Session]) -> None:
+    """Owner Q27: the extended LAMP (hours 26-38) joins the same run, right after +25 h."""
+    _stations(session_factory)
+    fake = FakeNomads({"lav": "202611251330", "lavx": "202611251330"})
+    t = datetime(2026, 11, 25, 14, 50, tzinfo=UTC)
+    summ = TextModelIngest(_client(fake), sleep=nosleep).run(session_factory, "lamp", t)
+    assert (summ.status, summ.files) == ("complete", ["lav", "lavx"])
+    times = [as_utc(v.valid_time) for v in _values(session_factory, "lamp", "KDFW", "temp")]
+    assert times[0] == datetime(2026, 11, 25, 14, tzinfo=UTC)
+    assert times[24] == datetime(2026, 11, 26, 14, tzinfo=UTC)  # last hour of the 25 h bulletin
+    assert times[25] == datetime(2026, 11, 26, 15, tzinfo=UTC)  # first extended hour (HR 26)
+    assert times[-1] == datetime(2026, 11, 27, 3, tzinfo=UTC)  # HR 38: the line ends here
+    assert len(times) == 38
+    assert {(b - a) for a, b in itertools.pairwise(times)} == {timedelta(hours=1)}
+
+
+def test_lamp_waits_for_the_extended_bulletin(session_factory: sessionmaker[Session]) -> None:
+    _stations(session_factory)
+    t = datetime(2026, 11, 25, 14, 50, tzinfo=UTC)
+    only = FakeNomads({"lav": "202611251330"})
+    assert TextModelIngest(_client(only), sleep=nosleep).run(session_factory, "lamp", t).status == (
+        "partial"
+    )
+    both = FakeNomads({"lav": "202611251330", "lavx": "202611251330"})
+    assert TextModelIngest(_client(both), sleep=nosleep).run(session_factory, "lamp", t).status == (
+        "complete"
+    )

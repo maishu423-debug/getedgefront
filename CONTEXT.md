@@ -292,7 +292,12 @@ YAML shape:
 ### 6.5 Derived values
 - RH is computed from T/Td (Magnus: 17.625, 243.04 °C) and always labelled "computed".
 - Wind is shown in kt; direction in degrees plus a compass point.
-- Cloud categories map to midpoints for plotting only (CLR 0, FEW 19, SCT 44, BKN 75, OVC 100), with the category shown in tooltips.
+- Cloud categories map to midpoints for plotting only, with the category shown in tooltips:
+
+| Product | Codes → plotted % | Basis |
+|---|---|---|
+| METAR (observed), GFS-MOS, LAMP | CLR/CL 0, FEW/FW 19, SCT/SC 44, BKN/BK 75, OVC/OV 100 | octa midpoints |
+| **PFM** (Phase 6, owner Q25) | CL 2.5, FW 15, SC 37.5, **B1 59.5**, **B2 78**, OV 93.5 | midpoints of the PFM's own ranges (NWS PFM Product Specifications, Table 2: CL 0–5 %, FW >5–25 %, SC >25–50 %, B1 >50–69 %, B2 >69–87 %, OV >87–100 %); the tooltip shows code + range |
 
 ---
 
@@ -497,11 +502,11 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 | Q19 | ~~KDAL / KBKF without daily summaries~~ **Resolved 2026-11-24:** OK. Where neither product exists the block says "No daily summary available for this station" | — |
 | Q20 | ~~KZFW finals for KDFW/KDAL/KOKC?~~ **Resolved 2026-11-25 (live run):** KZFW's finals do arrive (11-22 and 11-24 finals both entered at 06:16Z next morning for all three). Only the **11-23 finals were never issued** by KZFW — a one-off gap at the source. The block keeps showing that day's latest intraday DSM, labelled "so far" | — |
 | Q21 | ~~Unknown station URLs return 200~~ **Resolved 2026-11-25:** real 404 via `proxy.ts` reading the build-time copy of `stations.yaml` (owner chose this over an API call per request or dropping Cache Components) | — |
-| Q22 | Postgres verification. **Owner plan 2026-11-25:** owner creates a private GitHub repo (steps in `infra/github.md`) and installs Docker Desktop (local Postgres from compose, test DB `edgefront_test`). **Rule: no phase is done until the Postgres CI job is green.** | Waiting for the remote URL / Docker |
-| Q24 | Text-bulletin **wind units**: MAV/LAV/NBM `WSP` decoded as **knots** (the MOS/NBM convention; the METAR comparison fits knots better for LAMP and NBH, light winds don't separate MAV/NBS). The MDL product pages (vlab.noaa.gov) refuse automated fetches (HTTP 403), so the documentation could not be quoted. Can the owner confirm from the MDL text-card pages? | knots |
-| Q25 | PFM cloud codes **B1/B2** (two "broken" classes) have no §6.5 midpoint. Plotted at the BKN midpoint (75 %) with the code shown. Keep, or give B1/B2 their own midpoints? | BKN 75 % |
-| Q26 | GFS transfer is ~290 MB per run (55 hourly steps × 6 global fields), ~1.2 GB/day. The NOMADS GRIB filter with a CONUS box would cut that ~95 %, but makes NOMADS (rate-limited) the primary source instead of AWS. Keep AWS as briefed? | Keep AWS (as briefed) |
-| Q27 | LAMP ends at +25 h (HH30 bulletin). An extended LAMP bulletin (`lavtxt_ext`, hours 26–38) exists. Add it to stretch LAMP in the 48 h view? | Not used (25 h, as briefed) |
+| Q22 | Postgres verification. **Owner rule (2026-11-25, Phase 6):** no Docker or Postgres on the dev machine — local dev and tests stay on SQLite; Postgres is verified **only** in the GitHub Actions CI job (Postgres service container). **A phase is done only when that Postgres CI job is green.** | Waiting for the GitHub remote URL |
+| Q24 | ~~Text-bulletin wind units~~ **Resolved 2026-11-25:** knots. MDL's MAV card: WSP = "forecasts of the 10-meter wind speed at the hour, given in knots"; LAV/NBM same MDL convention; METAR comparison kept as supporting evidence (`docs/formats/model_text.md`) | — |
+| Q25 | ~~PFM B1/B2~~ **Resolved 2026-11-25:** own values. All PFM codes plot at the midpoints of the PFM spec's Table 2 ranges (B1 59.5 %, B2 78 %), code + range in the tooltip; §6.5 table | — |
+| Q26 | ~~GFS source~~ **Resolved 2026-11-25:** keep AWS primary, NOMADS fallback; ~1.2 GB/day is fine. Measure the GFS job's run time on Railway (Phase 6 B8) | — |
+| Q27 | ~~LAMP extended~~ **Resolved 2026-11-25:** yes. `lavtxt_ext` (HR 26–38) is part of the same LAMP run; LAMP reaches +38 h | — |
 | Q23 | The local live worker dies whenever the dev session ends (three interrupted runs). For the record: it is now started as a detached process for local runs; on Railway the worker is its own service | — |
 
 ## 15. Progress log

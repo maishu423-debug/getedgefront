@@ -12,3 +12,7 @@ Real NOMADS text bulletins. Each file keeps only the blocks for the registry sta
 | `mav_2026112500.txt` | https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs_mos/prod/gfs_mos.20261125/mdl_gfsmav.t00z | 2026-11-25T14:50:40Z | 200 | 3,641,752 B, 2319 blocks | 28 | — |
 | `lav_202611251230.txt` | https://nomads.ncep.noaa.gov/pub/data/nccf/com/lmp/prod/lmp.20261125/lmp.t1230z.lavtxt.ascii | 2026-11-25T14:50:42Z | 200 | 4,584,294 B, 2313 blocks | 28 | — |
 | `lav_202611251330.txt` | https://nomads.ncep.noaa.gov/pub/data/nccf/com/lmp/prod/lmp.20261125/lmp.t1330z.lavtxt.ascii | 2026-11-25T14:50:43Z | 200 | 4,584,294 B, 2313 blocks | 28 | — |
+| `lavx_202611251530.txt` | https://nomads.ncep.noaa.gov/pub/data/nccf/com/lmp/prod/lmp.20261125/lmp.t1530z.lavtxt_ext.ascii | 2026-11-25T17:32:56Z | 200 | 2,088,627 B, 2313 blocks | 28 | — |
+| `lavx_202611251630.txt` | https://nomads.ncep.noaa.gov/pub/data/nccf/com/lmp/prod/lmp.20261125/lmp.t1630z.lavtxt_ext.ascii | 2026-11-25T17:32:57Z | 200 | 2,088,970 B, 2313 blocks | 28 | — |
+| `lav_202611251630.txt` | https://nomads.ncep.noaa.gov/pub/data/nccf/com/lmp/prod/lmp.20261125/lmp.t1630z.lavtxt.ascii | 2026-11-25T17:33:00Z | 200 | 4,582,900 B, 2313 blocks | 28 | — |
+| `lavx_202611251330.txt` | https://nomads.ncep.noaa.gov/pub/data/nccf/com/lmp/prod/lmp.20261125/lmp.t1330z.lavtxt_ext.ascii | 2026-11-25T17:33:54Z | 200 | 2,089,362 B, 2313 blocks | 28 | — |

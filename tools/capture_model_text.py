@@ -34,6 +34,9 @@ def url_for(product: str, cycle: str) -> str:
     if product == "lav":  # full 1-25 h LAMP is the HH30 issuance (HH00/15/45 are CIG/VIS only)
         mm = cycle[10:12] or "30"
         return f"{BASE}/lmp/prod/lmp.{day}/lmp.t{hh}{mm}z.lavtxt.ascii"
+    if product == "lavx":  # extended LAMP, hours 26-38 (HH30 issuances)
+        mm = cycle[10:12] or "30"
+        return f"{BASE}/lmp/prod/lmp.{day}/lmp.t{hh}{mm}z.lavtxt_ext.ascii"
     raise SystemExit(f"unknown product {product}")
 
 
@@ -53,7 +56,7 @@ def split_blocks(text: str) -> dict[str, str]:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("product", choices=["nbh", "nbs", "mav", "lav"])
+    p.add_argument("product", choices=["nbh", "nbs", "mav", "lav", "lavx"])
     p.add_argument("cycles", nargs="+", help="YYYYMMDDHH (lav: YYYYMMDDHHMM, default HH30)")
     p.add_argument("--extra", nargs="*", default=[])
     a = p.parse_args()

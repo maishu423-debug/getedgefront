@@ -351,12 +351,11 @@ export function ModelGuidance({
             Model output is shown for reference. EdgeFront does not rank, blend or endorse models,
             and does not make its own forecast. Values are plotted only at each model&apos;s own
             valid times, at the nearest land grid point (or the NWS forecast point), without any
-            adjustment. Cloud categories (MOS, LAMP, PFM) are drawn at fixed midpoints (
-            {Object.entries({ CL: 0, FW: 19, SC: 44, BK: 75, OV: 100 })
-              .map(([k, v]) => `${k} ${v}%`)
-              .join(", ")}
-            ); the category is the data. IFS and AIFS: © ECMWF, open data licensed under CC BY 4.0.
-            Window:{" "}
+            adjustment. Cloud categories are drawn at fixed midpoints; the category is the data:
+            GFS-MOS and LAMP at the METAR cover midpoints (CL 0 %, FW 19 %, SC 44 %, BK 75 %, OV 100
+            %), PFM at the midpoints of the NWS PFM ranges (CL 0–5 %, FW 5–25 %, SC 25–50 %, B1
+            50–69 %, B2 69–87 %, OV 87–100 %). IFS and AIFS: © ECMWF, open data licensed under CC BY
+            4.0. Window:{" "}
             {data.window.span === "today"
               ? "the climate day"
               : "48 h from the start of the climate day"}{" "}

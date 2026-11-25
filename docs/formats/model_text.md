@@ -16,12 +16,16 @@ All 8 bulletins decode for all 28 stations with 0 errors (`tests/test_parser_mod
 | NBM **NBS** (short range) | `blend/prod/blend.YYYYMMDD/HH/text/blend_nbstx.tHHz` | every hour | ~29 MB | 9,576 |
 | GFS MOS **MAV** | `gfs_mos/prod/gfs_mos.YYYYMMDD/mdl_gfsmav.tHHz` | 00, 06, 12, 18 | 3.6 MB | ~2,318 |
 | GFS **LAMP** (LAV) | `lmp/prod/lmp.YYYYMMDD/lmp.tHH30z.lavtxt.ascii` | every hour at HH30 | 4.6 MB | 2,313 |
+| GFS **LAMP extended** | `lmp/prod/lmp.YYYYMMDD/lmp.tHH30z.lavtxt_ext.ascii` | every hour at HH30 | 2.1 MB | 2,313 |
 
 - **LAMP:** the directory has `lmp.tHHMMz.lavtxt.ascii` every 15 min, but only the **HH30** issuance
   is the full bulletin (25 hourly columns with TMP/DPT/WDR/WSP/CLD…). The HH00/HH15/HH45 files
-  (~650 KB) carry only `UTC` + `CIG`/`VIS`/`OBV` for 3 hours. `lavtxt_ext` (HH30, 2 MB) is hours 26–38
-  — not used (our "48 h" view takes LAMP as far as the 25 h bulletin goes). CONTEXT.md's old name
+  (~650 KB) carry only `UTC` + `CIG`/`VIS`/`OBV` for 3 hours. CONTEXT.md's old name
   `lmp_lavtxt.tCCCCz` does not exist.
+- **LAMP extended (owner Q27, Phase 6):** `lavtxt_ext` (HH30, ~2.1 MB) holds hours 26–38 for the same
+  stations. EdgeFront stores it in the **same LAMP run** as the 25 h bulletin (the run is `partial`
+  until both files are in), so LAMP reaches +38 h; the line simply ends after the last hour.
+  Fixtures: `lavx_202611251330/1530/1630.txt`.
 - **Timing seen:** at 14:50Z the NBM 13Z text and the LAMP 1330 bulletin were there; the MAV 12Z
   was still 404 (06Z was there). The worker records `available_at` for every run, which will give
   real latencies.
@@ -49,6 +53,7 @@ All 8 bulletins decode for all 28 stations with 0 errors (`tests/test_parser_mod
 | NBS | `FHR` row: valid = cycle + FHR hours (05 … 71, every 3 h) | `UTC` row must equal the FHR time's hour |
 | MAV | `HR` row (UTC hours) like NBH: 3-hourly, the last 3 columns 6-hourly (06Z run: 12Z … 06Z on day 3) | `DT` row: each `/NOV  26` falls in the column of that UTC date's first hour |
 | LAV | `UTC` row like NBH: 25 hourly columns from the hour after the issuance | strictly increasing |
+| LAV extended | `HR` row = hours after the cycle's hour (16:30 issuance: HR 26 → 18Z next day), 13 hourly columns (HR 26–38) | `UTC` row must equal each HR time's hour; `DT` row as MAV |
 
 A DT/FHR disagreement rejects the block (the station is recorded as failed for that run; nothing
 is guessed).
@@ -61,7 +66,7 @@ Only what the product prints and EdgeFront plots:
 |---|---|---|---|---|
 | `TMP` | temp | °F | all | first-hour values vs the METARs at the same hour, all 28 stations: mean difference −0.1 to +0.1 °F (MAE 1.1–2.0) for LAV/NBH/NBS/MAV — clearly °F |
 | `DPT` | dewpt | °F | all | same rows/scale as TMP |
-| `WSP` | wind | kt | all | vs METAR (kt): LAV mean −0.07 kt (vs mph scale −1.29), NBH +0.18 (−1.04); MAE also lower as knots. MAV/NBS at 6 h lead do not separate kt from mph (light winds). MOS/NBM station bulletins are documented in knots; the MDL pages (vlab.noaa.gov) refused automated fetches (HTTP 403), so the documentation could not be quoted — see CONTEXT §14 Q24 |
+| `WSP` | wind | kt | all | **Source:** MDL's GFS MOS MAV product card defines WSP as "forecasts of the 10-meter wind speed at the hour, given in knots" (quoted by the owner, Q24 resolved 2026-11-25; the MDL pages refuse automated fetches). LAMP (LAV) and NBM text use the same MDL convention (knots). **Supporting evidence** vs METAR (kt), first hour, 28 stations: LAV mean −0.07 kt (vs mph scale −1.29), NBH +0.18 (−1.04); MAE also lower as knots |
 | `SKY` | cloud | % (0–100) | NBH, NBS | values 0–100; KMIA 90–93 under an overcast METAR |
 | `CLD` | cloud | category `CL FW SC BK OV` | MAV, LAV | the only codes seen (all 28 stations, 4 bulletins) |
 

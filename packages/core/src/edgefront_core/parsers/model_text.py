@@ -142,14 +142,20 @@ def decode_block(lines: list[str]) -> StationGuidance:
     rows = _rows(lines)
     raw_lines = {line[1:4]: line for line in lines[1:]}
 
-    if product == "nbs":
-        if "FHR" not in rows:
-            raise TextDecodeError("NBS block without FHR row")
-        times = [cycle + timedelta(hours=int(f)) for f in rows["FHR"]]
+    if product == "nbs" or (product == "lav" and "HR " in rows):
+        # NBS: FHR = hours after the cycle. Extended LAMP (lavtxt_ext): HR = hours after the
+        # cycle's hour (16:30 issuance, HR 26 -> 18Z next day). Both are checked against UTC.
+        label = "FHR" if product == "nbs" else "HR "
+        if label not in rows:
+            raise TextDecodeError(f"{product.upper()} block without {label.strip()} row")
+        base = cycle.replace(minute=0)
+        times = [base + timedelta(hours=int(f)) for f in rows[label]]
         utc = rows.get("UTC") or []
+        if product == "lav" and len(utc) != len(times):
+            raise TextDecodeError("extended LAMP block: HR and UTC rows differ in length")
         for t, h in zip(times, utc, strict=False):
             if int(h) != t.hour:
-                raise TextDecodeError(f"FHR/UTC disagree at {t:%d %HZ} (UTC row {h})")
+                raise TextDecodeError(f"{label.strip()}/UTC disagree at {t:%d %HZ} (UTC row {h})")
     else:
         hour_label = "HR " if product == "mav" else "UTC"
         if hour_label not in rows:

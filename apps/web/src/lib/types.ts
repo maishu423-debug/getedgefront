@@ -329,6 +329,8 @@ export interface ModelPoint {
   valid_time: string;
   value: number | null;
   category: string | null;
+  /** Sky-cover range of the code where the product defines one (PFM, spec Table 2). */
+  category_range?: string | null;
   is_computed: boolean;
 }
 

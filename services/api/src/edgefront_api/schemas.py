@@ -367,10 +367,14 @@ class ModelWindow(BaseModel):
 class ModelPoint(BaseModel):
     valid_time: datetime
     value: float | None = Field(
-        description="Display unit: whole °F, whole kt, whole %; categorical cloud → the §6.5 "
-        "plotting midpoint (the category is the data)"
+        description="Display unit: whole °F, whole kt, whole %; categorical cloud → the plotting "
+        "midpoint (§6.5 for MOS/LAMP; the PFM's own range midpoints for PFM). The category is "
+        "the data."
     )
     category: str | None = Field(None, description="Cloud code as printed (CL FW SC BK OV B1 B2)")
+    category_range: str | None = Field(
+        None, description="Sky-cover range of the code where the product defines one (PFM)"
+    )
     is_computed: bool = Field(False, description="RH computed from T/Td (Magnus)")
 
 

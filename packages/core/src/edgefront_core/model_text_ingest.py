@@ -53,11 +53,17 @@ def nomads_url(product: str, cycle: datetime) -> str:
             return f"{NOMADS}/gfs_mos/prod/gfs_mos.{day}/mdl_gfsmav.t{hh}z"
         case "lav":
             return f"{NOMADS}/lmp/prod/lmp.{day}/lmp.t{hh}{cycle:%M}z.lavtxt.ascii"
+        case "lavx":  # extended LAMP, hours 26-38 (owner Q27)
+            return f"{NOMADS}/lmp/prod/lmp.{day}/lmp.t{hh}{cycle:%M}z.lavtxt_ext.ascii"
     raise ValueError(product)
 
 
 # model id -> bulletins that make one run, in order
-FILES: dict[str, tuple[str, ...]] = {"nbm": ("nbh", "nbs"), "gfs_mos": ("mav",), "lamp": ("lav",)}
+FILES: dict[str, tuple[str, ...]] = {
+    "nbm": ("nbh", "nbs"),
+    "gfs_mos": ("mav",),
+    "lamp": ("lav", "lavx"),
+}
 
 
 def candidate_cycles(model: str, now: datetime) -> list[datetime]:
@@ -98,15 +104,17 @@ def _native(g: StationGuidance) -> list[NativeValue]:
     ]
 
 
-def merge_nbm(nbh: StationGuidance | None, nbs: StationGuidance | None) -> list[NativeValue]:
-    """NBH hourly first; NBS only beyond NBH's last valid time for that variable."""
-    out = _native(nbh) if nbh else []
-    if nbs:
+def merge_tail(head: StationGuidance | None, tail: StationGuidance | None) -> list[NativeValue]:
+    """`head` first; `tail` only beyond head's last valid time for each variable.
+
+    NBM: NBH hourly, then NBS 3-hourly. LAMP: the 25 h bulletin, then the extended one."""
+    out = _native(head) if head else []
+    if tail:
         last: dict[str, datetime] = {}
         for v in out:
             last[v.variable] = max(last.get(v.variable, v.valid_time), v.valid_time)
         out += [
-            v for v in _native(nbs) if v.variable not in last or v.valid_time > last[v.variable]
+            v for v in _native(tail) if v.variable not in last or v.valid_time > last[v.variable]
         ]
     return out
 
@@ -253,8 +261,8 @@ class TextModelIngest:
                     )
                     summary.stations_missing.append(sid)
                 else:
-                    if model == "nbm":
-                        native = merge_nbm(blocks.get("nbh"), blocks.get("nbs"))
+                    if len(files) == 2:
+                        native = merge_tail(blocks.get(files[0]), blocks.get(files[1]))
                     else:
                         native = _native(next(b for b in blocks.values() if b))
                     cell_errors = [x for b in blocks.values() if b for x in b.decode_errors]

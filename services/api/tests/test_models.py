@@ -33,6 +33,7 @@ TEXT = {
     ("nbs", datetime(2026, 11, 25, 13, tzinfo=UTC)): "nbs_2026112513.txt",
     ("mav", datetime(2026, 11, 25, 6, tzinfo=UTC)): "mav_2026112506.txt",
     ("lav", datetime(2026, 11, 25, 13, 30, tzinfo=UTC)): "lav_202611251330.txt",
+    ("lavx", datetime(2026, 11, 25, 13, 30, tzinfo=UTC)): "lavx_202611251330.txt",
 }
 
 
@@ -132,12 +133,14 @@ def test_kdfw_temp_today(loaded: Engine) -> None:
     assert nbm["run"]["available_at"] == z(25, 14, 50)
     assert nbm["run"]["stale"] is False
     assert nbm["points"][0] == {
-        "valid_time": z(25, 14), "value": 36.0, "category": None, "is_computed": False,
+        "valid_time": z(25, 14), "value": 36.0, "category": None, "category_range": None,
+        "is_computed": False,
     }  # fmt: skip
     assert all(z(25, 6) <= p["valid_time"] <= z(26, 6) for p in nbm["points"])
     assert len(nbm["points"]) == 17  # 14Z..06Z hourly
     assert m["gfs_mos"]["points"][0] == {
-        "valid_time": z(25, 12), "value": 36.0, "category": None, "is_computed": False,
+        "valid_time": z(25, 12), "value": 36.0, "category": None, "category_range": None,
+        "is_computed": False,
     }  # fmt: skip
     assert m["lamp"]["run"]["cycle_time"] == z(25, 13, 30)
     pfm = m["pfm"]
@@ -166,6 +169,14 @@ def test_categorical_cloud_and_rh(loaded: Engine) -> None:
     assert cloud["gfs_mos"]["points"][0]["category"] == "OV"
     assert cloud["gfs_mos"]["points"][0]["value"] == 100.0  # §6.5 OVC midpoint
     assert cloud["nbm"]["kind"] == "continuous"
+    pfm = by_id(get(loaded, "/api/v1/stations/KDFW/models?var=cloud&span=48h"))["pfm"]
+    assert pfm["kind"] == "categorical"
+    seen = {p["category"]: (p["value"], p["category_range"]) for p in pfm["points"]}
+    # PFM codes plot at the midpoint of the PFM's own ranges (spec Table 2), not §6.5
+    assert seen["CL"] == (2.5, "0% to ≤ 5%")
+    if "FW" in seen:
+        assert seen["FW"] == (15.0, "> 5% and ≤ 25%")
+    assert cloud["gfs_mos"]["points"][0]["category_range"] is None
     assert cloud["nbm"]["native_unit"] == "pct"
     rh = by_id(get(loaded, "/api/v1/stations/KDFW/models?var=rh&span=today"))
     assert rh["nbm"]["points"][0]["is_computed"] is True
