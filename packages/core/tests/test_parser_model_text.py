@@ -10,12 +10,20 @@ from pathlib import Path
 import pytest
 
 from edgefront_core.parsers.model_text import (
+    StationGuidance,
     TextDecodeError,
+    TextValue,
     decode_block,
     decode_bulletin,
     split_blocks,
 )
-from edgefront_core.parsers.pfm import PfmDecodeError, decode_point, find_block
+from edgefront_core.parsers.pfm import (
+    PfmDecodeError,
+    PfmPointForecast,
+    PfmValue,
+    decode_point,
+    find_block,
+)
 from edgefront_core.registry import load_registry
 
 FIX = Path(__file__).parent / "fixtures"
@@ -28,15 +36,22 @@ def _bulletin(name: str) -> str:
 
 
 def _pfm(name: str) -> str:
-    return json.loads((FIX / "nws_pfm" / name).read_text(encoding="utf-8"))["productText"]
+    text: str = json.loads((FIX / "nws_pfm" / name).read_text(encoding="utf-8"))["productText"]
+    return text
 
 
 def z(d: int, h: int) -> datetime:
     return datetime(2026, 11, d, h, tzinfo=UTC)
 
 
-def first(g, variable):
+def first(g: StationGuidance | PfmPointForecast, variable: str) -> TextValue | PfmValue:
     return g.series(variable)[0]
+
+
+def point(text: str, name: str) -> PfmPointForecast:
+    block = find_block(text, name)
+    assert block is not None, name
+    return decode_point(block)
 
 
 @pytest.mark.parametrize("path", TEXT, ids=lambda p: p.name)
@@ -134,7 +149,7 @@ def test_unexpected_cell_is_recorded_not_guessed() -> None:
 
 
 def test_pfm_okx_point_block() -> None:
-    fc = decode_point(find_block(_pfm("PFMOKX_202611250950.json"), "Central Park-New York NY"))
+    fc = point(_pfm("PFMOKX_202611250950.json"), "Central Park-New York NY")
     assert (fc.lat, fc.lon, fc.elev_ft) == (40.78, -73.97, 16)
     assert fc.issued_at == datetime(2026, 11, 25, 9, 50, tzinfo=UTC)
     assert fc.decode_errors == []
@@ -152,7 +167,7 @@ def test_pfm_okx_point_block() -> None:
 def test_pfm_grid_box_latlon_and_columns_before_issue() -> None:
     # VEF: 'Elev. (Average Over 2.5KM Grid Box): 2181 ft'; issued 10:32 PM PST, the matrix
     # starts at 1 PM the same day with blank cells until 09Z.
-    fc = decode_point(find_block(_pfm("PFMVEF_202611250632.json"), "Las Vegas-Clark NV"))
+    fc = point(_pfm("PFMVEF_202611250632.json"), "Las Vegas-Clark NV")
     assert (fc.lat, fc.lon, fc.elev_ft) == (36.07, -115.16, 2181)
     assert fc.issued_at == datetime(2026, 11, 25, 6, 32, tzinfo=UTC)
     t = fc.series("temp")
@@ -162,9 +177,7 @@ def test_pfm_grid_box_latlon_and_columns_before_issue() -> None:
 
 
 def test_pfm_single_space_latlon_mountain_zone() -> None:
-    fc = decode_point(
-        find_block(_pfm("PFMBOU_202611250646.json"), "Denver Int'l Airport-Denver CO")
-    )
+    fc = point(_pfm("PFMBOU_202611250646.json"), "Denver Int'l Airport-Denver CO")
     assert (fc.lat, fc.lon, fc.elev_ft) == (39.83, -104.65, 5379)
     assert first(fc, "temp").valid_time == z(25, 9)
 

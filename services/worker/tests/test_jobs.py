@@ -37,7 +37,7 @@ def test_scheduler_has_all_jobs(monkeypatch: pytest.MonkeyPatch) -> None:
     try:
         sched = build_scheduler()
         ids = {j.id for j in sched.get_jobs()}
-        assert ids == {"heartbeat", "metar", "cli", "dsm", "forecast", "models_text"}
+        assert ids == {"heartbeat", "metar", "cli", "dsm", "forecast", "models_text", "models_grib"}
     finally:
         settings.get_settings.cache_clear()
         db.get_engine.cache_clear()

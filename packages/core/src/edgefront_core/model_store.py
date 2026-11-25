@@ -215,3 +215,42 @@ def apply_retention(s: Session, model: str, keep: int = RETAIN_RUNS) -> int:
         s.execute(delete(ModelRunStation).where(ModelRunStation.run_id.in_(doomed)))
         s.execute(delete(ModelRun).where(ModelRun.id.in_(doomed)))
     return len(doomed)
+
+
+def add_values(s: Session, run: ModelRun, station_id: str, native: list[NativeValue]) -> int:
+    """Append values for one station (a GRIB run arrives step by step). Replaces values at the
+    same valid times so a re-fetched step never duplicates."""
+    if not native:
+        return 0
+    times = sorted({nv.valid_time for nv in native})
+    s.execute(
+        delete(ModelValue).where(
+            ModelValue.run_id == run.id,
+            ModelValue.station_id == station_id,
+            ModelValue.valid_time.in_(times),
+        )
+    )
+    rows = build_values(native)
+    for r in rows:
+        r.run_id = run.id
+        r.station_id = station_id
+    s.add_all(rows)
+    s.flush()
+    return len(rows)
+
+
+def set_station_row(s: Session, run: ModelRun, result: StationResult) -> None:
+    """Upsert a run's per-station row without touching its values."""
+    row = s.get(ModelRunStation, (run.id, result.station_id))
+    if row is None:
+        row = ModelRunStation(run_id=run.id, station_id=result.station_id)
+        s.add(row)
+    row.status = result.status
+    row.reason = result.reason
+    row.point_name = result.point_name
+    row.grid_lat = result.grid_lat
+    row.grid_lon = result.grid_lon
+    row.grid_distance_km = result.grid_distance_km
+    row.height_m = result.height_m
+    row.land_fraction = result.land_fraction
+    s.flush()

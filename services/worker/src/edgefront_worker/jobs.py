@@ -19,6 +19,7 @@ from edgefront_core.http import make_client
 from edgefront_core.metar_ingest import run_metar_ingest
 from edgefront_core.model_text_ingest import PfmIngest, TextModelIngest
 from edgefront_core.nws_products import NwsProductLister
+from edgefront_worker.grib.ingest import GribModelIngest
 
 log = logging.getLogger("edgefront.worker.jobs")
 
@@ -40,6 +41,8 @@ class ProductJobs:
         self.lister = NwsProductLister(self.nws)
         self.nomads: httpx.Client = make_client(timeout=120)  # 28 MB NBM bulletins
         self.text_models = TextModelIngest(self.nomads)
+        self.grib_client: httpx.Client = make_client(timeout=60)
+        self.grib = GribModelIngest(self.grib_client)
         self.pfm = PfmIngest(self.lister)
         self.dsm_fetchers: dict[str, DsmFetcher] = {
             "nws_api": NwsApiDsmFetcher(self.lister),
@@ -75,3 +78,11 @@ class ProductJobs:
             self.pfm.run(factory)
         except Exception:
             log.warning("pfm job error", extra={"source": "model_pfm"})
+
+    def models_grib(self, factory: sessionmaker[Session]) -> None:
+        """GFS, IFS, AIFS (one at a time, so GRIB memory never stacks). Never raises."""
+        for model in ("aifs", "ifs", "gfs"):
+            try:
+                self.grib.run(factory, model)
+            except Exception:  # logged + recorded in source_health by the ingest
+                log.warning("grib job error", extra={"source": f"model_{model}"})

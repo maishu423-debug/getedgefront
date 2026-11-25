@@ -10,6 +10,7 @@ import type {
   FeedResponse,
   ForecastResponse,
   MetarsResponse,
+  ModelsResponse,
   ObservedResponse,
   StationResponse,
   StationsResponse,
@@ -92,3 +93,5 @@ export async function fetchHealth(): Promise<Result<ApiHealth>> {
     return { ok: false, notFound: false, error: err instanceof Error ? err.name : "unknown" };
   }
 }
+export const getModels = (id: string, v = "temp", span = "today") =>
+  load<ModelsResponse>(`/stations/${id}/models?var=${v}&span=${span}`);

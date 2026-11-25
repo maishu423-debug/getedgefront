@@ -54,7 +54,7 @@ explicit_package_bases = true
 namespace_packages = true
 
 [[tool.mypy.overrides]]
-module = ["apscheduler.*"]
+module = ["apscheduler.*", "eccodes.*", "psutil.*", "cfgrib.*", "ecmwf.*"]
 ignore_missing_imports = true
 
 # ---------- pytest ----------

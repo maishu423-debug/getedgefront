@@ -319,3 +319,71 @@ export interface ForecastResponse {
   hourly: HourSlot[];
   weather_gov_url: string | null;
 }
+
+// ---------------------------------------------------------------- model guidance (Phase 5)
+
+export type ModelVariable = "temp" | "dewpt" | "wind" | "cloud" | "rh";
+export type ModelSpan = "today" | "48h";
+
+export interface ModelPoint {
+  valid_time: string;
+  value: number | null;
+  category: string | null;
+  is_computed: boolean;
+}
+
+export interface ModelRunOut {
+  cycle_time: string;
+  issuer: string | null;
+  available_at: string;
+  fetched_at: string | null;
+  status: "partial" | "complete" | "failed";
+  steps_expected: number | null;
+  steps_fetched: number;
+  source_url: string | null;
+  stale: boolean;
+}
+
+export interface ModelSeries {
+  id: string;
+  label: string;
+  group: "global" | "ai" | "statistical" | "nws";
+  producer: string;
+  colour_token: string;
+  licence: string | null;
+  available: boolean;
+  reason: string | null;
+  reason_code: "no_run" | "no_station" | "no_variable" | "station_failed" | null;
+  kind: "continuous" | "categorical" | null;
+  native_unit: string | null;
+  native_step_hours: number[];
+  run: ModelRunOut | null;
+  grid: {
+    lat: number | null;
+    lon: number | null;
+    distance_km: number | null;
+    height_m: number | null;
+    point_name: string | null;
+  } | null;
+  points: ModelPoint[];
+}
+
+export interface ModelsResponse {
+  generated_at: string;
+  station_id: string;
+  station_name: string;
+  variable: ModelVariable;
+  unit: "degF" | "kt" | "pct";
+  now: string;
+  window: {
+    span: ModelSpan;
+    start: string;
+    end: string;
+    start_local: string;
+    end_local: string;
+    climate_date: string;
+    basis: "LST" | "LOCAL";
+  };
+  observed: { source: SourceRef; points: ModelPoint[] };
+  models: ModelSeries[];
+}

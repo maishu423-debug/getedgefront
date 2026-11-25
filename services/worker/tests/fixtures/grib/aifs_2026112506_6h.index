@@ -1,0 +1,5 @@
+{"domain": "g", "date": "20261125", "time": "0600", "expver": "0001", "class": "ai", "type": "fc", "stream": "oper", "step": "6", "levtype": "sfc", "param": "tcc", "model": "aifs-single", "_offset": 0, "_length": 21971}
+{"domain": "g", "date": "20261125", "time": "0600", "expver": "0001", "class": "ai", "type": "fc", "stream": "oper", "step": "6", "levtype": "sfc", "param": "10u", "model": "aifs-single", "_offset": 21971, "_length": 34413}
+{"domain": "g", "date": "20261125", "time": "0600", "expver": "0001", "class": "ai", "type": "fc", "stream": "oper", "step": "6", "levtype": "sfc", "param": "10v", "model": "aifs-single", "_offset": 56384, "_length": 34413}
+{"domain": "g", "date": "20261125", "time": "0600", "expver": "0001", "class": "ai", "type": "fc", "stream": "oper", "step": "6", "levtype": "sfc", "param": "2t", "model": "aifs-single", "_offset": 90797, "_length": 28192}
+{"domain": "g", "date": "20261125", "time": "0600", "expver": "0001", "class": "ai", "type": "fc", "stream": "oper", "step": "6", "levtype": "sfc", "param": "2d", "model": "aifs-single", "_offset": 118989, "_length": 28192}
