@@ -7,8 +7,8 @@ product; it is NOT a production source (its terms have not been reviewed, owner 
 Nothing in services/ or packages/ imports this file.
 
 - api.weather.gov: /products/types/{DSM|CLI}/locations/{LOC} (NWS User-Agent with contact email)
-- IEM: /api/1/nws/afos/list.json?pil=…&date=… (generic User-Agent, throttled: IEM returns 429
-  when requests come too fast) and /cgi-bin/afos/retrieve.py as a fallback for older products.
+- IEM: /api/1/nws/afos/list.json?pil=…&date=… (our real User-Agent, as for NWS; throttled:
+  IEM returns 429 when requests come too fast) and /cgi-bin/afos/retrieve.py as a fallback.
 """
 
 from __future__ import annotations
@@ -28,7 +28,6 @@ from edgefront_core.registry import load_registry
 
 NWS = "https://api.weather.gov"
 IEM = "https://mesonet.agron.iastate.edu"
-IEM_UA = {"User-Agent": "EdgeFront/1.0 (getedgefront.com)"}  # no personal contact to 3rd parties
 IEM_PAUSE = 3.0
 LOOKBACK_DAYS = 3
 
@@ -102,7 +101,7 @@ def main(argv: list[str] | None = None) -> None:
         "| Station | DSM PIL | DSM via api.weather.gov | DSM via IEM | CLI PIL | CLI via api.weather.gov | CLI via IEM |",  # noqa: E501
         "|---|---|---|---|---|---|---|",
     ]
-    with make_client() as nws, httpx.Client(headers=IEM_UA, timeout=30) as iem:
+    with make_client() as nws, make_client(timeout=30) as iem:
         for st in stations:
             loc = st.id[1:]
             cells = [st.id]

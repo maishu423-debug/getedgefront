@@ -1,6 +1,6 @@
 # Fixtures: iem_dsm
 
-Real upstream responses, saved verbatim. Requests sent with a generic EdgeFront User-Agent (third-party host, no contact email). Source: Iowa Environmental Mesonet AFOS archive (`/api/1/nwstext/{product_id}`), Iowa State University.
+Real upstream responses, saved verbatim. These files were fetched on 2026-11-24 with a generic `EdgeFront/1.0 (getedgefront.com)` User-Agent; since Phase 4 (owner A2) every IEM request carries the full EdgeFront User-Agent incl. CONTACT_EMAIL. Source: Iowa Environmental Mesonet AFOS archive (`/api/1/nwstext/{product_id}`), Iowa State University.
 
 | File | URL | Fetched (UTC) | HTTP |
 |---|---|---|---|

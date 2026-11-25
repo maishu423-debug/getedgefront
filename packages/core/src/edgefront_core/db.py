@@ -17,6 +17,9 @@ def make_engine(url: str) -> Engine:
     if url.startswith("postgresql"):
         # Fail fast instead of hanging when the DB is unreachable.
         connect_args["connect_timeout"] = 5
+        # timestamptz values come back in the *session* time zone; pin it to UTC so every
+        # datetime we read is UTC regardless of the server's default.
+        connect_args["options"] = "-c timezone=UTC"
     return create_engine(url, pool_pre_ping=True, connect_args=connect_args)
 
 

@@ -24,7 +24,9 @@ jobs:
           --health-cmd "pg_isready -U edgefront" --health-interval 5s
           --health-timeout 3s --health-retries 20
     env:
+      # The whole Python suite runs on Postgres (production DB). SQLite is a local shortcut only.
       TEST_DATABASE_URL: postgresql+psycopg://edgefront:edgefront@localhost:5432/edgefront_test
+      REQUIRE_POSTGRES: "1"
       APP_ENV: test
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +37,15 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy packages/core/src services/api/src services/worker/src conftest.py packages/core/tests services/api/tests services/worker/tests
-      - run: uv run pytest
+      - name: Migrations up, down to base, up again (Postgres)
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+        run: |
+          uv run python -m edgefront_core.migrate up head
+          uv run python -m edgefront_core.migrate down base
+          uv run python -m edgefront_core.migrate up head
+      - name: Tests (Postgres)
+        run: uv run pytest -ra
 
   web:
     runs-on: ubuntu-latest
@@ -63,7 +73,7 @@ jobs:
         run: |
           docker compose -f infra/docker-compose.yml up -d --wait --wait-timeout 180 api worker web
           curl -fsS http://localhost:8000/api/v1/health
-          curl -fsS http://localhost:3000/ | grep -q "coming soon"
+          curl -fsS http://localhost:3000/ | grep -q "Observed weather at the U.S. stations"
           sleep 65
           docker compose -f infra/docker-compose.yml logs worker | grep -c '"msg": "heartbeat"'
       - if: always()

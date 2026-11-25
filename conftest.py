@@ -25,6 +25,8 @@ from edgefront_core.migrate import upgrade
 @pytest.fixture
 def db_url(tmp_path: Path) -> str:
     url = os.environ.get("TEST_DATABASE_URL")
+    if os.environ.get("REQUIRE_POSTGRES") and not (url or "").startswith("postgresql"):
+        pytest.fail("REQUIRE_POSTGRES is set but TEST_DATABASE_URL is not a Postgres URL")
     if url:
         engine = make_engine(url)
         with engine.begin() as conn:

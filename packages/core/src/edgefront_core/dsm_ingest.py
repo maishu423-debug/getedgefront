@@ -5,9 +5,9 @@ Environmental Mesonet (IEM) AFOS archive for `dsm_source = iem`. A future NWWS-O
 another `DsmFetcher`.
 
 IEM politeness: one small list request per station per run (every ~12 min with jitter), the
-product text only for products we have not stored, a generic User-Agent (no personal contact
-to third parties), a pause between calls and exponential backoff on 429/5xx. Never called from
-a web request.
+product text only for products we have not stored, our real User-Agent (the same as for NWS,
+incl. CONTACT_EMAIL, so IEM can see who we are and reach us; owner A2, Phase 4), a pause
+between calls and exponential backoff on 429/5xx. Never called from a web request.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from edgefront_core.db import session_scope
-from edgefront_core.http import get_with_retry
+from edgefront_core.http import get_with_retry, make_client
 from edgefront_core.metar_ingest import raw_hash
 from edgefront_core.models import DsmProduct, Station
 from edgefront_core.nws_products import NwsProductLister, RawProduct, lookback
@@ -36,7 +36,6 @@ log = logging.getLogger("edgefront.dsm")
 
 HEALTH_KEY = {"nws_api": "dsm_nws", "iem": "dsm_iem"}
 IEM = "https://mesonet.agron.iastate.edu"
-IEM_UA = {"User-Agent": "EdgeFront/1.0 (getedgefront.com)"}
 
 
 class DsmFetcher(Protocol):
@@ -82,7 +81,7 @@ class IemDsmFetcher:
 
     @staticmethod
     def make_client() -> httpx.Client:
-        return httpx.Client(headers=IEM_UA, timeout=30, follow_redirects=True)
+        return make_client(timeout=30)
 
     def _get(self, url: str, params: dict[str, str] | None = None) -> httpx.Response:
         self.sleep(self.pause_s)

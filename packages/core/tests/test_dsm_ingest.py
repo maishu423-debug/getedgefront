@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+import pytest
 from core_fixtures import FIXTURES
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
@@ -180,3 +181,14 @@ def test_station_without_fetcher_is_reported(session_factory: sessionmaker[Sessi
     _stations(session_factory)
     stats = run_dsm_ingest(session_factory, {"iem": FakeIem().fetcher()}, now=lambda: NOW)
     assert stats["nws_api"].failed == 1
+
+
+def test_iem_client_sends_our_real_user_agent(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Owner A2: never hide our identity from an upstream; IEM gets the NWS User-Agent."""
+    import edgefront_core.http as http_mod
+    from edgefront_core.settings import Settings
+
+    cfg = Settings(_env_file=None, contact_email="ops@example.org")
+    monkeypatch.setattr(http_mod, "get_settings", lambda: cfg)
+    with IemDsmFetcher.make_client() as c:
+        assert c.headers["User-Agent"] == "EdgeFront/1.0 (getedgefront.com; ops@example.org)"
