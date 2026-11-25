@@ -45,7 +45,10 @@ jobs:
           uv run python -m edgefront_core.migrate down base
           uv run python -m edgefront_core.migrate up head
       - name: Tests (Postgres)
-        run: uv run pytest -ra
+        run: uv run pytest -ra --junitxml=pytest.xml
+      - name: Failed tests as annotations
+        if: failure()
+        run: test -f pytest.xml && python tools/ci_annotate.py junit pytest.xml || true
 
   web:
     runs-on: ubuntu-latest
@@ -104,5 +107,12 @@ jobs:
           curl -fsSI http://localhost:3000/ | grep -qi "x-robots-tag: noindex"
           sleep 65
           docker compose -f infra/docker-compose.yml logs worker | grep -c '"msg": "heartbeat"'
+      - name: Service logs as annotations
+        if: failure()
+        run: |
+          for svc in migrate api worker web postgres; do
+            docker compose -f infra/docker-compose.yml logs --no-color "$svc" > "log-$svc.txt" 2>&1 || true
+            python3 tools/ci_annotate.py text "docker $svc" "log-$svc.txt"
+          done
       - if: always()
         run: docker compose -f infra/docker-compose.yml down -v
