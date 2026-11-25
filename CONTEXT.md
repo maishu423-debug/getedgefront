@@ -396,7 +396,7 @@ Mockups: `design/Home.dc.html` and `design/Station.dc.html`. They are written in
 - **Times:** absolute times are rendered on the server from the station's IANA zone (identical on the client); relative ages render only after mount and update every 30 s. The board's "Local day ends in" countdown is computed in the browser from the station tz (`lib/climate.ts`, same LST rule as Python), never the browser's zone.
 - **Units:** one °C→°F helper (`lib/units.ts`, integer arithmetic, half away from zero) with the same test cases as Python. METAR wind kt, DSM/CLI wind mph, always labelled.
 - **Search aliases** live in `stations.yaml` (`aliases:`), stored in `stations.aliases` (migration 0004) and returned by `/stations`.
-- `/station/kdfw` → 308 → `/station/KDFW` (`src/proxy.ts`). Unknown stations render the friendly not-found page (see Q21 about its HTTP status).
+- **Station URLs (`src/proxy.ts`, owner A4/Q21):** known id in lower case → 308 to upper case; unknown id → the friendly not-found page with a **real HTTP 404**. With Cache Components the page always streams its prerendered shell with 200 and `dynamicParams` is unavailable, so the check runs in `proxy.ts` against `src/generated/stations.json` — copied from `data/stations.yaml` by `scripts/gen-stations.mjs` before every dev/build/typecheck (owner choice, 2026-11-25; not a hand-kept list). `generateStaticParams` prerenders every station: API first (2 s), else the same registry copy, so the build never depends on the API. Adding a station = edit `stations.yaml` + rebuild web.
 - SEO: per-station title/description/canonical/OpenGraph, `sitemap.xml` (request-time, all stations), `robots.txt`. No analytics.
 - Tests: Vitest (39) for rounding, climate countdown incl. DST and the 1:00 AM case, relative age, search, state mapping, gaps; Playwright (13 tests × 1440/375 px) on the live stack. Lighthouse (production build): accessibility 100 on `/` and `/station/KDFW` (mobile + desktop).
 
@@ -404,7 +404,7 @@ Mockups: `design/Home.dc.html` and `design/Station.dc.html`. They are written in
 1. "Sign in" removed from the header (owner B2: no accounts in v1). The yellow "Design mockup · sample data" banner is not shipped.
 2. Hero subline lists what v1 has (METARs, CLI + DSM daily summaries, NWS forecasts); model guidance is mentioned only after Phase 5.
 3. Header nav is the same on every page (Stations · Map PRO · Sources · Pricing); the mockups differed between pages. The station page's search sits at the top of the page body instead of inside the header so the header can wrap cleanly at 375 px.
-4. Station title shows the NWS official name (e.g. "Dallas/Fort Worth International Airport"); the EdgeFront display name, lat/lon, elevation, ASOS, local standard time offset + IANA zone and current local time are in the mono meta line; an extra line names the venues and the "being verified" note.
+4. ~~Station title showed the NWS official name~~ **Reverted (owner A3, 2026-11-25):** the title is the EdgeFront **display name** from `stations.yaml` (Q15, e.g. "Washington DC · Reagan National"); the NWS official name is in the mono meta line with lat/lon, elevation, ASOS, local standard time offset + IANA zone and current local time; an extra line names the venues and the "being verified" note.
 5. Big numbers are 72 px on phones (96 px from `sm`), so the two cards fit at 375 px.
 6. Forecast low tile uses the NWS period name ("Tonight · Low" or "Overnight · Low") instead of always "Tonight".
 7. Daily summaries: the expanded row also shows the decoded DSM highest wind/gust (mph) and a note when several issuances exist for the day; corrections carry a COR tag. KBKF-type stations show one message instead of four rows.
@@ -432,6 +432,9 @@ Each phase ends with: tests passing, a short demo note, CONTEXT.md updated, and 
 | **6. Deploy + launch** | Railway services, private networking, env vars, custom domain + HTTPS, retention job, structured logs, uptime check, launch checklist | Site live on getedgefront.com; all sources healthy for 48 h; DB size and memory within limits |
 
 ---
+
+### 11.1 Targets carried into later phases
+- **Phase 6 performance target (owner, 2026-11-25):** `/station/[id]` on mobile LCP < 2.5 s (Phase 4 measured Performance 72, LCP 3.9 s). ECharts stays lazy-loaded, and the model chart is lazy-loaded too.
 
 ## 12. Engineering conventions
 - Python: ruff + mypy (strict-ish), typed Pydantic models for every API response; no business logic in route handlers.
@@ -479,8 +482,8 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 | Q18 | ~~KBKF on the board?~~ **Resolved 2026-11-24:** keep KBKF on the board; show it stale when it is | — |
 | Q19 | ~~KDAL / KBKF without daily summaries~~ **Resolved 2026-11-24:** OK. Where neither product exists the block says "No daily summary available for this station" | — |
 | Q20 | ~~KZFW finals for KDFW/KDAL/KOKC?~~ **Resolved 2026-11-25 (live run):** KZFW's finals do arrive (11-22 and 11-24 finals both entered at 06:16Z next morning for all three). Only the **11-23 finals were never issued** by KZFW — a one-off gap at the source. The block keeps showing that day's latest intraday DSM, labelled "so far" | — |
-| Q21 | Unknown station URLs (e.g. `/station/KZZZ`) show the friendly not-found page but return **HTTP 200** (Next streams it from inside the page's Suspense boundary and adds `noindex`). A true 404 needs the station list in `proxy.ts` (e.g. a small cached list or a build-time env var). Worth doing? | Accept 200 + noindex for v1 |
-| Q22 | Local verification on **Postgres**: the Postgres-only tests and CI job are written, but no Postgres runs on the dev machine and there is no GitHub remote yet. Approve downloading the official PostgreSQL Windows binaries locally, install Postgres/Docker, or add the GitHub remote so CI runs? | Tests run on SQLite locally; 12 Postgres-only tests skip |
+| Q21 | ~~Unknown station URLs return 200~~ **Resolved 2026-11-25:** real 404 via `proxy.ts` reading the build-time copy of `stations.yaml` (owner chose this over an API call per request or dropping Cache Components) | — |
+| Q22 | Postgres verification. **Owner plan 2026-11-25:** owner creates a private GitHub repo (steps in `infra/github.md`) and installs Docker Desktop (local Postgres from compose, test DB `edgefront_test`). **Rule: no phase is done until the Postgres CI job is green.** | Waiting for the remote URL / Docker |
 | Q23 | The local live worker dies whenever the dev session ends (three interrupted runs). For the record: it is now started as a detached process for local runs; on Railway the worker is its own service | — |
 
 ## 15. Progress log
@@ -496,3 +499,4 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 - 2026-11-25 — Phase 3 approved and merged to `main`. Phase 4 started on `phase-4-frontend`.
 - 2026-11-25 — **A2:** IEM requests now send the real EdgeFront User-Agent incl. CONTACT_EMAIL (test pins it). **A3:** Postgres sessions pinned to `timezone=UTC`; Postgres-only tests (timestamptz, jsonb, enums, constraints, cascades, migrations down/up) + CI `REQUIRE_POSTGRES` guard + explicit migrate up/down/up step; not yet run on Postgres locally (Q22). Migration 0004 (`stations.aliases`); 0005 fixes JSON columns storing the literal `'null'` instead of SQL NULL (made every product look like it had decode errors).
 - 2026-11-25 — **Phase 4 (website) built**: `/`, `/station/[id]`, `/pricing`, `/sources`, `/terms`, `/privacy`, 404, sitemap/robots; shared state components; ECharts observed chart; Vitest 39, Playwright 26 (13 × 2 widths), Lighthouse a11y 100. Every UI state seen on screen against degraded backends (API down, empty DB, day-old DB, slow API). Live run (worker on A2 code) running detached 08:42Z–~10:52Z; results so far in the Phase 4 report.
+- 2026-11-25 — **Phase 4 close-out:** A1 final live run (08:42–10:52Z, A2 code): METAR 42 runs / 93 new / 3,559 dup / 0 parse errors; CLI 9 runs / 16 new; DSM IEM 11 runs / 7 new / 1 dup; DSM NWS 11 runs / 0 new; forecast 5 runs / 100 updated / 23 × 304 / 17 fresh; 0 decode errors, 0 failed stations, 1 retried IEM disconnect; JSON-`null` cleanup → 0 rows left in all 6 JSON columns. A3 title = display name. A4 real 404s via `proxy.ts` + build-time registry copy. A2 prepared (`infra/github.md`, compose `edgefront_test`); waiting on the GitHub remote and Docker.

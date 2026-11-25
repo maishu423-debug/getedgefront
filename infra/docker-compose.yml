@@ -21,7 +21,9 @@ services:
       POSTGRES_PASSWORD: edgefront
       POSTGRES_DB: edgefront
     ports: ["5432:5432"]
-    volumes: [pgdata:/var/lib/postgresql/data]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro  # creates edgefront_test (first start only)
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U edgefront -d edgefront"]
       interval: 5s

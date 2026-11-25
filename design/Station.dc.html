@@ -326,9 +326,7 @@ a{color:#0A6E69}a:hover{color:#064F4B}
 <div role="group" aria-label="Forecast window" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px">
 <sc-for list="{{spanTabs}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}">{{t.label}}</button></sc-for>
 </div>
-<label class="sr" for="runsel">Model run</label>
-<select id="runsel" style="height: 40px; padding: 0 12px; border: 1px solid #CFD5D1; border-radius: 8px; background: #FFFFFF; font: 500 13px Inter, sans-serif; color: #101A1C"><option>Latest run per model</option><option>Same cycle: 06Z</option><option>Same cycle: 00Z</option></select>
-<button class="{{spreadCls}}" onClick="{{toggleSpread}}" aria-pressed="{{spread}}">GEFS spread</button>
+<span style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border: 1px solid #DDE1DC; border-radius: 8px; background: #F7F8F6; font: 500 13px Inter, sans-serif; color: #2A3533">Latest run per model</span>
 </div>
 
 <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end">
@@ -554,12 +552,10 @@ class Component extends DCLogic {
     var models = [
       { id: 'IFS', grp: 'Global', col: '#1F5FA8', k: 0.3, ph: 0.2, lat: 6.5, cyc: [0, 6, 12, 18], prod: 'ECMWF' },
       { id: 'GFS', grp: 'Global', col: '#C24E12', k: 1.0, ph: 1.1, lat: 3.5, cyc: [0, 6, 12, 18], prod: 'NOAA/NCEP' },
-      { id: 'GEFS', grp: 'Global', col: '#C77A16', k: 0.6, ph: 2.0, lat: 5, cyc: [0, 6, 12, 18], prod: 'NOAA/NCEP (ensemble mean)' },
-      { id: 'HGEFS', grp: 'Global', col: '#7A4310', k: 0.1, ph: 2.7, lat: 5.5, cyc: [0, 6, 12, 18], prod: 'NOAA (hybrid ensemble)' },
       { id: 'AIFS', grp: 'AI', col: '#B4235A', k: -0.5, ph: 3.4, lat: 6, cyc: [0, 6, 12, 18], prod: 'ECMWF (AI model)' },
       { id: 'GFS-MOS', grp: 'Statistical', col: '#7D6A00', k: 1.3, ph: 4.0, lat: 4.5, cyc: [0, 6, 12, 18], prod: 'NWS MDL' },
       { id: 'NBM', grp: 'Statistical', col: '#0A6E69', k: 0.5, ph: 4.6, lat: 1.2, hourly: true, prod: 'NWS (National Blend)' },
-      { id: 'GLMP', grp: 'Statistical', col: '#3F8F3A', k: -0.9, ph: 5.3, lat: 0.5, hourly: true, horizon: 25, prod: 'NWS MDL (gridded LAMP)' },
+      { id: 'LAMP', grp: 'Statistical', col: '#3F8F3A', k: -0.9, ph: 5.3, lat: 0.5, hourly: true, horizon: 25, prod: 'NWS MDL (LAMP station bulletin)' },
       { id: 'PFM', grp: 'NWS', col: '#6B4FA0', k: 0.8, ph: 6.0, lat: 0.5, cyc: [10, 22], prod: 'NWS Fort Worth (point forecast)' }
     ];
     var NOW = 10 + 55 / 60, span = s.mSpan, v = s.mVar;
@@ -588,7 +584,7 @@ class Component extends DCLogic {
       var pen = false;
       D.met.slice().reverse().forEach(function (m) { var o = m.o, h = m.hh - 24; if (h < 6) return; var val = v === 'temp' ? o.t : v === 'dew' ? o.d : v === 'rh' ? o.rh : o.w; obsPath += (pen ? 'L' : 'M') + MX(h) + ' ' + MY(val) + ' '; pen = true; });
     }
-    var gefs = models[2], up = '', dn = [];
+    var gefs = { k: 0.6, ph: 2.0 }, up = '', dn = [];
     for (var h3 = 6; h3 <= 6 + span; h3++) { var c3 = this.mval(gefs, v, h3), sp3 = (1.2 + 0.06 * (h3 - 6)) * vdef[4]; up += (h3 === 6 ? 'M' : 'L') + MX(h3) + ' ' + MY(Math.min(hi, c3 + sp3)) + ' '; dn.unshift('L' + MX(h3) + ' ' + MY(Math.max(lo, c3 - sp3))); }
     var bandPath = up + dn.join(' ') + ' Z';
     var mGrid = hgrid(MH, 3), mV = '', mTicks = [], mstep = span === 24 ? 3 : 6;
@@ -622,7 +618,7 @@ class Component extends DCLogic {
       metarTabs: [tab('Raw', s.metar === 'raw', set({ metar: 'raw' })), tab('Decoded', s.metar === 'dec', set({ metar: 'dec' }))], isRaw: s.metar === 'raw', isDecoded: s.metar === 'dec', metars: mets, toggleMore: set({ more: !s.more }), moreLabel: s.more ? 'Show last 12 hours' : 'Show all 24 hours',
       varTabs: [['Temp', 'temp'], ['Dew pt', 'dew'], ['Wind', 'wind'], ['Cloud', 'cloud'], ['RH', 'rh']].map(function (p) { return tab(p[0], v === p[1], set({ mVar: p[1] })); }),
       spanTabs: [tab('Today', span === 24, set({ mSpan: 24 })), tab('48 h', span === 48, set({ mSpan: 48 }))],
-      spread: s.spread, showBand: s.spread && !off.GEFS, spreadCls: s.spread ? 'tgl on' : 'tgl', toggleSpread: set({ spread: !s.spread }),
+      spread: s.spread, showBand: false, spreadCls: s.spread ? 'tgl on' : 'tgl', toggleSpread: set({ spread: !s.spread }),
       runs: s.runs, runsCls: s.runs ? 'tgl on' : 'tgl', toggleRuns: set({ runs: !s.runs }),
       groups: groups, allOn: set({ off: {} }), allOff: set({ off: allOffMap }),
       lines: lines, obsPath: obsPath || 'M0 0', bandPath: bandPath, mGrid: mGrid, mV: mV, mTicks: mTicks, mLabels: mLabels,

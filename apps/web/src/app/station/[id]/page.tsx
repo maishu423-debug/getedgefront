@@ -19,11 +19,15 @@ import {
   getStation,
   getStations,
 } from "@/lib/api";
+import registry from "@/generated/stations.json";
+import { apiInternalUrl } from "@/lib/api";
 import { SITE_URL } from "@/lib/site";
 import { formatLocalWithZone } from "@/lib/time";
 import type { StationMeta } from "@/lib/types";
 
 const ID = /^K[A-Z0-9]{3}$/;
+const REGISTRY = registry.stations;
+const KNOWN = new Set(REGISTRY.map((s) => s.id));
 
 export async function generateMetadata({ params }: PageProps<"/station/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -31,7 +35,7 @@ export async function generateMetadata({ params }: PageProps<"/station/[id]">): 
   const res = ID.test(sid) ? await getStation(sid) : null;
   if (!res || !res.ok) return { title: "Station not found", robots: { index: false } };
   const st = res.data.station;
-  const title = `${st.id} ${st.official_name ?? st.name} — live METAR, daily high, NWS forecast`;
+  const title = `${st.id} ${st.name} — live METAR, daily high, NWS forecast`;
   const description = `Observed temperature, today's high so far, NWS daily climate report and ASOS daily summary, and the NWS forecast for ${st.id} (${st.name}), each with its source and time stamp.`;
   const url = `${SITE_URL}/station/${st.id}`;
   return {
@@ -42,7 +46,31 @@ export async function generateMetadata({ params }: PageProps<"/station/[id]">): 
   };
 }
 
-export default function StationPage({ params }: PageProps<"/station/[id]">) {
+/** Every registry station is prerendered. API first (2 s); if the build can't reach it, the
+ * list copied from data/stations.yaml at build time (scripts/gen-stations.mjs). */
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  try {
+    const res = await fetch(`${apiInternalUrl()}/api/v1/stations`, {
+      signal: AbortSignal.timeout(2000),
+    });
+    if (res.ok) {
+      const body = (await res.json()) as { stations: { id: string }[] };
+      if (body.stations.length) return body.stations.map((s) => ({ id: s.id }));
+    }
+  } catch {
+    // fall through to the registry copy
+  }
+  return REGISTRY.map((s) => ({ id: s.id }));
+}
+
+/**
+ * Unknown ids are rejected here, before any Suspense boundary streams, so the response is a
+ * real HTTP 404 (owner Q21/A4). Known ids are checked against the build-time registry copy;
+ * `dynamicParams = false` is not available with Cache Components.
+ */
+export default async function StationPage({ params }: PageProps<"/station/[id]">) {
+  const { id } = await params;
+  if (!KNOWN.has(id)) notFound();
   return (
     <PageShell active="stations">
       <Suspense fallback={<StationSkeleton />}>
@@ -86,10 +114,10 @@ function Title({ st }: { st: StationMeta }) {
         <h1 className="font-display text-[40px] font-bold tracking-[-0.03em] sm:text-[46px]">
           {st.id}
         </h1>
-        <span className="text-[19px] font-medium">{st.official_name ?? st.name}</span>
+        <span className="text-[19px] font-medium">{st.name}</span>
       </div>
       <div className="flex flex-wrap gap-x-[18px] gap-y-1.5 font-mono text-[12.5px] text-muted">
-        <span>{st.name}</span>
+        {st.official_name ? <span>{st.official_name}</span> : null}
         <span>{fmtLatLon(st.lat, st.lon)}</span>
         {st.elevation_m !== null ? <span>Elev {Math.round(st.elevation_m)} m</span> : null}
         <span>ASOS</span>

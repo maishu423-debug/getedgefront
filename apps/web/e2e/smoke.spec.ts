@@ -108,7 +108,8 @@ test.describe("station pages", () => {
   });
 
   test("unknown station and unknown page show the friendly 404", async ({ page }) => {
-    await page.goto("/station/KZZZ");
+    const st = await page.goto("/station/KZZZ");
+    expect(st?.status(), "unknown station must be a real 404").toBe(404);
     await expect(page.getByRole("heading", { name: "We couldn't find that page" })).toBeVisible();
     await expect(page.getByRole("combobox", { name: "Search stations" })).toBeVisible();
     const res = await page.goto("/no-such-page");
