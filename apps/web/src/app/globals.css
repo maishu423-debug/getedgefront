@@ -82,3 +82,10 @@
     outline-offset: 2px;
   }
 }
+
+/* Phase 6 B1: sections below the fold skip style/layout/paint until they come near the
+   viewport (content stays in the DOM, so find-in-page and screen readers still see it). */
+@utility below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}

@@ -80,8 +80,10 @@ test.describe("station pages", () => {
       "href",
       /forecast\.weather\.gov\/MapClick\.php\?lat=/,
     );
-    // Chart: lazy-loaded canvas + accessible text summary.
-    await expect(page.locator('[aria-label^="Observed conditions chart"] canvas')).toHaveCount(1);
+    // Chart: loaded only when scrolled near (Phase 6 B1) + accessible text summary.
+    const obsChart = page.locator('[aria-label^="Observed conditions chart"]');
+    await obsChart.scrollIntoViewIfNeeded();
+    await expect(obsChart.locator("canvas")).toHaveCount(1);
     await expect(page.getByText(/reports .*in the last 24 h/)).toBeVisible();
     // Daily summaries: four product rows (or their status text).
     const daily = page.getByRole("table", { name: /Daily climate reports/ });
@@ -127,7 +129,9 @@ test.describe("model guidance", () => {
     const s = section(page);
     await s.scrollIntoViewIfNeeded();
     await expect(s.getByText("MODEL DATA", { exact: true })).toBeVisible();
-    await expect(s.locator('[aria-label^="Model guidance chart"] canvas')).toHaveCount(1);
+    const chart = s.locator('[aria-label^="Model guidance chart"]');
+    await chart.scrollIntoViewIfNeeded(); // ECharts loads only near the viewport
+    await expect(chart.locator("canvas")).toHaveCount(1);
     const on = s.locator('button[aria-pressed="true"]').filter({ hasNotText: /^(Temp|Today)$/ });
     // chips that are available and switched on (variable/span tabs excluded by name)
     const chips = s.locator('[role="group"][aria-label$=" models"] button[aria-pressed]');

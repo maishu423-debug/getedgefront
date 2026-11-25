@@ -35,7 +35,7 @@ export function DailySummaries({
   return (
     <section
       aria-labelledby="h-daily"
-      className="overflow-hidden rounded-[14px] border border-border bg-surface"
+      className="overflow-hidden rounded-[14px] border border-border bg-surface below-fold"
     >
       <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border px-5 py-4">
         <div className="flex flex-col gap-0.5">

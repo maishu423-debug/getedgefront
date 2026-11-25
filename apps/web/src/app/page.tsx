@@ -53,7 +53,7 @@ export default function Home() {
         >
           <BoardSection />
         </Suspense>
-        <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-5">
+        <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-5 below-fold">
           <Suspense fallback={<Skeleton className="h-[420px]" label="Loading new highs" />}>
             <Feed />
           </Suspense>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { breakAtGaps } from "@/lib/gaps";
+import { useNearViewport } from "@/lib/hooks";
 import { formatLocalTime, formatZulu } from "@/lib/time";
 import type { ObservedResponse } from "@/lib/types";
 import { COVER_RANK, cToFDisplay, fmtMetarWind } from "@/lib/units";
@@ -69,6 +70,7 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
   });
   const [ready, setReady] = useState(false);
   const el = useRef<HTMLDivElement>(null);
+  const near = useNearViewport(el);
   const prep = useMemo(() => prepare(data, hours), [data, hours]);
   const summary = useMemo(() => summarize(prep, hours, tz), [prep, hours, tz]);
   const active = PANELS.filter((p) => on[p.key]);
@@ -76,6 +78,7 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
   const latest = prep.points.at(-1);
 
   useEffect(() => {
+    if (!near) return; // ECharts loads only when the chart is near the viewport
     let disposed = false;
     let chart: { dispose: () => void; resize: () => void } | null = null;
     const onResize = () => chart?.resize();
@@ -104,12 +107,12 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
       chart?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prep, on, tz]);
+  }, [prep, on, tz, near]);
 
   return (
     <section
       aria-labelledby="h-chart"
-      className="flex flex-col gap-4 rounded-[14px] border border-border bg-surface px-5 pt-[18px] pb-5"
+      className="flex flex-col gap-4 rounded-[14px] border border-border bg-surface px-5 pt-[18px] pb-5 below-fold"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col gap-0.5">

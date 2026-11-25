@@ -1,19 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 import { SITE_URL } from "@/lib/site";
 
-const spaceGrotesk = Space_Grotesk({
+// Self-hosted, subset fonts (Phase 6 B1): the same three families as the design, cut to the
+// characters EdgeFront prints and the weights the UI uses (tools/subset_fonts.py, OFL 1.1 —
+// see ./fonts/README.md). 70 KB in total instead of 101 KB from Google's Latin files.
+const spaceGrotesk = localFont({
+  src: "./fonts/space-grotesk-latin-var.woff2",
   variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: "500 700",
+  display: "swap",
 });
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
-const jetbrainsMono = JetBrains_Mono({
+const inter = localFont({
+  src: "./fonts/inter-latin-var.woff2",
+  variable: "--font-inter",
+  weight: "400 700",
+  display: "swap",
+});
+const jetbrainsMono = localFont({
+  src: "./fonts/jetbrains-mono-latin-var.woff2",
   variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: "400 600",
+  display: "swap",
 });
 
 export const metadata: Metadata = {

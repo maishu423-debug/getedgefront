@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useNow } from "@/lib/hooks";
+import { useNearViewport, useNow } from "@/lib/hooks";
 import { formatLocalTime, formatZulu } from "@/lib/time";
 import type { ModelSeries, ModelsResponse } from "@/lib/types";
 
@@ -225,7 +225,7 @@ export function ModelGuidance({
   return (
     <section
       aria-labelledby="h-model"
-      className="flex flex-col gap-4 rounded-[14px] border border-border bg-surface px-5 pt-[18px] pb-5"
+      className="flex flex-col gap-4 rounded-[14px] border border-border bg-surface px-5 pt-[18px] pb-5 below-fold"
     >
       <div className="flex max-w-[760px] flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2.5">
@@ -383,9 +383,11 @@ function ModelChart({
   summary: string;
 }) {
   const el = useRef<HTMLDivElement>(null);
+  const near = useNearViewport(el);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    if (!near) return; // ECharts loads only when the chart is near the viewport
     let disposed = false;
     let chart: { dispose: () => void; resize: () => void } | null = null;
     const onResize = () => chart?.resize();
@@ -416,7 +418,7 @@ function ModelChart({
       window.removeEventListener("resize", onResize);
       chart?.dispose();
     };
-  }, [data, visible, tz]);
+  }, [data, visible, tz, near]);
 
   return (
     <div className="relative h-[320px]">

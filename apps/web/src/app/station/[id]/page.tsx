@@ -161,15 +161,10 @@ async function StationContent({ params }: { params: PageProps<"/station/[id]">["
     );
   }
   const st = stRes.data.station;
-  const [cur, fc, daily, obs, metars, all, models] = await Promise.all([
-    getCurrent(sid),
-    getForecast(sid),
-    getDaily(sid),
-    getObserved(sid),
-    getMetars(sid),
-    getStations(),
-    getModels(sid),
-  ]);
+  // First chunk: what is above the fold (title, current conditions, NWS forecast). Every section
+  // below the fold streams on its own behind a skeleton, so a slow API call never holds up the
+  // first paint (Phase 6 B1). All reads go through the shared 60 s cache in lib/api.ts.
+  const [cur, fc, all] = await Promise.all([getCurrent(sid), getForecast(sid), getStations()]);
   const searchList = all.ok
     ? all.data.stations.map(({ id: i, name, city, state, aliases }) => ({
         id: i,
@@ -201,28 +196,51 @@ async function StationContent({ params }: { params: PageProps<"/station/[id]">["
         <ForecastCard fc={fc.ok ? fc.data : null} tz={st.tz} failed={!fc.ok} />
       </div>
 
-      <DailySummaries data={daily.ok ? daily.data : null} stationId={sid} failed={!daily.ok} />
-
-      {obs.ok ? (
-        <ObservedChart data={obs.data} tz={st.tz} />
-      ) : (
-        <section className="rounded-[14px] border border-border bg-surface p-5">
-          <h2 className="mb-3 font-display text-xl font-semibold">Observed conditions</h2>
-          {obs.notFound ? (
-            <NoData what="METAR reports" />
-          ) : (
-            <UpstreamDown what="The EdgeFront API" />
-          )}
-        </section>
-      )}
-
-      <MetarReports data={metars.ok ? metars.data : null} tz={st.tz} failed={!metars.ok} />
-      <ModelGuidance
-        initial={models.ok ? models.data : null}
-        stationId={sid}
-        stationName={st.name}
-        tz={st.tz}
-      />
+      <Suspense fallback={<Skeleton className="h-[260px]" label="Loading daily summaries" />}>
+        <DailySection sid={sid} />
+      </Suspense>
+      <Suspense fallback={<Skeleton className="h-[520px]" label="Loading observed conditions" />}>
+        <ObservedSection sid={sid} tz={st.tz} />
+      </Suspense>
+      <Suspense fallback={<Skeleton className="h-[420px]" label="Loading METAR reports" />}>
+        <MetarSection sid={sid} tz={st.tz} />
+      </Suspense>
+      <Suspense fallback={<Skeleton className="h-[560px]" label="Loading model guidance" />}>
+        <ModelSection sid={sid} name={st.name} tz={st.tz} />
+      </Suspense>
     </main>
+  );
+}
+
+async function DailySection({ sid }: { sid: string }) {
+  const daily = await getDaily(sid);
+  return <DailySummaries data={daily.ok ? daily.data : null} stationId={sid} failed={!daily.ok} />;
+}
+
+async function ObservedSection({ sid, tz }: { sid: string; tz: string }) {
+  const obs = await getObserved(sid);
+  if (obs.ok) return <ObservedChart data={obs.data} tz={tz} />;
+  return (
+    <section className="rounded-[14px] border border-border bg-surface p-5">
+      <h2 className="mb-3 font-display text-xl font-semibold">Observed conditions</h2>
+      {obs.notFound ? <NoData what="METAR reports" /> : <UpstreamDown what="The EdgeFront API" />}
+    </section>
+  );
+}
+
+async function MetarSection({ sid, tz }: { sid: string; tz: string }) {
+  const metars = await getMetars(sid);
+  return <MetarReports data={metars.ok ? metars.data : null} tz={tz} failed={!metars.ok} />;
+}
+
+async function ModelSection({ sid, name, tz }: { sid: string; name: string; tz: string }) {
+  const models = await getModels(sid);
+  return (
+    <ModelGuidance
+      initial={models.ok ? models.data : null}
+      stationId={sid}
+      stationName={name}
+      tz={tz}
+    />
   );
 }

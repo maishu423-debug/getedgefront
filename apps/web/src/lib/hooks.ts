@@ -67,3 +67,35 @@ export function usePolling<T>(url: string, initial: T, ms = 60_000): { data: T; 
 
   return { data, failed };
 }
+
+/**
+ * True once the element is within `margin` of the viewport (then stays true). Charts use it so
+ * ECharts is only downloaded and run when the reader gets near them (Phase 6 B1: the charts are
+ * below the fold and must not compete with the first paint).
+ */
+export function useNearViewport<T extends Element>(
+  ref: React.RefObject<T | null>,
+  margin = "300px",
+): boolean {
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const t = setTimeout(() => setNear(true), 0);
+      return () => clearTimeout(t);
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setNear(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: margin },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, margin, near]);
+  return near;
+}
