@@ -1,13 +1,13 @@
 """Turn CI failures into GitHub annotations (readable through the public API, unlike raw logs).
 
-    python tools/ci_annotate.py junit pytest.xml      # one ::error per failed/errored test
-    python tools/ci_annotate.py text <title> <file>   # the file's last 60 lines as one ::error
+python tools/ci_annotate.py junit pytest.xml      # one ::error per failed/errored test
+python tools/ci_annotate.py text <title> <file>   # the file's last 60 lines as one ::error
 """
 
 from __future__ import annotations
 
 import sys
-import xml.etree.ElementTree as ET  # noqa: S405 - parses our own pytest output
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
