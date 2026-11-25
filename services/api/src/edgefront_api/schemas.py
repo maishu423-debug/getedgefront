@@ -347,3 +347,83 @@ class ForecastResponse(BaseModel):
     tonight: ForecastPeriodOut | None
     hourly: list[HourSlotOut] = Field(description="Next 14 h in 2 h steps (≤ 7 slots)")
     weather_gov_url: str | None
+
+
+# ---------------------------------------------------------------- model guidance (Phase 5)
+
+ModelVariable = Literal["temp", "dewpt", "wind", "cloud", "rh"]
+
+
+class ModelWindow(BaseModel):
+    span: Literal["today", "48h"]
+    start: datetime = Field(description="UTC; the climate day's start (LST)")
+    end: datetime = Field(description="UTC; climate-day end (today) or start + 48 h")
+    start_local: datetime = Field(description="Same instant in local standard time")
+    end_local: datetime
+    climate_date: date
+    basis: Literal["LST", "LOCAL"]
+
+
+class ModelPoint(BaseModel):
+    valid_time: datetime
+    value: float | None = Field(
+        description="Display unit: whole °F, whole kt, whole %; categorical cloud → the §6.5 "
+        "plotting midpoint (the category is the data)"
+    )
+    category: str | None = Field(None, description="Cloud code as printed (CL FW SC BK OV B1 B2)")
+    is_computed: bool = Field(False, description="RH computed from T/Td (Magnus)")
+
+
+class ModelRunOut(BaseModel):
+    cycle_time: datetime
+    issuer: str | None = Field(None, description="NWS office for PFM")
+    available_at: datetime = Field(description="When EdgeFront first received the run")
+    fetched_at: datetime | None
+    status: Literal["partial", "complete", "failed"]
+    steps_expected: int | None
+    steps_fetched: int
+    source_url: str | None
+    stale: bool = Field(description="Received more than 2x the model's cycle interval ago")
+
+
+class ModelGrid(BaseModel):
+    lat: float | None
+    lon: float | None
+    distance_km: float | None
+    height_m: float | None = Field(None, description="Model orography / PFM point elevation")
+    point_name: str | None = None
+
+
+class ModelSeries(BaseModel):
+    id: str
+    label: str
+    group: Literal["global", "ai", "statistical", "nws"]
+    producer: str
+    colour_token: str
+    licence: str | None
+    available: bool
+    reason: str | None = Field(None, description="Why there is no line, in plain words")
+    reason_code: Literal["no_run", "no_station", "no_variable", "station_failed"] | None = None
+    kind: Literal["continuous", "categorical"] | None
+    native_unit: str | None
+    native_step_hours: list[int]
+    run: ModelRunOut | None
+    grid: ModelGrid | None
+    points: list[ModelPoint] = Field(description="Native valid times only, oldest first")
+
+
+class ObservedOverlay(BaseModel):
+    source: SourceRef
+    points: list[ModelPoint] = Field(description="Effective METAR/SPECI values in the window")
+
+
+class ModelsResponse(BaseModel):
+    generated_at: datetime
+    station_id: str
+    station_name: str
+    variable: ModelVariable
+    unit: Literal["degF", "kt", "pct"]
+    now: datetime
+    window: ModelWindow
+    observed: ObservedOverlay
+    models: list[ModelSeries]

@@ -14,7 +14,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from starlette.responses import Response as StarletteResponse
 
-from edgefront_api import daily, services
+from edgefront_api import daily, model_guidance, services
 from edgefront_api import schemas as s
 from edgefront_api.health import check_health
 from edgefront_core.db import get_engine, make_sessionmaker
@@ -144,6 +144,17 @@ def daily_summaries(st: StationDep, session: SessionDep, now: NowDep) -> s.Daily
 @router.get("/stations/{station_id}/forecast", response_model=s.ForecastResponse)
 def forecast(st: StationDep, session: SessionDep, now: NowDep, cfg: CfgDep) -> s.ForecastResponse:
     return daily.forecast(session, st, now, cfg)
+
+
+@router.get("/stations/{station_id}/models", response_model=s.ModelsResponse)
+def models(
+    st: StationDep,
+    session: SessionDep,
+    now: NowDep,
+    var: Annotated[s.ModelVariable, Query(description="temp | dewpt | wind | cloud | rh")] = "temp",
+    span: Annotated[Literal["today", "48h"], Query(description="today | 48h")] = "today",
+) -> s.ModelsResponse:
+    return model_guidance.models(session, st, now, var, span)
 
 
 @router.get("/feed/new-highs", response_model=s.FeedResponse)

@@ -20,6 +20,7 @@ from edgefront_core.models import (
     DsmProduct,
     MetarReport,
     ModelRun,
+    ModelRunStation,
     ModelValue,
     Station,
     StationVenue,
@@ -158,12 +159,14 @@ def test_fk_cascades(session_factory: sessionmaker[Session]) -> None:
                 to_c=Decimal("2.0"), report_id=r.id, observed_at=NOW,
             )
         )  # fmt: skip
-        s.add(ModelRun(model="GFS", cycle_time=NOW))
+        run = ModelRun(model="gfs", cycle_time=NOW, available_at=NOW)
+        s.add(run)
         s.flush()
+        s.add(ModelRunStation(run_id=run.id, station_id="KTST", status="ok"))
         s.add(
             ModelValue(
-                model="GFS", cycle_time=NOW, station_id="KTST", valid_time=NOW,
-                variable="temp", value=1.0, unit="C",
+                run_id=run.id, station_id="KTST", valid_time=NOW,
+                variable="temp", value=1.0, unit="degC",
             )
         )  # fmt: skip
     with session_scope(session_factory) as s:
@@ -171,7 +174,7 @@ def test_fk_cascades(session_factory: sessionmaker[Session]) -> None:
         s.execute(text("DELETE FROM model_runs"))
         s.execute(text("DELETE FROM stations"))
     with session_scope(session_factory) as s:
-        for table in ("daily_high_events", "model_values", "station_venues"):
+        for table in ("daily_high_events", "model_values", "model_run_stations", "station_venues"):
             assert s.execute(text(f"SELECT count(*) FROM {table}")).scalar() == 0  # noqa: S608
 
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from edgefront_core.model_catalog import MODELS
 from edgefront_core.settings import Settings
 
 
@@ -21,7 +22,7 @@ class SourceInfo:
 
 
 def known_sources(settings: Settings) -> list[SourceInfo]:
-    """Sources that exist in this phase. Later phases append DSM, NWS forecast and models."""
+    """Every ingest source shown on /status (one entry per model since Phase 5)."""
     return [
         SourceInfo(
             "metar", "Hourly METAR + SPECI", "NOAA Aviation Weather Center",
@@ -45,5 +46,10 @@ def known_sources(settings: Settings) -> list[SourceInfo]:
             "forecast", "NWS forecast", "National Weather Service · api.weather.gov",
             settings.forecast_poll_seconds,
         ),
+    ] + [
+        SourceInfo(m.source_key, f"Model guidance · {m.label}", m.producer,
+                   settings.model_poll_seconds)
+        for m in MODELS
+    ] + [
         SourceInfo("worker", "Ingest worker", "EdgeFront", settings.heartbeat_seconds),
     ]  # fmt: skip

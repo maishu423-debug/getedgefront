@@ -21,7 +21,6 @@ from sqlalchemy import (
     Enum,
     Float,
     ForeignKey,
-    ForeignKeyConstraint,
     Index,
     Integer,
     Numeric,
@@ -300,41 +299,80 @@ class NwsForecast(Base):
 
 
 class ModelRun(Base):
-    __tablename__ = "model_runs"
+    """One run of one model as EdgeFront received it (CONTEXT §4.4, §7).
 
-    model: Mapped[str] = mapped_column(String(16), primary_key=True)
-    cycle_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
-    available_at: Mapped[datetime | None] = _ts()  # when EdgeFront first saw the run
-    fetched_at: Mapped[datetime | None] = _ts()
-    status: Mapped[str] = mapped_column(String(16), default="seen", server_default="seen")
+    `issuer` separates runs that share a model and cycle time but come from different
+    producers: the PFM is issued per NWS office (office id), everything else uses ''.
+    """
+
+    __tablename__ = "model_runs"
+    __table_args__ = (
+        UniqueConstraint("model", "cycle_time", "issuer", name="uq_model_runs_key"),
+        CheckConstraint("status IN ('partial', 'complete', 'failed')", name="ck_model_runs_status"),
+        Index("ix_model_runs_model_cycle", "model", "cycle_time"),
+    )
+
+    id: Mapped[int] = mapped_column(BigId, primary_key=True, autoincrement=True)
+    model: Mapped[str] = mapped_column(String(16))
+    cycle_time: Mapped[datetime] = _ts(nullable=False)
+    issuer: Mapped[str] = mapped_column(String(8), default="", server_default="")
+    available_at: Mapped[datetime] = _ts(nullable=False)  # when EdgeFront first saw the run
+    fetched_at: Mapped[datetime | None] = _ts()  # last successful download for this run
+    updated_at: Mapped[datetime | None] = _ts()
+    status: Mapped[str] = mapped_column(String(16), default="partial", server_default="partial")
     source_url: Mapped[str | None] = mapped_column(Text)
+    steps_expected: Mapped[int | None] = mapped_column(Integer)
+    steps_fetched: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     notes: Mapped[str | None] = mapped_column(Text)
 
 
-class ModelValue(Base):
-    """Values at a station for one run. Source lives on the parent model_runs row."""
+class ModelRunStation(Base):
+    """Per run and station: where the value comes from, or why there is none."""
 
-    __tablename__ = "model_values"
+    __tablename__ = "model_run_stations"
     __table_args__ = (
-        ForeignKeyConstraint(
-            ["model", "cycle_time"],
-            ["model_runs.model", "model_runs.cycle_time"],
-            ondelete="CASCADE",
-            name="fk_model_values_run",
+        CheckConstraint(
+            "status IN ('ok', 'not_available', 'failed')", name="ck_model_run_stations_status"
         ),
-        Index("ix_model_values_station", "station_id", "model", "cycle_time"),
     )
 
-    model: Mapped[str] = mapped_column(String(16), primary_key=True)
-    cycle_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
+    run_id: Mapped[int] = mapped_column(
+        BigId, ForeignKey("model_runs.id", ondelete="CASCADE"), primary_key=True
+    )
+    station_id: Mapped[str] = mapped_column(ForeignKey("stations.id"), primary_key=True)
+    status: Mapped[str] = mapped_column(String(16))
+    reason: Mapped[str | None] = mapped_column(Text)
+    point_name: Mapped[str | None] = mapped_column(String(160))  # PFM point / bulletin id
+    grid_lat: Mapped[float | None] = mapped_column(Float)
+    grid_lon: Mapped[float | None] = mapped_column(Float)
+    grid_distance_km: Mapped[float | None] = mapped_column(Float)
+    height_m: Mapped[float | None] = mapped_column(Float)  # model orography / point elevation
+    land_fraction: Mapped[float | None] = mapped_column(Float)
+
+
+class ModelValue(Base):
+    """One value at a station for one run. Source lives on the parent model_runs row.
+
+    `value`/`unit` are canonical (degC, kt, pct, category); `native_value`/`native_unit` are what
+    the product printed (e.g. degF, mph). Categorical cloud has value NULL (or the plotting
+    midpoint is applied in the API, never stored) and `category` set.
+    """
+
+    __tablename__ = "model_values"
+    __table_args__ = (Index("ix_model_values_station", "station_id", "run_id"),)
+
+    run_id: Mapped[int] = mapped_column(
+        BigId, ForeignKey("model_runs.id", ondelete="CASCADE"), primary_key=True
+    )
     station_id: Mapped[str] = mapped_column(ForeignKey("stations.id"), primary_key=True)
     valid_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
     variable: Mapped[str] = mapped_column(String(16), primary_key=True)
     value: Mapped[float | None] = mapped_column(Float)
     unit: Mapped[str] = mapped_column(String(16))
+    native_value: Mapped[float | None] = mapped_column(Float)
+    native_unit: Mapped[str | None] = mapped_column(String(16))
+    category: Mapped[str | None] = mapped_column(String(4))
     is_computed: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
-    grid_lat: Mapped[float | None] = mapped_column(Float)
-    grid_lon: Mapped[float | None] = mapped_column(Float)
 
 
 # ---------------------------------------------------------------- ops

@@ -20,6 +20,7 @@ EXPECTED_TABLES = {
     "nws_forecasts",
     "model_runs",
     "model_values",
+    "model_run_stations",
     "source_health",
 }
 

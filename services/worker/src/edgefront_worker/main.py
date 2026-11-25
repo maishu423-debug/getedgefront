@@ -51,6 +51,7 @@ def build_scheduler() -> BlockingScheduler:
         ("cli", products.cli, settings.cli_poll_seconds, 60, 20),
         ("dsm", products.dsm, settings.dsm_poll_seconds, 90, 40),
         ("forecast", products.forecast, settings.forecast_poll_seconds, 120, 60),
+        ("models_text", products.models_text, settings.model_poll_seconds, 120, 80),
     ]:
         scheduler.add_job(
             fn,

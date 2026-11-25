@@ -17,6 +17,7 @@ from edgefront_core.dsm_ingest import (
 from edgefront_core.forecast_ingest import run_forecast_ingest
 from edgefront_core.http import make_client
 from edgefront_core.metar_ingest import run_metar_ingest
+from edgefront_core.model_text_ingest import PfmIngest, TextModelIngest
 from edgefront_core.nws_products import NwsProductLister
 
 log = logging.getLogger("edgefront.worker.jobs")
@@ -37,6 +38,9 @@ class ProductJobs:
         self.nws: httpx.Client = make_client()
         self.iem: httpx.Client = IemDsmFetcher.make_client()
         self.lister = NwsProductLister(self.nws)
+        self.nomads: httpx.Client = make_client(timeout=120)  # 28 MB NBM bulletins
+        self.text_models = TextModelIngest(self.nomads)
+        self.pfm = PfmIngest(self.lister)
         self.dsm_fetchers: dict[str, DsmFetcher] = {
             "nws_api": NwsApiDsmFetcher(self.lister),
             "iem": IemDsmFetcher(self.iem),
@@ -59,3 +63,15 @@ class ProductJobs:
             run_forecast_ingest(factory, self.nws)
         except Exception:
             log.exception("forecast job failed", extra={"source": "forecast"})
+
+    def models_text(self, factory: sessionmaker[Session]) -> None:
+        """NBM, GFS-MOS, LAMP (NOMADS) then PFM. One model failing never stops the others."""
+        for model in ("lamp", "nbm", "gfs_mos"):
+            try:
+                self.text_models.run(factory, model)
+            except Exception:  # logged + recorded in source_health by the ingest
+                log.warning("model text job error", extra={"source": f"model_{model}"})
+        try:
+            self.pfm.run(factory)
+        except Exception:
+            log.warning("pfm job error", extra={"source": "model_pfm"})
