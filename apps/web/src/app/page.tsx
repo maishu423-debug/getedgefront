@@ -1,91 +1,107 @@
-import { connection } from "next/server";
 import { Suspense } from "react";
 
-import { fetchHealth } from "@/lib/api";
-import { formatZulu } from "@/lib/time";
+import { Board } from "@/components/Board";
+import { PageShell } from "@/components/Chrome";
+import { MapTeaser, NewHighsFeed } from "@/components/HomeSide";
+import { StationSearch } from "@/components/StationSearch";
+import { StatusStrip } from "@/components/StatusStrip";
+import { Skeleton, UpstreamDown } from "@/components/states";
+import { getFeed, getStations, getStatus } from "@/lib/api";
 
-/** Temporary Phase 0 page: proves web → api → db wiring. Replaced in Phase 4. */
 export default function Home() {
   return (
-    <main className="mx-auto flex w-full max-w-(--container-content) flex-1 flex-col justify-center gap-6 px-4 py-16 sm:px-8">
-      <div className="flex items-center gap-3">
-        <svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true">
-          <path
-            d="M1 17 C9 17 11 7 17 7 S25 17 33 17"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            className="text-brand"
-          />
-          <path
-            d="M7 14.6 L10.6 10.2 L12.4 15.2 Z M15.2 7.4 L19.4 3.6 L19.8 8.6 Z M23.4 11.2 L28 8.8 L26.8 14 Z"
-            className="fill-brand"
-          />
-        </svg>
-        <span className="font-display text-xl font-bold tracking-tight">EdgeFront</span>
-      </div>
-      <h1 className="max-w-3xl font-display text-4xl leading-tight font-bold tracking-tight sm:text-5xl">
-        EdgeFront — coming soon
-      </h1>
-      <p className="max-w-2xl text-lg text-text-2">
-        Observed weather at the U.S. stations weather markets settle on, each value with its source
-        and time stamp.
-      </p>
-      <Suspense fallback={<p className="font-mono text-sm text-muted-2">Checking API status…</p>}>
-        <ApiStatus />
+    <PageShell active="stations">
+      <section aria-labelledby="h-hero" className="border-b border-border bg-surface">
+        <div className="mx-auto flex max-w-(--container-content) flex-col gap-5 px-4 pt-10 pb-8 sm:px-8">
+          <div className="flex max-w-[820px] flex-col gap-2.5">
+            <h1
+              id="h-hero"
+              className="font-display text-[32px] leading-[1.08] font-bold tracking-[-0.03em] sm:text-[44px]"
+            >
+              Observed weather at the U.S. stations weather markets settle on.
+            </h1>
+            <p className="text-[17px] leading-normal text-[#3A4644]">
+              Hourly METARs, NWS daily climate reports and ASOS daily summaries, and NWS forecasts
+              for every Kalshi, Polymarket and Robinhood temperature station, each with its source
+              and time stamp.
+            </p>
+          </div>
+          <Suspense
+            fallback={<Skeleton className="h-[52px] max-w-[760px]" label="Loading search" />}
+          >
+            <HeroSearch />
+          </Suspense>
+        </div>
+      </section>
+
+      <Suspense fallback={<div className="h-[38px] bg-footer" />}>
+        <Strip />
       </Suspense>
-    </main>
+
+      <main
+        id="main"
+        className="mx-auto flex w-full max-w-(--container-content) flex-wrap items-start gap-6 px-4 pt-7 pb-14 sm:px-8"
+      >
+        <Suspense
+          fallback={
+            <div className="flex min-w-0 flex-[999_1_760px] flex-col gap-3">
+              <Skeleton className="h-9 w-64" />
+              <Skeleton className="h-[640px]" label="Loading station board" />
+            </div>
+          }
+        >
+          <BoardSection />
+        </Suspense>
+        <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-5">
+          <Suspense fallback={<Skeleton className="h-[420px]" label="Loading new highs" />}>
+            <Feed />
+          </Suspense>
+          <MapTeaser />
+        </aside>
+      </main>
+    </PageShell>
   );
 }
 
-async function ApiStatus() {
-  await connection(); // request time only: never fetch the API during the build
-  const result = await fetchHealth();
+async function HeroSearch() {
+  const res = await getStations();
+  const list = res.ok
+    ? res.data.stations.map(({ id, name, city, state, aliases }) => ({
+        id,
+        name,
+        city,
+        state,
+        aliases,
+      }))
+    : [];
+  return <StationSearch stations={list} />;
+}
 
-  if (!result.reachable) {
-    return <StatusLine tone="down" label="API unreachable" detail={`(${result.error})`} />;
-  }
-  const { health } = result;
-  if (health.status === "ok") {
+async function Strip() {
+  const res = await getStatus();
+  return <StatusStrip initial={res.ok ? res.data : null} />;
+}
+
+async function BoardSection() {
+  const res = await getStations();
+  if (!res.ok) {
     return (
-      <StatusLine
-        tone="ok"
-        label="API ok · database ok"
-        detail={`checked ${formatZulu(health.generated_at)}`}
-      />
+      <section className="flex min-w-0 flex-[999_1_760px] flex-col gap-3">
+        <h2 className="font-display text-[22px] font-semibold">Settlement stations</h2>
+        <UpstreamDown what="The EdgeFront API" />
+      </section>
     );
   }
   return (
-    <StatusLine
-      tone="down"
-      label={`API up · database ${health.db}`}
-      detail={`checked ${formatZulu(health.generated_at)}`}
-    />
+    <Suspense
+      fallback={<Skeleton className="h-[640px] flex-[999_1_760px]" label="Loading station board" />}
+    >
+      <Board initial={res.data} />
+    </Suspense>
   );
 }
 
-function StatusLine({
-  tone,
-  label,
-  detail,
-}: {
-  tone: "ok" | "down";
-  label: string;
-  detail: string;
-}) {
-  return (
-    <p className="flex items-center gap-2.5 font-mono text-sm text-text-2" role="status">
-      <span
-        aria-hidden="true"
-        className={
-          tone === "ok"
-            ? "size-2.5 rounded-full bg-fresh ring-4 ring-fresh-halo"
-            : "size-2.5 rounded-full bg-warn ring-4 ring-warn-halo"
-        }
-      />
-      <span className="font-semibold">{label}</span>
-      <span className="text-muted-2">{detail}</span>
-    </p>
-  );
+async function Feed() {
+  const res = await getFeed(10);
+  return <NewHighsFeed feed={res.ok ? res.data : null} />;
 }

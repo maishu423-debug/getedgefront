@@ -61,15 +61,21 @@
   --container-content: 1280px;
 }
 
-body {
-  background: var(--color-page);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-}
-
-a {
-  color: var(--color-brand);
-}
-a:hover {
-  color: var(--color-brand-hover);
+/* In a layer, so Tailwind utility classes (e.g. footer link colours) win over these defaults. */
+@layer base {
+  body {
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+  a {
+    color: var(--color-brand);
+  }
+  a:hover {
+    color: var(--color-brand-hover);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
 }
