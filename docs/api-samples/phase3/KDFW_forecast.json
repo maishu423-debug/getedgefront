@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-11-24T17:58:26.997570Z",
+  "station_id": "KDFW",
+  "status": "ok",
+  "label": "FORECAST \u00b7 NWS",
+  "source": {
+    "source": "api.weather.gov/gridpoints",
+    "producer": "National Weather Service (FWD)",
+    "last_success_at": "2026-11-24T17:40:30.887239Z"
+  },
+  "office": "FWD",
+  "update_time": "2026-11-24T17:06:44Z",
+  "fetched_at": "2026-11-24T17:40:42.732809Z",
+  "today_high_f": 50,
+  "today_note": null,
+  "tonight_low_f": 35,
+  "today": {
+    "name": "Today",
+    "start": "2026-11-24T11:00:00-06:00",
+    "end": "2026-11-24T18:00:00-06:00",
+    "temperature_f": 50,
+    "pop_percent": 28,
+    "short": "Chance Rain Showers",
+    "detailed": "A chance of rain showers before 3pm. Cloudy, with a high near 50. North wind 10 to 15 mph, with gusts as high as 25 mph. Chance of precipitation is 30%."
+  },
+  "tonight": {
+    "name": "Tonight",
+    "start": "2026-11-24T18:00:00-06:00",
+    "end": "2026-11-25T06:00:00-06:00",
+    "temperature_f": 35,
+    "pop_percent": 11,
+    "short": "Partly Cloudy",
+    "detailed": "Partly cloudy, with a low around 35. North northwest wind around 10 mph."
+  },
+  "hourly": [
+    {
+      "start": "2026-11-24T11:00:00-06:00",
+      "temperature_f": 49,
+      "pop_percent": 28,
+      "short": "Chance Rain Showers"
+    },
+    {
+      "start": "2026-11-24T13:00:00-06:00",
+      "temperature_f": 50,
+      "pop_percent": 16,
+      "short": "Slight Chance Rain Showers"
+    },
+    {
+      "start": "2026-11-24T15:00:00-06:00",
+      "temperature_f": 50,
+      "pop_percent": 12,
+      "short": "Cloudy"
+    },
+    {
+      "start": "2026-11-24T17:00:00-06:00",
+      "temperature_f": 49,
+      "pop_percent": 12,
+      "short": "Cloudy"
+    },
+    {
+      "start": "2026-11-24T19:00:00-06:00",
+      "temperature_f": 46,
+      "pop_percent": 11,
+      "short": "Cloudy"
+    },
+    {
+      "start": "2026-11-24T21:00:00-06:00",
+      "temperature_f": 44,
+      "pop_percent": 10,
+      "short": "Cloudy"
+    },
+    {
+      "start": "2026-11-24T23:00:00-06:00",
+      "temperature_f": 41,
+      "pop_percent": 10,
+      "short": "Partly Cloudy"
+    }
+  ],
+  "weather_gov_url": "https://forecast.weather.gov/MapClick.php?lat=32.8974&lon=-97.0220"
+}

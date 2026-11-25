@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-11-24T17:58:27.031578Z",
+  "sources": [
+    {
+      "key": "metar",
+      "label": "Hourly METAR + SPECI",
+      "producer": "NOAA Aviation Weather Center",
+      "schedule_seconds": 180,
+      "last_success_at": "2026-11-24T17:55:51.284528Z",
+      "last_attempt_at": "2026-11-24T17:55:51.284528Z",
+      "last_error_at": null,
+      "last_item_time": "2026-11-24T17:53:00Z",
+      "healthy": true
+    },
+    {
+      "key": "cli",
+      "label": "Daily Climate Report (CLI)",
+      "producer": "National Weather Service \u00b7 api.weather.gov",
+      "schedule_seconds": 900,
+      "last_success_at": "2026-11-24T17:55:06.224298Z",
+      "last_attempt_at": "2026-11-24T17:55:06.224298Z",
+      "last_error_at": null,
+      "last_item_time": "2026-11-24T14:31:00Z",
+      "healthy": true
+    },
+    {
+      "key": "dsm_nws",
+      "label": "ASOS Daily Summary (DSM) \u00b7 NWS",
+      "producer": "National Weather Service \u00b7 api.weather.gov",
+      "schedule_seconds": 720,
+      "last_success_at": "2026-11-24T17:53:18.161894Z",
+      "last_attempt_at": "2026-11-24T17:53:18.161894Z",
+      "last_error_at": null,
+      "last_item_time": "2026-11-24T13:15:00Z",
+      "healthy": true
+    },
+    {
+      "key": "dsm_iem",
+      "label": "ASOS Daily Summary (DSM) \u00b7 IEM",
+      "producer": "NWS ASOS via Iowa Environmental Mesonet, Iowa State University",
+      "schedule_seconds": 720,
+      "last_success_at": "2026-11-24T17:53:18.161894Z",
+      "last_attempt_at": "2026-11-24T17:53:18.161894Z",
+      "last_error_at": null,
+      "last_item_time": "2026-11-24T16:31:00Z",
+      "healthy": true
+    },
+    {
+      "key": "forecast",
+      "label": "NWS forecast",
+      "producer": "National Weather Service \u00b7 api.weather.gov",
+      "schedule_seconds": 1800,
+      "last_success_at": "2026-11-24T17:40:30.887239Z",
+      "last_attempt_at": "2026-11-24T17:40:30.887239Z",
+      "last_error_at": null,
+      "last_item_time": "2026-11-24T17:40:30.887239Z",
+      "healthy": true
+    },
+    {
+      "key": "worker",
+      "label": "Ingest worker",
+      "producer": "EdgeFront",
+      "schedule_seconds": 60,
+      "last_success_at": "2026-11-24T17:57:30.803831Z",
+      "last_attempt_at": "2026-11-24T17:57:30.803831Z",
+      "last_error_at": null,
+      "last_item_time": null,
+      "healthy": true
+    }
+  ]
+}

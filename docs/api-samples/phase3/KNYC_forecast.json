@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-11-24T17:58:27.016574Z",
+  "station_id": "KNYC",
+  "status": "ok",
+  "label": "FORECAST \u00b7 NWS",
+  "source": {
+    "source": "api.weather.gov/gridpoints",
+    "producer": "National Weather Service (OKX)",
+    "last_success_at": "2026-11-24T17:40:30.887239Z"
+  },
+  "office": "OKX",
+  "update_time": "2026-11-24T06:22:04Z",
+  "fetched_at": "2026-11-24T17:40:30.890220Z",
+  "today_high_f": 49,
+  "today_note": null,
+  "tonight_low_f": 36,
+  "today": {
+    "name": "Today",
+    "start": "2026-11-24T06:00:00-05:00",
+    "end": "2026-11-24T18:00:00-05:00",
+    "temperature_f": 49,
+    "pop_percent": 0,
+    "short": "Sunny",
+    "detailed": "Sunny. High near 49, with temperatures falling to around 47 in the afternoon. Northwest wind 5 to 10 mph, with gusts as high as 22 mph."
+  },
+  "tonight": {
+    "name": "Tonight",
+    "start": "2026-11-24T18:00:00-05:00",
+    "end": "2026-11-25T06:00:00-05:00",
+    "temperature_f": 36,
+    "pop_percent": 0,
+    "short": "Mostly Clear",
+    "detailed": "Mostly clear, with a low around 36. North wind around 6 mph."
+  },
+  "hourly": [
+    {
+      "start": "2026-11-24T12:00:00-05:00",
+      "temperature_f": 48,
+      "pop_percent": 0,
+      "short": "Sunny"
+    },
+    {
+      "start": "2026-11-24T14:00:00-05:00",
+      "temperature_f": 49,
+      "pop_percent": 0,
+      "short": "Sunny"
+    },
+    {
+      "start": "2026-11-24T16:00:00-05:00",
+      "temperature_f": 47,
+      "pop_percent": 0,
+      "short": "Sunny"
+    },
+    {
+      "start": "2026-11-24T18:00:00-05:00",
+      "temperature_f": 44,
+      "pop_percent": 0,
+      "short": "Clear"
+    },
+    {
+      "start": "2026-11-24T20:00:00-05:00",
+      "temperature_f": 42,
+      "pop_percent": 0,
+      "short": "Clear"
+    },
+    {
+      "start": "2026-11-24T22:00:00-05:00",
+      "temperature_f": 40,
+      "pop_percent": 0,
+      "short": "Clear"
+    },
+    {
+      "start": "2026-11-25T00:00:00-05:00",
+      "temperature_f": 39,
+      "pop_percent": 0,
+      "short": "Mostly Clear"
+    }
+  ],
+  "weather_gov_url": "https://forecast.weather.gov/MapClick.php?lat=40.7833&lon=-73.9667"
+}
