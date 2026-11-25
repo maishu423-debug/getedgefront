@@ -58,6 +58,30 @@ Base images are pinned in the Dockerfiles: `python:3.12.16-slim-bookworm`, `node
 
 ## 3. Deploy settings per service
 
+**Every field a `railway.json` would have held, in one table** (owner Q30: no IaC, no CLI for v1;
+set these by hand in each service's **Settings**). Blank = leave Railway's default.
+
+| Field (dashboard location) | `api` | `worker` | `web` | `backup` |
+|---|---|---|---|---|
+| Source repo / branch (Settings → Source) | repo, `main` | repo, `main` | repo, `main` | repo, `main` |
+| Root directory (Settings → Source) | *empty* (repo root) | *empty* | *empty* | *empty* |
+| Builder (Settings → Build) | Dockerfile | Dockerfile | Dockerfile | Dockerfile |
+| Dockerfile path (Settings → Build, or variable `RAILWAY_DOCKERFILE_PATH`) | `services/api/Dockerfile` | `services/worker/Dockerfile` | `apps/web/Dockerfile` | `services/backup/Dockerfile` |
+| Watch paths (Settings → Build) | `services/api/**`, `packages/core/**`, `data/**`, `pyproject.toml`, `uv.lock` | `services/worker/**`, `packages/core/**`, `data/**`, `pyproject.toml`, `uv.lock` | `apps/web/**`, `data/stations.yaml`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` | `services/backup/**` |
+| Pre-deploy command (Settings → Deploy) | `python -m edgefront_core.deploy_db` | *none* | *none* | *none* |
+| Custom start command (Settings → Deploy) | *empty* → Dockerfile `CMD python -m edgefront_api.serve` | *empty* → `CMD python -m edgefront_worker.main` | *empty* → `CMD node apps/web/server.js` | *empty* → `CMD python3 /app/backup.py` |
+| Healthcheck path / timeout (Settings → Deploy) | `/api/v1/health` / `60` | *none* (no port) | `/` / `60` | *none* |
+| Replicas (Settings → Deploy → Replicas / regions) | 1 | **exactly 1** | 1 | 1 |
+| Restart policy / max retries (Settings → Deploy) | On failure / `10` | On failure / `10` | On failure / `10` | **Never** |
+| Cron schedule (Settings → Deploy → Cron Schedule, UTC) | *none* | *none* | *none* | `30 7 * * *` |
+| Serverless / app sleeping | off | off | off | off |
+| Public networking (Settings → Networking) | none | none | **Generate Domain** | none |
+| TCP proxy | none | none | none | none |
+| Draining seconds (variable `RAILWAY_DEPLOYMENT_DRAINING_SECONDS`) | | `20` | | |
+| Resources / memory limit (Settings → Resources) | 512 MB | 1 GB | 512 MB | 512 MB |
+
+Notes per service:
+
 **api** → Settings → Deploy
 - **Pre-deploy command:** `python -m edgefront_core.deploy_db` (Alembic migrations to head, then the
   idempotent station seed; a failure stops the deploy and the old version keeps serving). If the
