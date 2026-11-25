@@ -117,6 +117,7 @@ def station_meta(session: Session, st: Station, now: datetime) -> s.StationMeta:
     return s.StationMeta(
         id=st.id,
         name=st.name,
+        aliases=list(st.aliases or []),
         official_name=st.official_name,
         city=st.city,
         state=st.state,
@@ -297,6 +298,7 @@ def board(
             s.BoardRow(
                 id=st.id,
                 name=st.name,
+                aliases=list(st.aliases or []),
                 city=st.city,
                 state=st.state,
                 tz=st.tz,

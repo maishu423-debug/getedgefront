@@ -42,6 +42,7 @@ class StationEntry(BaseModel):
     city: str
     state: str = Field(pattern=r"^[A-Z]{2}$")
     tz: str
+    aliases: list[str] = Field(default_factory=list)
     day_basis: Literal["LST", "LOCAL"] = "LST"
     dsm_location: str | None = None
     dsm_source: Literal["nws_api", "iem"] | None = None

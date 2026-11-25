@@ -13,6 +13,7 @@
 # - pfm_point: the point-name line of the office's PFM block (office = nws_office) whose
 #   coordinates are clearly nearest this station (Phase 1 discovery, 2026-11-24, <= 3 km and
 #   unambiguous). null = no such point.
+# - aliases: extra search terms for the site search (city nicknames, IATA codes), e.g. NYC, DC.
 # - Seed semantics: a null dsm_location/pfm_point never overwrites a stored value; venues
 #   below are the full truth for each station.
 
@@ -21,6 +22,7 @@
   city: "New York"
   state: NY
   tz: America/New_York
+  aliases: ["NYC", "New York City", "Manhattan", "Central Park"]
   day_basis: LST
   dsm_location: NYC
   dsm_source: nws_api
@@ -34,6 +36,7 @@
   city: "New York"
   state: NY
   tz: America/New_York
+  aliases: ["NYC", "LGA", "LaGuardia", "Queens"]
   day_basis: LST
   dsm_location: LGA
   dsm_source: iem
@@ -48,6 +51,7 @@
   city: "Boston"
   state: MA
   tz: America/New_York
+  aliases: ["BOS", "Logan"]
   day_basis: LST
   dsm_location: BOS
   dsm_source: iem
@@ -62,6 +66,7 @@
   city: "Philadelphia"
   state: PA
   tz: America/New_York
+  aliases: ["PHL", "Philly"]
   day_basis: LST
   dsm_location: PHL
   dsm_source: iem
@@ -76,6 +81,7 @@
   city: "Washington"
   state: DC
   tz: America/New_York
+  aliases: ["DC", "DCA", "Washington DC", "Reagan"]
   day_basis: LST
   dsm_location: DCA
   dsm_source: iem
@@ -90,6 +96,7 @@
   city: "Atlanta"
   state: GA
   tz: America/New_York
+  aliases: ["ATL", "Hartsfield"]
   day_basis: LST
   dsm_location: ATL
   dsm_source: iem
@@ -105,6 +112,7 @@
   city: "Charlotte"
   state: NC
   tz: America/New_York
+  aliases: ["CLT"]
   day_basis: LST
   dsm_location: CLT
   dsm_source: iem
@@ -118,6 +126,7 @@
   city: "Miami"
   state: FL
   tz: America/New_York
+  aliases: ["MIA"]
   day_basis: LST
   dsm_location: MIA
   dsm_source: iem
@@ -133,6 +142,7 @@
   city: "Jacksonville"
   state: FL
   tz: America/New_York
+  aliases: ["JAX"]
   day_basis: LST
   dsm_location: JAX
   dsm_source: iem
@@ -146,6 +156,7 @@
   city: "Detroit"
   state: MI
   tz: America/Detroit
+  aliases: ["DTW", "Detroit"]
   day_basis: LST
   dsm_location: DTW
   dsm_source: iem
@@ -159,6 +170,7 @@
   city: "Chicago"
   state: IL
   tz: America/Chicago
+  aliases: ["Chi", "Midway"]
   day_basis: LST
   dsm_location: MDW
   dsm_source: iem
@@ -172,6 +184,7 @@
   city: "Chicago"
   state: IL
   tz: America/Chicago
+  aliases: ["Chi", "ORD", "O'Hare", "OHare"]
   day_basis: LST
   dsm_location: ORD
   dsm_source: iem
@@ -185,6 +198,7 @@
   city: "Minneapolis"
   state: MN
   tz: America/Chicago
+  aliases: ["MSP", "Twin Cities", "St Paul", "Saint Paul"]
   day_basis: LST
   dsm_location: MSP
   dsm_source: nws_api
@@ -199,6 +213,7 @@
   city: "Nashville"
   state: TN
   tz: America/Chicago
+  aliases: ["BNA"]
   day_basis: LST
   dsm_location: BNA
   dsm_source: iem
@@ -212,6 +227,7 @@
   city: "Oklahoma City"
   state: OK
   tz: America/Chicago
+  aliases: ["OKC"]
   day_basis: LST
   dsm_location: OKC
   dsm_source: iem
@@ -225,6 +241,7 @@
   city: "Dallas"
   state: TX
   tz: America/Chicago
+  aliases: ["DFW", "Fort Worth", "Dallas Fort Worth"]
   day_basis: LST
   dsm_location: DFW
   dsm_source: iem
@@ -238,6 +255,7 @@
   city: "Dallas"
   state: TX
   tz: America/Chicago
+  aliases: ["Love Field"]
   day_basis: LST
   dsm_location: DAL
   dsm_source: iem
@@ -251,6 +269,7 @@
   city: "Austin"
   state: TX
   tz: America/Chicago
+  aliases: ["AUS", "ATX"]
   day_basis: LST
   dsm_location: AUS
   dsm_source: iem
@@ -266,6 +285,7 @@
   city: "San Antonio"
   state: TX
   tz: America/Chicago
+  aliases: ["SAT", "SA"]
   day_basis: LST
   dsm_location: SAT
   dsm_source: nws_api
@@ -279,6 +299,7 @@
   city: "Houston"
   state: TX
   tz: America/Chicago
+  aliases: ["HOU", "Hobby"]
   day_basis: LST
   dsm_location: HOU
   dsm_source: iem
@@ -293,6 +314,7 @@
   city: "Louisville"
   state: KY
   tz: America/Kentucky/Louisville
+  aliases: ["SDF"]
   day_basis: LST
   dsm_location: SDF
   dsm_source: iem
@@ -306,6 +328,7 @@
   city: "Denver"
   state: CO
   tz: America/Denver
+  aliases: ["DEN"]
   day_basis: LST
   dsm_location: DEN
   dsm_source: iem
@@ -319,6 +342,7 @@
   city: "Denver"
   state: CO
   tz: America/Denver
+  aliases: ["Buckley", "Aurora"]
   day_basis: LST
   dsm_location: null
   dsm_source: null
@@ -332,6 +356,7 @@
   city: "Phoenix"
   state: AZ
   tz: America/Phoenix
+  aliases: ["PHX", "Sky Harbor"]
   day_basis: LST
   dsm_location: PHX
   dsm_source: iem
@@ -346,6 +371,7 @@
   city: "Los Angeles"
   state: CA
   tz: America/Los_Angeles
+  aliases: ["LA", "LAX"]
   day_basis: LST
   dsm_location: LAX
   dsm_source: iem
@@ -361,6 +387,7 @@
   city: "San Francisco"
   state: CA
   tz: America/Los_Angeles
+  aliases: ["SF", "SFO", "Bay Area"]
   day_basis: LST
   dsm_location: SFO
   dsm_source: iem
@@ -375,6 +402,7 @@
   city: "Seattle"
   state: WA
   tz: America/Los_Angeles
+  aliases: ["SEA", "Sea-Tac", "SeaTac"]
   day_basis: LST
   dsm_location: SEA
   dsm_source: iem
@@ -390,6 +418,7 @@
   city: "Las Vegas"
   state: NV
   tz: America/Los_Angeles
+  aliases: ["Vegas", "LV", "LAS"]
   day_basis: LST
   dsm_location: LAS
   dsm_source: iem

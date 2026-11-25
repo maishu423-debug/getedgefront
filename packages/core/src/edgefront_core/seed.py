@@ -66,6 +66,7 @@ def _station_values(e: StationEntry) -> dict[str, object]:
         "active": True,
         # Source choices are owner decisions: the YAML is authoritative, nulls included.
         "dsm_source": e.dsm_source,
+        "aliases": list(e.aliases),
         "cli_location": e.cli_location,
     }
     if e.dsm_location is not None:

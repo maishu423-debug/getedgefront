@@ -100,6 +100,7 @@ class HighSoFarOut(BaseModel):
 class StationMeta(BaseModel):
     id: str
     name: str
+    aliases: list[str] = Field(default_factory=list, description="Extra search terms")
     official_name: str | None
     city: str
     state: str
@@ -122,6 +123,7 @@ class StationMeta(BaseModel):
 class BoardRow(BaseModel):
     id: str
     name: str
+    aliases: list[str] = Field(default_factory=list, description="Extra search terms")
     city: str
     state: str
     tz: str
