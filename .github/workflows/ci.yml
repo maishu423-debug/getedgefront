@@ -70,6 +70,9 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
+    env:
+      # CI must never contact NOAA/NWS/IEM: the worker runs its heartbeat only.
+      WORKER_UPSTREAM_ENABLED: "false"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
