@@ -205,3 +205,45 @@ test.describe("other pages", () => {
     expect((xml.match(/\/station\/K[A-Z0-9]{3}/g) ?? []).length).toBeGreaterThanOrEqual(28);
   });
 });
+
+test.describe("deployment guards", () => {
+  test("no CSP violations on any page type (charts included)", async ({ page }) => {
+    const violations: string[] = [];
+    page.on("console", (m) => {
+      if (/Content.Security.Policy|Refused to/i.test(m.text())) violations.push(m.text());
+    });
+    for (const path of ["/", "/station/KDFW?mvar=cloud&mspan=48h", "/sources", "/pricing"]) {
+      await page.goto(path);
+      for (const name of ["Observed conditions chart", "Model guidance chart"]) {
+        const chart = page.locator(`[aria-label^="${name}"]`);
+        if (await chart.count()) {
+          await chart.scrollIntoViewIfNeeded();
+          await expect(chart.locator("canvas")).toHaveCount(1);
+          await chart.hover();
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
+  test("security headers, noindex and robots.txt before go-live", async ({ request }) => {
+    const res = await request.get("/");
+    const h = res.headers();
+    expect(h["x-content-type-options"]).toBe("nosniff");
+    expect(h["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(h["x-robots-tag"]).toBe("noindex, nofollow");
+    const csp = h["content-security-policy"] ?? h["content-security-policy-report-only"];
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).not.toContain("unsafe-eval");
+    const robots = await (await request.get("/robots.txt")).text();
+    expect(robots).toMatch(/Disallow: \/\s*$/m);
+  });
+
+  test("/api/health reports api, db and source health", async ({ request }) => {
+    const res = await request.get("/api/health");
+    expect([200, 503]).toContain(res.status());
+    const body = await res.json();
+    expect(["ok", "degraded", "down"]).toContain(body.status);
+    expect(res.headers()["x-robots-tag"]).toBe("noindex, nofollow");
+  });
+});

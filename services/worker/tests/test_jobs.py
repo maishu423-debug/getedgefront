@@ -37,7 +37,16 @@ def test_scheduler_has_all_jobs(monkeypatch: pytest.MonkeyPatch) -> None:
     try:
         sched = build_scheduler()
         ids = {j.id for j in sched.get_jobs()}
-        assert ids == {"heartbeat", "metar", "cli", "dsm", "forecast", "models_text", "models_grib"}
+        assert ids == {
+            "heartbeat",
+            "metar",
+            "cli",
+            "dsm",
+            "forecast",
+            "models_text",
+            "models_grib",
+            "retention",
+        }
     finally:
         settings.get_settings.cache_clear()
         db.get_engine.cache_clear()
@@ -64,3 +73,19 @@ def test_failure_is_recorded_by_ingest(session_factory: sessionmaker[Session]) -
         assert h.last_error is not None
         assert "503" in h.last_error
         assert h.last_success_at is None
+
+
+def test_ci_mode_schedules_no_upstream_jobs(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "sqlite://")
+    monkeypatch.setenv("CONTACT_EMAIL", "")
+    monkeypatch.setenv("WORKER_UPSTREAM_ENABLED", "false")
+    from edgefront_core import db, settings
+
+    settings.get_settings.cache_clear()
+    db.get_engine.cache_clear()
+    try:
+        ids = {j.id for j in build_scheduler().get_jobs()}
+        assert ids == {"heartbeat", "retention"}
+    finally:
+        settings.get_settings.cache_clear()
+        db.get_engine.cache_clear()

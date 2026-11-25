@@ -14,7 +14,8 @@ from edgefront_core.logs import configure_logging
 from edgefront_core.settings import get_settings
 from edgefront_core.timeutil import utcnow
 from edgefront_worker.heartbeat import heartbeat
-from edgefront_worker.jobs import ProductJobs, metar_job
+from edgefront_worker.jobs import ProductJobs, metar_job, retention_job
+from edgefront_worker.lock import hold_worker_lock
 
 log = logging.getLogger("edgefront.worker")
 
@@ -35,6 +36,18 @@ def build_scheduler() -> BlockingScheduler:
         id="heartbeat",
         next_run_time=utcnow(),
     )
+    scheduler.add_job(
+        retention_job,
+        "cron",
+        hour=9,
+        minute=30,  # 09:30 UTC: after the overnight CLI/DSM finals, before US daytime
+        args=[factory],
+        id="retention",
+        misfire_grace_time=3600,
+    )
+    if not settings.worker_upstream_enabled:
+        log.warning("upstream jobs disabled (WORKER_UPSTREAM_ENABLED=false): heartbeat only")
+        return scheduler
     scheduler.add_job(
         metar_job,
         "interval",
@@ -70,6 +83,20 @@ def build_scheduler() -> BlockingScheduler:
 def main() -> None:
     settings = get_settings()
     configure_logging(settings.log_level)
+    if settings.worker_upstream_enabled and not settings.contact_email:
+        log.error("CONTACT_EMAIL is not set: refusing to contact NWS/NOAA/IEM/ECMWF without it")
+        raise SystemExit(2)
+    log.info(
+        "upstream identity",
+        extra={
+            "user_agent_product": settings.user_agent.split(" (", 1)[0],
+            "contact_set": bool(settings.contact_email),
+            "upstream_enabled": settings.worker_upstream_enabled,
+        },
+    )
+    # Exactly one worker may run jobs (APScheduler in two copies would run everything twice).
+    # A second copy waits here until the first one exits, e.g. during a Railway redeploy.
+    lock = hold_worker_lock(get_engine())
     scheduler = build_scheduler()
 
     def _stop(signum: int, _frame: FrameType | None) -> None:
@@ -80,7 +107,10 @@ def main() -> None:
     signal.signal(signal.SIGINT, _stop)
 
     log.info("worker starting", extra={"jobs": [j.id for j in scheduler.get_jobs()]})
-    scheduler.start()
+    try:
+        scheduler.start()
+    finally:
+        lock.close()
 
 
 if __name__ == "__main__":

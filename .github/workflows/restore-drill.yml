@@ -1,0 +1,94 @@
+name: Restore drill
+
+# Run by hand (Actions → Restore drill → Run workflow). Restores a backup into a throwaway
+# Postgres 17 service container and checks it. With the BACKUP_S3_* repository secrets set it
+# restores the newest real backup from the bucket; without them it builds a database from the
+# migrations + seed, dumps it with the same pg_dump flags as the backup job, and restores that
+# (proves the procedure). Timings and row counts are written to the job summary.
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "bucket = newest real backup; synthetic = migrations + seed"
+        required: true
+        default: bucket
+        type: choice
+        options: [bucket, synthetic]
+
+jobs:
+  drill:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: drill
+          POSTGRES_PASSWORD: drill
+          POSTGRES_DB: drill
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U drill" --health-interval 5s
+          --health-timeout 3s --health-retries 20
+    env:
+      PGPASSWORD: drill
+      RESTORE_URL: postgresql://drill:drill@localhost:5432/restored
+    steps:
+      - uses: actions/checkout@v4
+      - name: Postgres 17 client tools
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+      - name: Throwaway target database
+        run: psql "postgresql://drill:drill@localhost:5432/drill" -c "CREATE DATABASE restored"
+
+      - name: Fetch the newest backup from the bucket
+        if: inputs.source == 'bucket'
+        env:
+          BACKUP_S3_ENDPOINT: ${{ secrets.BACKUP_S3_ENDPOINT }}
+          BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+          BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          BACKUP_S3_REGION: ${{ secrets.BACKUP_S3_REGION }}
+        run: |
+          pip install -q boto3
+          start=$(date +%s)
+          python - <<'PY'
+          import os, boto3
+          s3 = boto3.client("s3", endpoint_url=os.environ["BACKUP_S3_ENDPOINT"],
+              aws_access_key_id=os.environ["BACKUP_S3_ACCESS_KEY_ID"],
+              aws_secret_access_key=os.environ["BACKUP_S3_SECRET_ACCESS_KEY"],
+              region_name=os.environ.get("BACKUP_S3_REGION") or "auto")
+          b = os.environ["BACKUP_S3_BUCKET"]
+          keys = [o["Key"] for p in s3.get_paginator("list_objects_v2").paginate(Bucket=b, Prefix="edgefront/daily/") for o in p.get("Contents", [])]
+          newest = sorted(keys)[-1]
+          print("newest backup:", newest)
+          s3.download_file(b, newest, "backup.dump")
+          PY
+          echo "download_s=$(( $(date +%s) - start ))" >> "$GITHUB_ENV"
+
+      - name: Build a synthetic backup (migrations + seed)
+        if: inputs.source == 'synthetic'
+        run: |
+          psql "postgresql://drill:drill@localhost:5432/drill" -c "CREATE DATABASE source"
+          pip install -q uv
+          uv sync --frozen --python 3.12
+          export DATABASE_URL=postgresql+psycopg://drill:drill@localhost:5432/source
+          uv run python -m edgefront_core.migrate up head
+          uv run python -m edgefront_core.seed
+          start=$(date +%s)
+          pg_dump --format=custom --compress=9 --no-owner --no-privileges --file=backup.dump --dbname=postgresql://drill:drill@localhost:5432/source
+          echo "download_s=$(( $(date +%s) - start ))" >> "$GITHUB_ENV"
+
+      - name: Restore and check
+        run: |
+          start=$(date +%s)
+          bash services/backup/restore_drill.sh backup.dump | tee drill.txt
+          {
+            echo "## Restore drill (${{ inputs.source }})"
+            echo "- fetch/dump: ${download_s} s"
+            echo "- restore + checks: $(( $(date +%s) - start )) s"
+            echo '```'; cat drill.txt; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

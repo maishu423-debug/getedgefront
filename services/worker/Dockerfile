@@ -2,7 +2,8 @@
 # GRIB decoding (Phase 5) uses the `eccodes` Python package; on Linux its native library comes
 # from the `eccodeslib` manylinux wheel (uv.lock), so no apt package is needed. The worker imports
 # eccodes at start-up, so a broken install fails the CI stack's heartbeat check.
-FROM python:3.12-slim-bookworm
+# Pinned: Python 3.12.16 on Debian 12 (bookworm).
+FROM python:3.12.16-slim-bookworm
 
 COPY --from=ghcr.io/astral-sh/uv:0.13.7 /uv /bin/uv
 

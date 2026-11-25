@@ -5,6 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,8 +26,23 @@ class Settings(BaseSettings):
     forecast_poll_seconds: int = 1800
     model_poll_seconds: int = 900
     stale_metar_minutes: int = 90
+    # Nightly retention logs a warning above this size (3 GB of the 5 GB Railway volume).
+    db_size_warn_bytes: int = 3 * 1024**3
 
     heartbeat_seconds: int = 60
+    # CI's Docker smoke test runs the worker with upstream jobs off (no CONTACT_EMAIL there, and
+    # CI must never contact NOAA/NWS/IEM/ECMWF). Always true in deployed environments.
+    worker_upstream_enabled: bool = True
+
+    @field_validator("database_url")
+    @classmethod
+    def _sqlalchemy_url(cls, v: str) -> str:
+        """Railway (and most hosts) give `postgresql://` or `postgres://`; SQLAlchemy needs the
+        driver named. psycopg 3 is the only Postgres driver installed."""
+        for prefix in ("postgres://", "postgresql://"):
+            if v.startswith(prefix):
+                return "postgresql+psycopg://" + v[len(prefix) :]
+        return v
 
     @property
     def user_agent(self) -> str:

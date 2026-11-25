@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17  # same major version as the Railway Postgres service
         env:
           POSTGRES_USER: edgefront
           POSTGRES_PASSWORD: edgefront
@@ -36,7 +36,7 @@ jobs:
       - run: uv sync --frozen --python 3.12
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run mypy packages/core/src services/api/src services/worker/src conftest.py packages/core/tests services/api/tests services/worker/tests
+      - run: uv run mypy packages/core/src services/api/src services/worker/src conftest.py packages/core/tests services/api/tests services/worker/tests services/backup
       - name: Migrations up, down to base, up again (Postgres)
         env:
           DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
@@ -62,18 +62,46 @@ jobs:
       - run: pnpm --filter @edgefront/web format:check
       - run: pnpm --filter @edgefront/web test
       - run: pnpm --filter @edgefront/web build
+      - name: No secrets in the client bundle
+        run: node apps/web/scripts/check-bundle.mjs
 
-  docker:
+  audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.7"
+      - name: npm advisories (production dependencies)
+        run: pnpm audit --prod
+      - name: Python advisories (locked production dependencies)
+        run: |
+          uv export --frozen --no-dev --no-emit-workspace --no-hashes --all-packages > requirements-audit.txt
+          uvx pip-audit==2.9.0 -r requirements-audit.txt --progress-spinner off
+
+  docker:
+    runs-on: ubuntu-latest
+    env:
+      # CI must never contact NOAA/NWS/IEM/ECMWF: the worker runs heartbeat + retention only.
+      WORKER_UPSTREAM_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
       - name: Build all images
-        run: docker compose -f infra/docker-compose.yml build
+        run: |
+          docker compose -f infra/docker-compose.yml build
+          docker build -f services/backup/Dockerfile -t edgefront-backup .
+          docker run --rm --entrypoint pg_dump edgefront-backup --version
       - name: Bring the stack up and check health
         run: |
           docker compose -f infra/docker-compose.yml up -d --wait --wait-timeout 180 api worker web
           curl -fsS http://localhost:8000/api/v1/health
           curl -fsS http://localhost:3000/ | grep -q "Observed weather at the U.S. stations"
+          curl -fsS http://localhost:3000/api/health
+          curl -fsSI http://localhost:3000/ | grep -qi "x-robots-tag: noindex"
           sleep 65
           docker compose -f infra/docker-compose.yml logs worker | grep -c '"msg": "heartbeat"'
       - if: always()

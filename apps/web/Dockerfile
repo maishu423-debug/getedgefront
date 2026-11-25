@@ -1,5 +1,6 @@
 # Build context: repository root.  docker build -f apps/web/Dockerfile .
-FROM node:24-bookworm-slim AS base
+# Pinned: Node 24.22.2 on Debian 12 (bookworm).
+FROM node:24.22.2-bookworm-slim AS base
 RUN npm install -g pnpm@10.34.9
 WORKDIR /repo
 
@@ -13,11 +14,11 @@ COPY data/stations.yaml data/stations.yaml
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter @edgefront/web build
 
-FROM node:24-bookworm-slim AS run
+FROM node:24.22.2-bookworm-slim AS run
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    HOSTNAME=0.0.0.0 \
+    HOSTNAME=:: \
     PORT=3000
 RUN useradd --system --uid 10001 app
 # Standalone output keeps the monorepo path: server lives at apps/web/server.js.

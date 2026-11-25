@@ -19,9 +19,18 @@ from edgefront_core.http import make_client
 from edgefront_core.metar_ingest import run_metar_ingest
 from edgefront_core.model_text_ingest import PfmIngest, TextModelIngest
 from edgefront_core.nws_products import NwsProductLister
+from edgefront_core.retention import run_retention
+from edgefront_core.settings import get_settings
 from edgefront_worker.grib.ingest import GribModelIngest
 
 log = logging.getLogger("edgefront.worker.jobs")
+
+
+def retention_job(factory: sessionmaker[Session]) -> None:
+    try:
+        run_retention(factory, warn_bytes=get_settings().db_size_warn_bytes)
+    except Exception:  # logged + recorded in source_health by run_retention
+        log.warning("retention job ended with an error", extra={"source": "retention"})
 
 
 def metar_job(factory: sessionmaker[Session]) -> None:

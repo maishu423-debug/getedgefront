@@ -12,10 +12,11 @@ x-python-env: &python-env
   FORECAST_POLL_SECONDS: ${FORECAST_POLL_SECONDS:-1800}
   MODEL_POLL_SECONDS: ${MODEL_POLL_SECONDS:-900}
   STALE_METAR_MINUTES: ${STALE_METAR_MINUTES:-90}
+  WORKER_UPSTREAM_ENABLED: ${WORKER_UPSTREAM_ENABLED:-true}
 
 services:
   postgres:
-    image: postgres:16
+    image: postgres:17.12-bookworm  # same major version as Railway's Postgres
     environment:
       POSTGRES_USER: edgefront
       POSTGRES_PASSWORD: edgefront

@@ -187,3 +187,19 @@ def test_migrations_down_to_base_and_up_again(db_url: str, engine: Engine) -> No
     assert enums == []  # venue / market_kind enum types dropped too
     upgrade("head", database_url=db_url)
     assert "dsm_products" in inspect(engine).get_table_names()
+
+
+def test_worker_lock_admits_exactly_one_worker(engine: Engine) -> None:
+    """Phase 6 B2: a second worker waits instead of running every job twice."""
+    from edgefront_worker.lock import hold_worker_lock
+
+    first = hold_worker_lock(engine)
+    try:
+        with pytest.raises(TimeoutError):
+            hold_worker_lock(
+                engine, poll_seconds=0.01, sleep=lambda _s: None, max_wait_seconds=0.03
+            )
+    finally:
+        first.close()
+    second = hold_worker_lock(engine, poll_seconds=0.01, sleep=lambda _s: None, max_wait_seconds=1)
+    second.close()  # free once the first worker is gone

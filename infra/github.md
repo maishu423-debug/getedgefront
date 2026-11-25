@@ -21,34 +21,43 @@ git push origin phase-4-frontend phase-5-models   # and any other open phase bra
 
 ## 2. Secrets
 
-**None are needed for CI today.** The Python job uses a throw-away Postgres service container
+**None are needed for the CI workflow.** The Python job uses a throw-away Postgres service container
 (`edgefront/edgefront`, database `edgefront_test`) and never contacts upstream sources; tests use
 saved fixtures. `CONTACT_EMAIL` is only needed by the worker in deployed environments (Railway),
 not in CI.
 
-If a later phase needs one, add it under *Settings → Secrets and variables → Actions* and list it
-here.
+Only the manual **Restore drill** workflow uses secrets (*Settings → Secrets and variables →
+Actions → New repository secret*): `BACKUP_S3_ENDPOINT`, `BACKUP_S3_BUCKET`,
+`BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY`, `BACKUP_S3_REGION` (a read-only key for
+the backup bucket is enough). See `infra/backup-restore.md`.
+
+Railway deploys from `main` through the Railway GitHub app (installed on this repository only); no
+deploy token is stored in GitHub.
 
 ## 3. Branch protection (recommended)
 
 *Settings → Branches → Add rule* for `main`:
 - Require a pull request before merging.
-- Require status checks to pass: `python`, `web`, `docker`.
+- Require status checks to pass: `python`, `web`, `audit`, `docker`.
+- Require branches to be up to date before merging; do not allow force pushes to `main`.
 
 ## What the CI jobs do
 
 | Job | Steps |
 |---|---|
-| `python` | uv sync → ruff → mypy → **migrate up → down to base → up on Postgres 16** → full pytest suite on Postgres (`REQUIRE_POSTGRES=1` fails the run if it silently falls back to SQLite) |
+| `python` | uv sync → ruff → mypy → **migrate up → down to base → up on Postgres 17** → full pytest suite on Postgres (`REQUIRE_POSTGRES=1` fails the run if it silently falls back to SQLite) |
 | `web` | pnpm install → lint → typecheck → prettier → Vitest → `next build` (the build never calls the API) |
-| `docker` | build all images, bring the stack up, check API health, the homepage and a worker heartbeat |
+| `web` (added Phase 6) | … then `check-bundle.mjs`: no secret names, DB URLs or e-mail addresses in the browser bundle |
+| `audit` | `pnpm audit --prod` and `pip-audit` on the locked production Python dependencies |
+| `docker` | build all images (incl. `backup`), bring the stack up with `WORKER_UPSTREAM_ENABLED=false` (CI never contacts NOAA/NWS/IEM/ECMWF), check API health, the homepage, `/api/health`, `X-Robots-Tag: noindex`, and a worker heartbeat |
+| `Restore drill` (manual) | restore the newest bucket backup (or a synthetic one) into a throwaway Postgres 17 and check it |
 
 ## Where Postgres is tested (owner rule, 2026-11-25)
 
 **There is no Docker and no Postgres on the development machine, and none will be installed.**
 Local development and the local test run use SQLite (`uv run pytest`; the 12 Postgres-only tests
 are skipped locally). Postgres is verified **only** by the `python` job in GitHub Actions, which
-runs the whole suite plus migrate up → down → up against a Postgres 16 service container with
+runs the whole suite plus migrate up → down → up against a Postgres 17 service container with
 `REQUIRE_POSTGRES=1`. **A phase is done only when that job is green.**
 
 ## (Reference only) Running the Python tests against Postgres with Docker

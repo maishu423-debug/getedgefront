@@ -1,5 +1,6 @@
 # Build context: repository root.  docker build -f services/api/Dockerfile .
-FROM python:3.12-slim-bookworm
+# Pinned: Python 3.12.16 on Debian 12 (bookworm).
+FROM python:3.12.16-slim-bookworm
 
 COPY --from=ghcr.io/astral-sh/uv:0.13.7 /uv /bin/uv
 
@@ -32,4 +33,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.environ[\"PORT\"]}/api/v1/health', timeout=4)"
 
-CMD ["sh", "-c", "uvicorn edgefront_api.main:build --factory --host 0.0.0.0 --port ${PORT} --proxy-headers"]
+# Listens on [::]:$PORT and accepts IPv4 too (dual stack; see edgefront_api/serve.py).
+CMD ["python", "-m", "edgefront_api.serve"]

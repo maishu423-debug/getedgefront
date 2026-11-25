@@ -54,12 +54,17 @@ explicit_package_bases = true
 namespace_packages = true
 
 [[tool.mypy.overrides]]
-module = ["apscheduler.*", "eccodes.*", "psutil.*", "cfgrib.*", "ecmwf.*"]
+module = ["apscheduler.*", "eccodes.*", "psutil.*", "cfgrib.*", "ecmwf.*", "boto3.*"]
 ignore_missing_imports = true
 
 # ---------- pytest ----------
 [tool.pytest.ini_options]
-testpaths = ["packages/core/tests", "services/api/tests", "services/worker/tests"]
+testpaths = [
+  "packages/core/tests",
+  "services/api/tests",
+  "services/worker/tests",
+  "services/backup/tests",
+]
 addopts = "-ra --strict-markers --import-mode=importlib"
 filterwarnings = [
   # Starlette's TestClient nags about httpx; harmless for tests.

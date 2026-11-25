@@ -452,6 +452,14 @@ Each phase ends with: tests passing, a short demo note, CONTEXT.md updated, and 
 
 ---
 
+### 11.2 Phase 6 performance (B1) — local production build, Lighthouse mobile, median of 3, no worker running
+| Page | Before (perf / LCP / TBT / JS) | After |
+|---|---|---|
+| `/station/KDFW` | 71 / 3.99 s / 665 ms / 527 KiB | 93 / 2.64 s / 187 ms / 178 KiB |
+| `/` | 90 / 2.92 s / 266 ms / 177 KiB | 92 / 2.81 s / 202 ms / 157 KiB |
+
+Changes kept: ECharts (both charts) loads only when the chart is within 300 px of the viewport; self-hosted subset fonts (101 → 70 KB, same three families); below-the-fold station sections stream in their own Suspense boundaries and use `content-visibility: auto`. Tried and reverted: not preloading two fonts (FCP worse, CLS 0.10), `inlineCss` (LCP worse). A near-static page (`/pricing`) measures 3.1 s with Google's fonts and 2.4 s with no web fonts: the remaining floor is Next/React's ~117 KiB runtime plus fonts on localhost HTTP/1.1. The B9 target (< 2.5 s) is re-measured on the production URL (HTTP/2).
+
 ### 11.1 Targets carried into later phases
 - **Phase 6 performance target (owner, 2026-11-25):** `/station/[id]` on mobile LCP < 2.5 s (Phase 4 measured Performance 72, LCP 3.9 s). ECharts stays lazy-loaded, and the model chart is lazy-loaded too.
 
@@ -477,7 +485,16 @@ FORECAST_POLL_SECONDS=1800
 MODEL_POLL_SECONDS=900
 STALE_METAR_MINUTES=90
 NEXT_PUBLIC_SITE_URL=https://getedgefront.com
+# Phase 6
+DB_SIZE_WARN_BYTES=3221225472            # worker: nightly retention warns above 3 GB
+WORKER_UPSTREAM_ENABLED=true             # worker: false only in CI's Docker smoke test
+INDEXING_ENABLED=false                   # web: true only after the owner's "go live"
+CSP_MODE=report-only                     # web: report-only | enforce
+HSTS_ENABLED=false                       # web: true once getedgefront.com serves HTTPS
+RATE_LIMIT_PER_MINUTE=120                # web: per-IP limit on /api/*
+BACKUP_S3_ENDPOINT / _BUCKET / _ACCESS_KEY_ID / _SECRET_ACCESS_KEY / _REGION, BACKUP_PREFIX  # backup service
 ```
+Per-service lists, secrets and Railway reference variables: `infra/railway.md` §4. `DATABASE_URL` may be Railway's `postgresql://…`; settings rewrite it to `postgresql+psycopg://`.
 
 ## 14. Open questions (owner)
 | # | Question | Default until answered |
@@ -507,6 +524,9 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 | Q25 | ~~PFM B1/B2~~ **Resolved 2026-11-25:** own values. All PFM codes plot at the midpoints of the PFM spec's Table 2 ranges (B1 59.5 %, B2 78 %), code + range in the tooltip; §6.5 table | — |
 | Q26 | ~~GFS source~~ **Resolved 2026-11-25:** keep AWS primary, NOMADS fallback; ~1.2 GB/day is fine. Measure the GFS job's run time on Railway (Phase 6 B8) | — |
 | Q27 | ~~LAMP extended~~ **Resolved 2026-11-25:** yes. `lavtxt_ext` (HR 26–38) is part of the same LAMP run; LAMP reaches +38 h | — |
+| Q28 | ~~Backups~~ **Resolved 2026-11-26:** Option A — nightly `pg_dump` (Railway cron service `backup`) to an S3-compatible private bucket the owner provides (R2 or B2), 14 daily + 8 weekly; restore drill as a manual GitHub Actions workflow (`infra/backup-restore.md`). Waiting for the bucket + keys | Bucket from owner |
+| Q29 | Launch with the draft terms/privacy pages ("Draft — pending legal review") or get them written first? EdgeFront does not write legal text | Owner decision |
+| Q30 | Railway "Config as Code" (`railway.json`) is deprecated and stops being read on 2026-12-01; its replacement (Infrastructure as Code, `.railway/railway.ts`, applied with the Railway CLI) needs CLI access to the owner's account. v1 is set up click-by-click from `infra/railway.md`. Adopt IaC later? | Dashboard only for v1 |
 | Q23 | The local live worker dies whenever the dev session ends (three interrupted runs). For the record: it is now started as a detached process for local runs; on Railway the worker is its own service | — |
 
 ## 15. Progress log
@@ -524,3 +544,4 @@ NEXT_PUBLIC_SITE_URL=https://getedgefront.com
 - 2026-11-25 — **Phase 4 (website) built**: `/`, `/station/[id]`, `/pricing`, `/sources`, `/terms`, `/privacy`, 404, sitemap/robots; shared state components; ECharts observed chart; Vitest 39, Playwright 26 (13 × 2 widths), Lighthouse a11y 100. Every UI state seen on screen against degraded backends (API down, empty DB, day-old DB, slow API). Live run (worker on A2 code) running detached 08:42Z–~10:52Z; results so far in the Phase 4 report.
 - 2026-11-25 — **Phase 4 close-out:** A1 final live run (08:42–10:52Z, A2 code): METAR 42 runs / 93 new / 3,559 dup / 0 parse errors; CLI 9 runs / 16 new; DSM IEM 11 runs / 7 new / 1 dup; DSM NWS 11 runs / 0 new; forecast 5 runs / 100 updated / 23 × 304 / 17 fresh; 0 decode errors, 0 failed stations, 1 retried IEM disconnect; JSON-`null` cleanup → 0 rows left in all 6 JSON columns. A3 title = display name. A4 real 404s via `proxy.ts` + build-time registry copy. A2 prepared (`infra/github.md`, compose `edgefront_test`); waiting on the GitHub remote and Docker.
 - 2026-11-25 — **Phase 5 (models) built** on `phase-5-models` (A1, A3, A4 closed; A2 Postgres CI waiting on the GitHub URL/Docker): real fixtures (8 NOMADS bulletins, 27 PFMs, cropped GRIB 1.1 MB) + decoders (0 errors on all 28 stations); migration 0006 (`model_runs` by id + issuer, `model_run_stations`, native units); text ingest (NBM/MOS/LAMP/PFM) and GRIB ingest (GFS/IFS/AIFS, own byte ranges, nearest land point, partial runs); `/stations/{id}/models`; worker jobs `models_text` + `models_grib` (15 min + jitter), retention 4 runs; UI section 7, status strip, hero, `/sources` model cards, ECMWF attribution. Spot checks 82/82; GRIB peak RSS ≤ 145 MB.
+- 2026-11-26 — **Phase 6 (deploy) in progress** on `phase-6-deploy` (from `phase-5-models`; A1 GitHub/CI still waiting for the repo URL). Done locally: B1 performance (§11.2); dual-stack API entry point (`edgefront_api.serve`), `deploy_db` pre-deploy command, Railway URL normalisation, worker Postgres advisory lock + `WORKER_UPSTREAM_ENABLED`, nightly retention job (§9) with DB-size warning, pinned base images; web security headers + CSP (report-only/enforce switch, 0 violations both ways), per-IP rate limit on `/api/*` (429 + Retry-After), `INDEXING_ENABLED` (X-Robots-Tag + robots.txt), `/api/health`, `/api/csp-report`; backup service + restore-drill workflow; CI audit job, bundle secret check, Postgres 17; ECharts 6.1.0 (GHSA-fgmj-fm8m-jvvx). Railway itself not created yet (owner clicks, `infra/railway.md`).
