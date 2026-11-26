@@ -12,7 +12,7 @@ volume-restored database.
 
 ## What runs
 
-- Railway service `backup` (`services/backup/Dockerfile`, `postgres:17.12-bookworm` + Python +
+- Railway service `backup` (`services/backup/Dockerfile`, `postgres:18.7-bookworm` + Python +
   boto3), **cron `30 7 * * *` UTC**, restart policy Never.
 - `backup.py`: `pg_dump --format=custom --compress=9 --no-owner --no-privileges` of the production
   database → `edgefront/daily/edgefront-YYYYMMDDTHHMMSSZ.dump`; on Sundays also copied to
@@ -39,7 +39,7 @@ volume-restored database.
 
 Run in GitHub Actions, never on a laptop (no local Postgres by owner rule):
 **Actions → Restore drill → Run workflow → source = `bucket`**. The workflow
-(`.github/workflows/restore-drill.yml`) starts a throwaway Postgres 17, downloads the newest daily
+(`.github/workflows/restore-drill.yml`) starts a throwaway Postgres 18, downloads the newest daily
 backup, runs `services/backup/restore_drill.sh` (pg_restore + checks) and writes the timings and
 row counts to the job summary. `source = synthetic` proves the procedure without a bucket (builds a
 database from migrations + seed, dumps it with the backup job's flags, restores it).

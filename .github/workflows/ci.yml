@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17  # same major version as the Railway Postgres service
+        image: postgres:18.7-bookworm  # same version as the Railway Postgres service (18.7)
         env:
           POSTGRES_USER: edgefront
           POSTGRES_PASSWORD: edgefront
@@ -100,7 +100,8 @@ jobs:
         run: |
           docker compose -f infra/docker-compose.yml build
           docker build -f services/backup/Dockerfile -t edgefront-backup .
-          docker run --rm --entrypoint pg_dump edgefront-backup --version
+          docker run --rm --entrypoint pg_dump edgefront-backup --version | tee pg_dump_version.txt
+          grep -q "pg_dump (PostgreSQL) 18\." pg_dump_version.txt  # must match prod (18.x)
       - name: Bring the stack up and check health
         run: |
           docker compose -f infra/docker-compose.yml up -d --wait --wait-timeout 180 api worker web

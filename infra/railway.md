@@ -34,8 +34,9 @@ to IPv4 **and** IPv6, so every service listens on `::` with IPv4 accepted
    Networking** entry. If one exists, delete it (trash-can icon). Databases are private by default
    ([PostgreSQL guide](https://docs.railway.com/guides/postgresql)); a TCP proxy is what makes
    `DATABASE_PUBLIC_URL` work from the internet.
-4. Note the Postgres major version shown in the service (CI tests against Postgres 17; the backup
-   image ships pg_dump 17, which can dump 17 and older).
+4. Note the Postgres version shown in the service. Production runs **Postgres 18.7** (Railway's
+   template, Debian 13 build); CI tests against Postgres 18 (`postgres:18.7-bookworm`) and the
+   backup image ships pg_dump 18.7, which can dump 18 and older.
 
 ## 2. Connect the GitHub repo
 
@@ -54,7 +55,8 @@ For **each** of these four services, **Settings → Source / Build**:
 | Watch paths | `services/api/**` `packages/core/**` `data/**` `pyproject.toml` `uv.lock` | `services/worker/**` `packages/core/**` `data/**` `pyproject.toml` `uv.lock` | `apps/web/**` `data/stations.yaml` `package.json` `pnpm-lock.yaml` `pnpm-workspace.yaml` | `services/backup/**` |
 
 Base images are pinned in the Dockerfiles: `python:3.12.16-slim-bookworm`, `node:24.22.2-bookworm-slim`,
-`postgres:17.12-bookworm` (Debian 12 "bookworm" everywhere), `ghcr.io/astral-sh/uv:0.13.7`.
+`postgres:18.7-bookworm` (Debian 12 "bookworm" everywhere; Railway's own Postgres service is its
+18.7 template on Debian 13), `ghcr.io/astral-sh/uv:0.13.7`.
 
 ## 3. Deploy settings per service
 

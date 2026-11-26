@@ -1,7 +1,7 @@
 name: Restore drill
 
 # Run by hand (Actions → Restore drill → Run workflow). Restores a backup into a throwaway
-# Postgres 17 service container and checks it. With the BACKUP_S3_* repository secrets set it
+# Postgres 18 service container and checks it. With the BACKUP_S3_* repository secrets set it
 # restores the newest real backup from the bucket; without them it builds a database from the
 # migrations + seed, dumps it with the same pg_dump flags as the backup job, and restores that
 # (proves the procedure). Timings and row counts are written to the job summary.
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17
+        image: postgres:18.7-bookworm
         env:
           POSTGRES_USER: drill
           POSTGRES_PASSWORD: drill
@@ -34,13 +34,13 @@ jobs:
       RESTORE_URL: postgresql://drill:drill@localhost:5432/restored
     steps:
       - uses: actions/checkout@v4
-      - name: Postgres 17 client tools
+      - name: Postgres 18 client tools
         run: |
           sudo install -d /usr/share/postgresql-common/pgdg
           sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
           echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17
-          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-18
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
       - name: Throwaway target database
         run: psql "postgresql://drill:drill@localhost:5432/drill" -c "CREATE DATABASE restored"
 

@@ -45,19 +45,19 @@ deploy token is stored in GitHub.
 
 | Job | Steps |
 |---|---|
-| `python` | uv sync → ruff → mypy → **migrate up → down to base → up on Postgres 17** → full pytest suite on Postgres (`REQUIRE_POSTGRES=1` fails the run if it silently falls back to SQLite) |
+| `python` | uv sync → ruff → mypy → **migrate up → down to base → up on Postgres 18** → full pytest suite on Postgres (`REQUIRE_POSTGRES=1` fails the run if it silently falls back to SQLite) |
 | `web` | pnpm install → lint → typecheck → prettier → Vitest → `next build` (the build never calls the API) |
 | `web` (added Phase 6) | … then `check-bundle.mjs`: no secret names, DB URLs or e-mail addresses in the browser bundle |
 | `audit` | `pnpm audit --prod` and `pip-audit` on the locked production Python dependencies |
 | `docker` | build all images (incl. `backup`), bring the stack up with `WORKER_UPSTREAM_ENABLED=false` (CI never contacts NOAA/NWS/IEM/ECMWF), check API health, the homepage, `/api/health`, `X-Robots-Tag: noindex`, and a worker heartbeat |
-| `Restore drill` (manual) | restore the newest bucket backup (or a synthetic one) into a throwaway Postgres 17 and check it |
+| `Restore drill` (manual) | restore the newest bucket backup (or a synthetic one) into a throwaway Postgres 18 and check it |
 
 ## Where Postgres is tested (owner rule, 2026-11-25)
 
 **There is no Docker and no Postgres on the development machine, and none will be installed.**
 Local development and the local test run use SQLite (`uv run pytest`; the 12 Postgres-only tests
 are skipped locally). Postgres is verified **only** by the `python` job in GitHub Actions, which
-runs the whole suite plus migrate up → down → up against a Postgres 17 service container with
+runs the whole suite plus migrate up → down → up against a Postgres 18 (`postgres:18.7-bookworm`) service container with
 `REQUIRE_POSTGRES=1`. **A phase is done only when that job is green.**
 
 ## (Reference only) Running the Python tests against Postgres with Docker
