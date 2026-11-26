@@ -173,7 +173,7 @@ after the build (fails on secret names, DB URLs, `railway.internal` or e-mail ad
 2. Deploy `worker`: the log shows `upstream identity` with `contact_set: true`, then `worker lock
    acquired`, then jobs.
 3. Run station enrichment once (positions, NWS office/grid, PFM points): `worker` → **⋯ → Run
-   command** (or Railway shell) `python -m edgefront_core.enrich_stations`.
+   command** (or Railway shell) `/app/.venv/bin/python -m edgefront_core.enrich_stations` (use the full path: the console shell does not put the app's virtualenv on PATH, so plain `python` is the system Python without EdgeFront).
 4. Deploy `web`; open the generated domain. `/api/health` should say `"status":"ok"` within ~30 min
    (all sources must have run once).
 5. Deploy `backup` once by hand (**Deploy → Run now**) and check the bucket for
