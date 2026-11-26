@@ -204,3 +204,37 @@ def test_worker_lock_admits_exactly_one_worker(engine: Engine) -> None:
         first.close()
     second = hold_worker_lock(engine, poll_seconds=0.01, sleep=lambda _s: None, max_wait_seconds=1)
     second.close()  # free once the first worker is gone
+
+
+def test_auth_schema_tables_and_cascade(db_url: str, engine: Engine) -> None:
+    """v2 Phase 7: Better Auth's tables live in schema `auth`; deleting a user removes its
+    sessions and accounts; downgrading 0007 removes the schema."""
+    insp = inspect(engine)
+    assert set(insp.get_table_names(schema="auth")) == {
+        "user", "session", "account", "verification", "rateLimit",
+    }  # fmt: skip
+    cols = {c["name"]: c for c in insp.get_columns("session", schema="auth")}
+    assert cols["expiresAt"]["type"].__class__.__name__ == "TIMESTAMP"
+    assert getattr(cols["expiresAt"]["type"], "timezone", None) is True
+    with engine.begin() as c:
+        c.execute(text(
+            'INSERT INTO auth."user" (id, name, email, "emailVerified", "createdAt", "updatedAt") '
+            "VALUES ('u1', 'A', 'a@example.org', false, now(), now())"
+        ))  # fmt: skip
+        c.execute(text(
+            'INSERT INTO auth.session (id, "expiresAt", token, "createdAt", "updatedAt", "userId") '
+            "VALUES ('s1', now(), 't1', now(), now(), 'u1')"
+        ))  # fmt: skip
+        c.execute(text(
+            'INSERT INTO auth.account (id, "accountId", "providerId", "userId", "createdAt", '
+            "\"updatedAt\") VALUES ('a1', 'u1', 'credential', 'u1', now(), now())"
+        ))  # fmt: skip
+        c.execute(text("DELETE FROM auth.\"user\" WHERE id = 'u1'"))
+        assert c.execute(text("SELECT count(*) FROM auth.session")).scalar() == 0
+        assert c.execute(text("SELECT count(*) FROM auth.account")).scalar() == 0
+    downgrade("0006", database_url=db_url)
+    with engine.connect() as c:
+        assert c.execute(text(
+            "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'auth'"
+        )).scalar() == 0  # fmt: skip
+    upgrade("head", database_url=db_url)

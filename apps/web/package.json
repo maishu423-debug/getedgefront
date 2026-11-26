@@ -17,8 +17,10 @@
     "prebuild": "node scripts/gen-stations.mjs"
   },
   "dependencies": {
+    "better-auth": "1.7.28",
     "echarts": "^6.1.0",
     "next": "16.4.6",
+    "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1"
@@ -27,6 +29,7 @@
     "@playwright/test": "^1.65.1",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^24",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

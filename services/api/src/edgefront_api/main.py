@@ -17,6 +17,7 @@ from starlette.responses import Response as StarletteResponse
 from edgefront_api import daily, model_guidance, services
 from edgefront_api import schemas as s
 from edgefront_api.health import check_health
+from edgefront_api.internal import internal_router, require_internal_token
 from edgefront_core.db import get_engine, make_sessionmaker
 from edgefront_core.logs import configure_logging
 from edgefront_core.models import Station
@@ -235,7 +236,9 @@ def create_app(
     app.state.now = now
     app.state.settings = cfg
     app.middleware("http")(cache_headers)
+    app.middleware("http")(require_internal_token)  # added last = runs first
     app.include_router(router)
+    app.include_router(internal_router)
     return app
 
 
