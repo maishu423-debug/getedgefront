@@ -27,6 +27,8 @@ EdgeFront shows **observed weather at the exact U.S. stations that weather marke
 
 ## 2. Tiers
 
+> **Superseded by v2 §V2.3 (tiers) for v2.** v1 as deployed still follows this section.
+
 | | Free (v1, built) | Premium (later, pricing page only in v1) |
 |---|---|---|
 | Hourly METAR + SPECI (raw + decoded) | ✅ | ✅ |
@@ -38,7 +40,7 @@ EdgeFront shows **observed weather at the exact U.S. stations that weather marke
 | Live station map | 🔒 | ✅ |
 | More data sources | — | ✅ (later) |
 
-v1 has **no accounts, no payments and no auth**. Premium elements appear as locked buttons that link to `/pricing`. The pricing page lists Premium features with a **"Coming soon"** state. It does not collect emails (open question Q5).
+~~v1 has no accounts, no payments and no auth~~ (**superseded by v2**: accounts in Phase 7, payments in Phase 8). In v1 as deployed: v1 has **no accounts, no payments and no auth**. Premium elements appear as locked buttons that link to `/pricing`. The pricing page lists Premium features with a **"Coming soon"** state. It does not collect emails (open question Q5).
 
 ---
 
@@ -380,7 +382,7 @@ Mockups: `design/Home.dc.html` and `design/Station.dc.html`. They are written in
 - Accessibility: WCAG AA contrast; real `<button>`/`<a>`; `aria-pressed` on toggles; charts have text summaries; keyboard navigable; touch targets ≥ 40 px. Pages must work at phone width (tables scroll horizontally inside their box; header wraps).
 
 ### 10.2 Homepage `/`
-1. Header: logo (front-line mark + "EdgeFront"), nav: Stations · Map (PRO lock pill → `/pricing`) · Pricing · Sign in (disabled/"coming soon" in v1).
+1. Header: logo (front-line mark + "EdgeFront"), nav: Stations · Map (PRO lock pill → `/pricing`) · Pricing · Sign in (disabled/"coming soon" in v1; **superseded by v2 §V2.2 Header**: Sign in + Start free trial / avatar menu with FREE·PREMIUM badge).
 2. Hero: H1 "Observed weather at the U.S. stations weather markets settle on." + subline + large search (city, station code, market name). Results go to the station page; no match → friendly empty state.
 3. Data status strip (dark): status time, METARs fetched, DSM latest, NWS forecasts updated, models in (latest run per model), "5-min feed: Premium". Built from `/status`.
 4. Station board (compact table): filter tabs All / Kalshi / Polymarket / Robinhood; sort tabs By time zone (default, East→West groups) / A–Z. Group header: zone name, local time, "Local day ends in Xh Ym" + progress bar. Columns: Station (code + name, link), Venues (plain grey tags), Now (°F), High so far (°F, time, NEW badge within 60 min), NWS fcst high, Last METAR (time + age; stale state), chevron link. Note under the table explaining that "high so far" ≠ settlement value.
@@ -420,7 +422,7 @@ Mockups: `design/Home.dc.html` and `design/Station.dc.html`. They are written in
 - Homepage: hero lists the models; data status strip "Models in: IFS 06Z · GFS 06Z · …" (amber when unhealthy). `/sources`: four model source cards with live status + a "Model guidance" definition; the footer on station and sources pages carries the ECMWF attribution.
 
 ### 10.6 Deviations from the design mockups (Phase 4, with reasons)
-1. "Sign in" removed from the header (owner B2: no accounts in v1). The yellow "Design mockup · sample data" banner is not shipped.
+1. "Sign in" removed from the header (owner B2: no accounts in v1; **superseded by v2**, Phase 7 adds it back). The yellow "Design mockup · sample data" banner is not shipped.
 2. Hero subline lists what v1 has (METARs, CLI + DSM daily summaries, NWS forecasts); model guidance is mentioned only after Phase 5.
 3. Header nav is the same on every page (Stations · Map PRO · Sources · Pricing); the mockups differed between pages. The station page's search sits at the top of the page body instead of inside the header so the header can wrap cleanly at 375 px.
 4. ~~Station title showed the NWS official name~~ **Reverted (owner A3, 2026-11-25):** the title is the EdgeFront **display name** from `stations.yaml` (Q15, e.g. "Washington DC · Reagan National"); the NWS official name is in the mono meta line with lat/lon, elevation, ASOS, local standard time offset + IANA zone and current local time; an extra line names the venues and the "being verified" note.
@@ -496,6 +498,79 @@ BACKUP_S3_ENDPOINT / _BUCKET / _ACCESS_KEY_ID / _SECRET_ACCESS_KEY / _REGION, BA
 ```
 Per-service lists, secrets and Railway reference variables: `infra/railway.md` §4. `DATABASE_URL` may be Railway's `postgresql://…`; settings rewrite it to `postgresql+psycopg://`.
 
+## V2. v2 — Premium launch (plan)
+
+> Added 2026-11-26 from the owner's `CONTEXT_v2.md`. v1 sections stay; where v2 supersedes them it is marked there. Designs: `design/v2/` (Pricing, SignIn, Account, StationPremium, Map). Same mockup rules as v1: layout, copy, colours and states only; **never ship the sample data**.
+
+### V2.1 Goal
+Turn the free v1 site into a product with paid Premium:
+1. Accounts and sign-in.
+2. Payments and subscriptions.
+3. 5-minute HFMETAR data for Premium.
+4. A live station map for Premium.
+5. "Low so far" (on both tiers).
+
+v1 is deployed but **not launched** (`INDEXING_ENABLED=false`). The public launch happens at the end of v2.
+
+**Every merge to `main` auto-deploys to production.** Work on phase branches; merge only after owner approval and green CI (Postgres).
+
+### V2.2 Decisions (owner, 2026-11-26)
+| Topic | Decision |
+|---|---|
+| Business | Registered in the USA. Payments via **Stripe** (Checkout, Billing, Customer Portal, webhooks). |
+| Plan | **One** Premium plan, **$20/month** for now. The price lives in Stripe + env config (`STRIPE_PRICE_ID`), never hard-coded in UI copy. |
+| Trial | **7 days, card required at start.** One trial per account. Stripe sends a reminder email before the trial ends. |
+| Sign-in | **Google** + **email/password** (email verification, password reset). More providers later. |
+| Auth library | **Better Auth**, inside the Next.js app. Users and sessions stored in our Postgres. |
+| Email sending | **Resend** to start (verification, password reset, account notices); SES possible later. |
+| User DB | The **existing Railway Postgres**, in a separate schema (`auth`, plus `billing` for our subscription mirror). Not AWS RDS. Stripe is the **source of truth** for billing; we mirror state via webhooks. |
+| Sales tax | Stripe Tax configured, **collection off** until the owner registers somewhere (Florida doesn't tax SaaS; nexus elsewhere usually starts at $100k). Prices shown "in USD; sales tax may apply". |
+| Low so far | **Both tiers**: free from hourly METAR, Premium from 5-minute data. |
+| Header | Signed out: "Sign in" + "Start free trial". Signed in: PREMIUM/FREE badge + avatar menu (Account, Sign out). The Map PRO lock disappears for Premium users. |
+| Legal | Terms and privacy must be **properly written by the owner/legal** before launch (required by Google OAuth and Stripe). Claude Code never writes legal text. |
+
+### V2.3 Tiers (supersedes v1 §2)
+| | Free (no account needed) | Premium ($20/mo, 7-day trial) |
+|---|---|---|
+| Hourly METAR, daily summaries, NWS forecast, model guidance | ✅ | ✅ |
+| Current temp / high so far / **low so far** | From hourly METAR | From 5-minute data (METAR value shown for comparison) |
+| Observed chart | Hourly METAR | 5-minute (default) + hourly METAR toggle, METAR reports marked |
+| Model chart observed overlay | METAR | 5-minute |
+| Live station map | 🔒 teaser | ✅ |
+
+A signed-in user without a subscription is a free user.
+
+### V2.4 Entitlement rules
+- `premium = true` when the Stripe subscription status is `trialing` or `active`. `past_due` keeps Premium during Stripe's retry window, with a banner. `canceled` with `cancel_at_period_end` keeps Premium until the period ends. Everything else is free.
+- Entitlement is computed **server-side** from our mirrored subscription row, refreshed by webhooks, and never trusted from the client.
+- Premium data is only ever served after a server-side check: the browser never calls FastAPI; the Next.js server checks the session and entitlement, then calls the internal API. Premium API routes also require an internal service token header (`X-Internal-Token`), as defence in depth even on the private network.
+- Free users who request Premium data get a 403 from the Next.js route and see the locked UI, never partial data.
+
+### V2.5 5-minute HFMETAR pipeline (from v1 §4.5, now in scope)
+- **Upstream:** NOAA MADIS HFMETAR via the owner's LDM (`ldm` server) → `madis-publisher` (fixed 2026-11-26: runs ~every minute, publishes the 3 newest files only when changed, keeps the source mtime, cleans up after 3 days) → `madis-api` (FastAPI, Bearer token, **127.0.0.1:8000 only**).
+- **Exposure:** an HTTPS reverse proxy on the LDM server (Caddy, e.g. `ldm.getedgefront.com`) in front of `madis-api`. Claude Code writes the config and steps; the owner applies them.
+- **Worker job** (`hfmetar`): poll `/api/v1/hfmetar/files` every 60–90 s; download only files whose `modified_at` changed; gunzip and parse the netCDF (**field names from a real file**, `ncdump -h`, recorded in `docs/formats/hfmetar.md`); keep registry stations only; upsert `hf_observations` keyed by (station, observed_at) with the provider QC flags; revisions update the row and store a hash.
+- **Retention:** 7 days of 5-minute data.
+- **Latency:** record `observed_at`, the file's `modified_at` and our `fetched_at`/`ingested_at`; publish P50/P95 age on `/status`.
+- **Rights check:** before charging for it, confirm MADIS's terms for redistributing HFMETAR (ASOS) data and record the verdict and source URL in `docs/sources.md`.
+
+### V2.6 Phases (v2)
+| Phase | Scope | Done when |
+|---|---|---|
+| **7. Accounts** | Better Auth (Google + email/password), Resend emails (verify, reset), auth schema + migrations, sign-in/up/reset pages, header states, account page (profile, sign-in methods, delete), auth rate limits, session security | A user can sign up, verify, sign in with either method, link Google + password, reset the password, and delete the account; e2e tests pass; Postgres CI green |
+| **8. Billing** | Stripe (test mode): product/price via config, Checkout with a 7-day trial and card required, Customer Portal, webhooks → `billing.subscriptions` mirror, entitlement service, account billing card (all 5 states), pricing page CTA, trial-ending reminder, Stripe Tax configured (collection off) | Full test-mode lifecycle: trial → active → past_due → canceled → free, each reflected within a minute; webhook signature checks; replay/idempotency tests |
+| **9. 5-minute data** | LDM proxy config + steps, `hfmetar` worker job, netCDF field map, `hf_observations`, latency metrics, MADIS rights note, internal Premium API endpoints, low so far (METAR + 5-min) | 48 h of continuous 5-min data for all stations that report it; dedupe across file rewrites proven; latency on `/status` |
+| **10. Premium UI + map** | Station page tiers per `design/v2/StationPremium`; observed chart 5-min/METAR; low-so-far card on both tiers; model chart overlay; live map (MapLibre + a basemap whose licence allows commercial use, chosen with the owner); gating and teasers; 60 s refresh | Free vs Premium verified by e2e at 1440/375 px; map accessible (keyboard and list alternative); Lighthouse a11y ≥ 95 |
+| **11. Launch** | Stripe live mode, Google OAuth production verification, legal pages swapped in, the remaining v1 launch steps (UptimeRobot, IEM email, restore drill, HSTS, CSP enforce, indexing on), webhook failure alerts | Owner says "go live" |
+
+### V2.7 New environment variables (names only; values in Railway)
+`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (only if needed), `INTERNAL_API_TOKEN`, `LDM_API_BASE_URL`, `MADIS_API_TOKEN`, `HF_INGEST_ENABLED`.
+
+### V2.8 Open items (owner)
+Q31–Q34 in §14.
+
+---
+
 ## 14. Open questions (owner)
 | # | Question | Default until answered |
 |---|---|---|
@@ -527,6 +602,10 @@ Per-service lists, secrets and Railway reference variables: `infra/railway.md` �
 | Q28 | ~~Backups~~ **Resolved 2026-11-26:** Option A — nightly `pg_dump` (Railway cron service `backup`) to an S3-compatible private bucket the owner provides (R2 or B2), 14 daily + 8 weekly; restore drill as a manual GitHub Actions workflow (`infra/backup-restore.md`). Waiting for the bucket + keys | Bucket from owner |
 | Q29 | Launch with the draft terms/privacy pages ("Draft — pending legal review") or get them written first? EdgeFront does not write legal text | Owner decision |
 | Q30 | ~~IaC~~ **Resolved 2026-11-26:** no Infrastructure as Code and no Railway CLI for v1; the owner configures every service by hand from `infra/railway.md` §3 (one table with every field `railway.json` would have held) | — |
+| Q31 | Terms and privacy text (legal), needed before Google OAuth verification and Stripe live mode (supersedes Q29) | Owner/legal |
+| Q32 | Basemap provider for the map (commercial-use licence; free vs paid) | Owner, Phase 10 |
+| Q33 | `madis-publisher` fix applied and verified (only changed files republished, no `sort` errors) | Owner |
+| Q34 | ~~KAUS 35→40 °F at 08:53Z on 2026-11-26~~ **Resolved 2026-11-26: real, not a pipeline bug.** Raw METARs: 0653Z `02/M01 … T00171006` (1.7 °C = 35 °F), 0753Z `01/M02 … T00061017` (0.6 °C = 33 °F), 0853Z `33006KT … 04/M02 … T00441022` (4.4 °C = 39.9 → 40 °F), 0953Z again `T00441022`, 1053Z `T00391028`. Both the whole-°C group (04) and the tenths group agree; the rise came with the wind picking up from calm/light to NW 6–7 kt (mixing out the night-time inversion) and held for two hours. Pipeline used the tenths value and rounded correctly (35 → 40 °F as the climate day's first two reports above 35) | — |
 | Q23 | The local live worker dies whenever the dev session ends (three interrupted runs). For the record: it is now started as a detached process for local runs; on Railway the worker is its own service | — |
 
 ## 15. Progress log
@@ -548,3 +627,4 @@ Per-service lists, secrets and Railway reference variables: `infra/railway.md` �
 - 2026-11-25 — **Phases 4 and 5 merged into `main`** after the first real CI runs. Postgres-only failures fixed: worker advisory lock kept on a pooled connection (now explicit unlock + invalidate), test station not flushed before child rows, bad-enum error class; Docker smoke test runs the worker heartbeat-only (`WORKER_UPSTREAM_ENABLED=false`, CI never contacts upstream). CI publishes failing tests/service logs as annotations. `main` run #15 (phase 4) and #16 (phase 5) green.
 - 2026-11-26 — **Owner decisions:** the 48-hour production health run before review is **dropped** (launch checklist item B9-1 waived); `phase-6-deploy` merged into `main` (fast-forward to `915b0a1`, CI green) so Railway builds every service from `main` as `infra/railway.md` describes. Phase 6 fixes now go to `main`, each green in CI first.
 - 2026-11-26: Prod Postgres is 18.7 (Railway template). Backup image and CI moved to Postgres 18 to match (`postgres:18.7-bookworm` pinned in the backup Dockerfile, CI, the restore drill and local docker-compose; restore-drill client tools `postgresql-client-18`).
+- 2026-11-26 — **v2 (Premium launch) planned:** `CONTEXT_v2` added as section V2; v1 passages it supersedes are marked (tiers, "no accounts", hidden Sign in). v2 mockups in `design/v2/` (Pricing, SignIn, Account, StationPremium, Map). Q34 checked against raw METARs: real temperature rise, no bug. Phase 7 (accounts) on branch `v2-phase-7-accounts`, waiting for the owner's "go".

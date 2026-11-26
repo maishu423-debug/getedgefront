@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EdgeFront — Account</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F2}
+a{color:#0A6E69}a:hover{color:#064F4B}
+.tab{font:500 13px Inter,sans-serif;padding:8px 12px;min-height:36px;border:0;background:transparent;color:#4A5552;border-radius:7px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:#101A1C}
+.tab.on{background:#FFFFFF;color:#101A1C;box-shadow:0 1px 2px rgba(16,26,28,.14)}
+.tgl{font:500 13px Inter,sans-serif;padding:8px 14px;min-height:36px;border:1px solid #CFD5D1;border-radius:8px;background:#FFFFFF;color:#2A3533;cursor:pointer;white-space:nowrap}
+.tgl.on{background:#101A1C;border-color:#101A1C;color:#FFFFFF}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:0 20px;border-radius:10px;font:600 15px Inter,sans-serif;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn.primary{background:#0A6E69;color:#FFFFFF;border:0}
+.btn.primary:hover{background:#064F4B;color:#FFFFFF}
+.btn.dark{background:#101A1C;color:#FFFFFF;border:0}
+.btn.ghost{background:#FFFFFF;color:#101A1C;border:1px solid #CFD5D1}
+.btn.ghost:hover{background:#F7F8F6;color:#101A1C}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font:600 13px Inter,sans-serif;color:#2A3533}
+.field input{height:46px;box-sizing:border-box;padding:0 14px;border:1px solid #CFD5D1;border-radius:10px;background:#FFFFFF;font:400 15px Inter,sans-serif;color:#101A1C}
+.tbl{width:100%;border-collapse:collapse;font:400 14px Inter,sans-serif;color:#101A1C}
+.tbl th{font:600 11px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#56625F;text-align:left;padding:12px 16px;border-bottom:1px solid #DDE1DC;background:#FAFBF9}
+.tbl td{padding:12px 16px;border-bottom:1px solid #ECEFEC}
+.mono{font-family:'JetBrains Mono',monospace}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #101A1C; background: #F4F5F2; min-height: 100%">
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE1DC">
+<div style="max-width: 1280px; margin: 0 auto; padding: 12px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+<a href="Home.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #101A1C">
+<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true"><path d="M1 17 C9 17 11 7 17 7 S25 17 33 17" fill="none" stroke="#0A6E69" stroke-width="2.4" stroke-linecap="round"></path><path d="M7 14.6 L10.6 10.2 L12.4 15.2 Z M15.2 7.4 L19.4 3.6 L19.8 8.6 Z M23.4 11.2 L28 8.8 L26.8 14 Z" fill="#0A6E69"></path></svg>
+<span style="font: 700 20px 'Space Grotesk', sans-serif; letter-spacing: -0.02em">EdgeFront</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-left: auto">
+<a href="Home.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Stations</a>
+<a href="Map.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; color: #4A5552">Map</a>
+<a href="#sources" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Sources</a>
+<a href="Pricing.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Pricing</a>
+<span style="display: inline-flex; align-items: center; gap: 6px; font: 600 11px Inter, sans-serif; letter-spacing: .05em; padding: 5px 10px; border-radius: 999px; background: #E6F2F1; color: #064F4B; margin-left: 8px">PREMIUM</span>
+<a href="Account.dc.html" aria-label="Account" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #101A1C; color: #FFFFFF; font: 600 14px Inter, sans-serif; text-decoration: none; margin-left: 6px">JD</a>
+</nav>
+</div>
+</header><div style="background: #FFF7E8; border-bottom: 1px solid #F0DDB8"><div style="max-width: 1280px; margin: 0 auto; padding: 8px 32px; font-size: 13px; color: #6B4600">v2 design mockup · sample data and sample account</div></div>
+<main style="max-width: 1080px; margin: 0 auto; padding: 40px 32px 72px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font: 700 34px 'Space Grotesk', sans-serif; letter-spacing: -0.02em">Account</h1>
+<span style="font-size: 14.5px; color: #4A5552">jane.doe@example.com</span>
+</div>
+
+<section aria-labelledby="h-sub" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; overflow: hidden">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid #ECEFEC">
+<h2 id="h-sub" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">Subscription</h2>
+<span style="{{badgeStyle}}">{{badge}}</span>
+</div>
+<div style="padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 8px; flex: 1 1 420px; min-width: 0">
+<span style="font: 600 18px Inter, sans-serif">{{headline}}</span>
+<span style="font-size: 14.5px; line-height: 1.55; color: #2A3533">{{detail}}</span>
+<sc-if value="{{showWarn}}" hint-placeholder-val="{{ false }}"><div role="alert" style="margin-top: 6px; padding: 12px 14px; border-radius: 10px; background: #FDECEA; color: #8E1F14; font-size: 14px; line-height: 1.5">{{warn}}</div></sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; flex: 0 1 260px">
+<sc-if value="{{showManage}}" hint-placeholder-val="{{ true }}"><a href="#stripe-portal" class="btn dark" style="width: 100%">Manage billing</a></sc-if>
+<sc-if value="{{showStart}}" hint-placeholder-val="{{ false }}"><a href="Pricing.dc.html" class="btn primary" style="width: 100%">{{startLabel}}</a></sc-if>
+<span style="font-size: 12.5px; line-height: 1.5; color: #56625F">{{manageNote}}</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border-top: 1px solid #ECEFEC; background: #FAFBF9">
+<sc-for list="{{facts}}" as="f" hint-placeholder-count="3"><div style="padding: 14px 24px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #56625F">{{f.k}}</span><span class="mono" style="font-size: 14px; font-weight: 500">{{f.v}}</span></div></sc-for>
+</div>
+</section>
+
+<section aria-labelledby="h-prof" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+<h2 id="h-prof" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">Profile</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px">
+<div class="field"><label for="an">Name</label><input id="an" type="text" value="Jane Doe"></div>
+<div class="field"><label for="ae">Email</label><input id="ae" type="email" value="jane.doe@example.com" readonly style="background: #F7F8F6"><span style="font-size: 12.5px; color: #145F38; font-weight: 600">Verified</span></div>
+</div>
+<div><button class="btn ghost" style="min-height: 40px">Save changes</button></div>
+</section>
+
+<section aria-labelledby="h-methods" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; overflow: hidden">
+<h2 id="h-methods" style="margin: 0; padding: 20px 24px; font: 600 20px 'Space Grotesk', sans-serif; border-bottom: 1px solid #ECEFEC">Sign-in methods</h2>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid #ECEFEC">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Google</span><span style="font-size: 13px; color: #4A5552">Connected as jane.doe@example.com</span></div>
+<button class="tgl">Disconnect</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 24px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Email and password</span><span style="font-size: 13px; color: #4A5552">Password last changed Nov 26, 2026</span></div>
+<button class="tgl">Change password</button>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="h-danger" style="background: #FFFFFF; border: 1px solid #F0C9C4; border-radius: 16px; padding: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px; max-width: 640px">
+<h2 id="h-danger" style="margin: 0; font: 600 18px 'Space Grotesk', sans-serif">Delete account</h2>
+<span style="font-size: 14px; color: #4A5552; line-height: 1.5">Permanently deletes your account and profile. Cancel any active subscription first; billing records are kept by our payment processor as the law requires.</span>
+</div>
+<button class="btn ghost" style="min-height: 40px; color: #8E1F14; border-color: #E2B3AD">Delete account</button>
+</section>
+<div><button class="tgl">Sign out</button></div>
+</main>
+<footer style="background: #101A1C; color: #C9D1CE">
+<div style="max-width: 1280px; margin: 0 auto; padding: 28px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 13px">
+<span style="font: 700 16px 'Space Grotesk', sans-serif; color: #FFFFFF">EdgeFront</span>
+<span>Not affiliated with Kalshi, Polymarket or Robinhood. Data is provided as received. You decide how to use it.</span>
+<span style="display: flex; gap: 16px"><a href="#terms" style="color: #C9D1CE">Terms</a><a href="#privacy" style="color: #C9D1CE">Privacy</a></span>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"status":{"editor":"enum","options":["trialing","active","past_due","canceled","free"],"default":"trialing"},"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var st = this.props.status ?? 'trialing';
+    var M = {
+      trialing: { badge: 'FREE TRIAL', badgeBg: '#E6F2F1', badgeFg: '#064F4B', headline: 'Premium · free trial', detail: 'Your trial ends on Dec 3, 2026. Your card ending 4242 will be charged $20.00 then, unless you cancel before.', facts: [['Plan', 'Premium · $20 / month'], ['Trial ends', 'Dec 3, 2026'], ['Card', 'Visa •••• 4242']], manage: true, start: false, note: 'Opens our secure payment page (Stripe) to update your card, see invoices or cancel.' },
+      active: { badge: 'ACTIVE', badgeBg: '#E3F3EA', badgeFg: '#145F38', headline: 'Premium', detail: 'Renews on Jan 3, 2027 for $20.00.', facts: [['Plan', 'Premium · $20 / month'], ['Next payment', 'Jan 3, 2027'], ['Card', 'Visa •••• 4242']], manage: true, start: false, note: 'Opens our secure payment page (Stripe) to update your card, see invoices or cancel.' },
+      past_due: { badge: 'PAYMENT FAILED', badgeBg: '#FDECEA', badgeFg: '#8E1F14', headline: 'Premium · payment problem', detail: 'We couldn\'t charge your card on Jan 3, 2027. We\'ll retry automatically over the next few days.', warn: 'Update your card to keep Premium. If payment keeps failing, your account moves to Free on Jan 17, 2027.', facts: [['Plan', 'Premium · $20 / month'], ['Amount due', '$20.00'], ['Card', 'Visa •••• 4242']], manage: true, start: false, note: 'Update your card on our secure payment page (Stripe).' },
+      canceled: { badge: 'CANCELLED', badgeBg: '#FFF1E2', badgeFg: '#8A4100', headline: 'Premium until Jan 3, 2027', detail: 'You cancelled. You keep Premium until the end of the period you paid for, then your account moves to Free.', facts: [['Plan', 'Premium · $20 / month'], ['Premium ends', 'Jan 3, 2027'], ['Card', 'Visa •••• 4242']], manage: true, start: false, note: 'Changed your mind? You can resume from the payment page before Jan 3.' },
+      free: { badge: 'FREE', badgeBg: '#EEF1EE', badgeFg: '#2A3533', headline: 'Free plan', detail: 'You have hourly METARs, daily summaries, forecasts and model guidance. Premium adds 5-minute data and the live map.', facts: [['Plan', 'Free'], ['Trial', 'Available · 7 days'], ['Card', 'None on file']], manage: false, start: true, start_label: 'Start 7-day free trial', note: 'Card required for the trial. Cancel before it ends and you won\'t be charged.' }
+    };
+    var m = M[st] || M.trialing;
+    return {
+      badge: m.badge, badgeStyle: 'font: 600 11px Inter, sans-serif; letter-spacing: .06em; padding: 5px 10px; border-radius: 999px; background: ' + m.badgeBg + '; color: ' + m.badgeFg,
+      headline: m.headline, detail: m.detail, showWarn: !!m.warn, warn: m.warn || '',
+      showManage: m.manage, showStart: m.start, startLabel: m.start_label || '', manageNote: m.note,
+      facts: m.facts.map(function (f) { return { k: f[0], v: f[1] }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

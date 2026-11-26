@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EdgeFront — Live station map</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F2}
+a{color:#0A6E69}a:hover{color:#064F4B}
+.tab{font:500 13px Inter,sans-serif;padding:8px 12px;min-height:36px;border:0;background:transparent;color:#4A5552;border-radius:7px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:#101A1C}
+.tab.on{background:#FFFFFF;color:#101A1C;box-shadow:0 1px 2px rgba(16,26,28,.14)}
+.tgl{font:500 13px Inter,sans-serif;padding:8px 14px;min-height:36px;border:1px solid #CFD5D1;border-radius:8px;background:#FFFFFF;color:#2A3533;cursor:pointer;white-space:nowrap}
+.tgl.on{background:#101A1C;border-color:#101A1C;color:#FFFFFF}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:0 20px;border-radius:10px;font:600 15px Inter,sans-serif;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn.primary{background:#0A6E69;color:#FFFFFF;border:0}
+.btn.primary:hover{background:#064F4B;color:#FFFFFF}
+.btn.dark{background:#101A1C;color:#FFFFFF;border:0}
+.btn.ghost{background:#FFFFFF;color:#101A1C;border:1px solid #CFD5D1}
+.btn.ghost:hover{background:#F7F8F6;color:#101A1C}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font:600 13px Inter,sans-serif;color:#2A3533}
+.field input{height:46px;box-sizing:border-box;padding:0 14px;border:1px solid #CFD5D1;border-radius:10px;background:#FFFFFF;font:400 15px Inter,sans-serif;color:#101A1C}
+.tbl{width:100%;border-collapse:collapse;font:400 14px Inter,sans-serif;color:#101A1C}
+.tbl th{font:600 11px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#56625F;text-align:left;padding:12px 16px;border-bottom:1px solid #DDE1DC;background:#FAFBF9}
+.tbl td{padding:12px 16px;border-bottom:1px solid #ECEFEC}
+.mono{font-family:'JetBrains Mono',monospace}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #101A1C; background: #F4F5F2; min-height: 100%">
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE1DC">
+<div style="max-width: 1280px; margin: 0 auto; padding: 12px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+<a href="Home.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #101A1C">
+<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true"><path d="M1 17 C9 17 11 7 17 7 S25 17 33 17" fill="none" stroke="#0A6E69" stroke-width="2.4" stroke-linecap="round"></path><path d="M7 14.6 L10.6 10.2 L12.4 15.2 Z M15.2 7.4 L19.4 3.6 L19.8 8.6 Z M23.4 11.2 L28 8.8 L26.8 14 Z" fill="#0A6E69"></path></svg>
+<span style="font: 700 20px 'Space Grotesk', sans-serif; letter-spacing: -0.02em">EdgeFront</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-left: auto">
+<a href="Home.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Stations</a>
+<a href="Map.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 600; color: #101A1C">Map</a>
+<a href="#sources" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Sources</a>
+<a href="Pricing.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Pricing</a>
+<span style="display: inline-flex; align-items: center; gap: 6px; font: 600 11px Inter, sans-serif; letter-spacing: .05em; padding: 5px 10px; border-radius: 999px; background: #E6F2F1; color: #064F4B; margin-left: 8px">PREMIUM</span>
+<a href="Account.dc.html" aria-label="Account" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #101A1C; color: #FFFFFF; font: 600 14px Inter, sans-serif; text-decoration: none; margin-left: 6px">JD</a>
+</nav>
+</div>
+</header><div style="background: #FFF7E8; border-bottom: 1px solid #F0DDB8"><div style="max-width: 1280px; margin: 0 auto; padding: 8px 32px; font-size: 13px; color: #6B4600">v2 design mockup · sample data and sample account</div></div>
+<main style="max-width: 1440px; margin: 0 auto; padding: 24px 32px 48px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font: 700 32px 'Space Grotesk', sans-serif; letter-spacing: -0.02em">Live station map</h1>
+<span style="font-size: 14px; color: #4A5552">5-minute ASOS data for all 28 settlement stations · latest readings 21:50Z, updated 21:52Z</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<div role="group" aria-label="Show" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px"><sc-for list="{{metricTabs}}" as="t" hint-placeholder-count="3"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}">{{t.label}}</button></sc-for></div>
+<div role="group" aria-label="Venue" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px"><sc-for list="{{venueTabs}}" as="t" hint-placeholder-count="4"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}">{{t.label}}</button></sc-for></div>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section aria-label="Map" style="flex: 999 1 720px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="position: relative; width: 100%; aspect-ratio: 1000 / 600; background: #EAF1F4; border-radius: 10px; overflow: hidden">
+<svg viewBox="0 0 1000 600" width="100%" height="100%" aria-hidden="true" style="position: absolute; inset: 0; display: block">
+<path d="M33.9 23.3 L505.1 23.1 L601.7 39.2 L686.4 80.8 L703.4 96.9 L722.0 161.5 L713.6 184.6 L771.2 173.1 L779.7 154.6 L822.0 147.7 L852.5 115.4 L906.8 115.4 L945.8 60.0 L969.5 66.9 L983.1 120.0 L932.2 145.4 L922.0 170.8 L933.9 193.8 L901.7 200.8 L864.4 216.9 L859.3 242.3 L845.8 258.5 L832.2 295.4 L825.4 302.3 L839.0 341.5 L813.6 355.4 L788.1 373.8 L747.5 413.1 L739.0 452.3 L752.5 498.5 L762.7 540.0 L755.9 572.3 L733.9 556.2 L716.9 512.3 L710.2 482.3 L691.5 461.5 L672.9 470.8 L637.3 452.3 L605.1 454.6 L603.4 480.0 L571.2 473.1 L527.1 468.5 L503.4 486.9 L471.2 514.6 L471.2 553.8 L439.0 544.6 L430.5 512.3 L400.0 466.2 L372.9 484.6 L347.5 470.8 L313.6 420.0 L284.7 431.5 L235.6 431.5 L172.9 403.8 L133.9 399.2 L113.6 376.2 L76.3 360.0 L59.3 323.1 L42.4 281.5 L11.9 221.5 L13.6 184.6 L16.9 85.4 L5.1 36.9 Z" fill="#F7F8F4" stroke="#C6CFCB" stroke-width="1.5" stroke-linejoin="round"></path>
+</svg>
+<sc-for list="{{markers}}" as="m" hint-placeholder-count="28">
+<button onClick="{{m.pick}}" aria-label="{{m.aria}}" aria-pressed="{{m.sel}}" style="{{m.style}}">{{m.v}}</button>
+</sc-for>
+<div style="{{cardStyle}}">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px"><span class="mono" style="font-weight: 700; font-size: 15px; color: #0A6E69">{{sel.id}}</span><span style="font-size: 11.5px; color: #56625F">{{sel.tz}}</span></div>
+<span style="font-size: 13px; color: #2A3533">{{sel.name}}</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 4px">
+<div style="display: flex; flex-direction: column"><span style="font-size: 11px; color: #56625F">Now</span><span class="mono" style="font-size: 20px; font-weight: 600">{{sel.now}}°</span></div>
+<div style="display: flex; flex-direction: column"><span style="font-size: 11px; color: #8A3A0E">High</span><span class="mono" style="font-size: 20px; font-weight: 600; color: #B2450D">{{sel.hi}}°</span><span style="font-size: 10.5px; color: #56625F">{{sel.hiT}}</span></div>
+<div style="display: flex; flex-direction: column"><span style="font-size: 11px; color: #1D4F8A">Low</span><span class="mono" style="font-size: 20px; font-weight: 600; color: #1F5FA8">{{sel.lo}}°</span><span style="font-size: 10.5px; color: #56625F">{{sel.loT}}</span></div>
+</div>
+<span style="font-size: 11.5px; color: #56625F">Latest 5-min reading 21:50Z · {{sel.venues}}</span>
+<a href="StationPremium.dc.html" class="btn primary" style="min-height: 36px; font-size: 13px; padding: 0 12px">Open station</a>
+</div>
+<div style="position: absolute; left: 12px; bottom: 12px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(255,255,255,.94); border-radius: 8px; font-size: 11.5px; color: #2A3533">
+<span style="font-weight: 600">°F</span>
+<sc-for list="{{legend}}" as="l" hint-placeholder-count="5"><span style="display: inline-flex; align-items: center; gap: 4px"><span style="width: 14px; height: 14px; border-radius: 4px; background: {{l.c}}"></span>{{l.t}}</span></sc-for>
+</div>
+</div>
+<p style="margin: 0; font-size: 12px; color: #56625F">Marker colour = the selected value. Click a marker for details. Basemap, zoom and panning come from the map library in the real build; this mockup uses a simplified outline.</p>
+</section>
+
+<aside aria-labelledby="h-list" style="flex: 1 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #DDE1DC; display: flex; justify-content: space-between; align-items: baseline"><h2 id="h-list" style="margin: 0; font: 600 16px 'Space Grotesk', sans-serif">{{listTitle}}</h2><span style="font-size: 12px; color: #56625F">{{count}} stations</span></div>
+<ol style="list-style: none; margin: 0; padding: 0; max-height: 560px; overflow-y: auto">
+<sc-for list="{{list}}" as="r" hint-placeholder-count="10">
+<li><button onClick="{{r.pick}}" style="{{r.style}}"><span class="mono" style="font-weight: 600; font-size: 13px; width: 48px; text-align: left">{{r.id}}</span><span style="flex: 1; min-width: 0; text-align: left; font-size: 12.5px; color: #3A4644; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.name}}</span><span class="mono" style="font-size: 14px; font-weight: 600; color: {{r.col}}">{{r.v}}°</span></button></li>
+</sc-for>
+</ol>
+</aside>
+</div>
+</main>
+<footer style="background: #101A1C; color: #C9D1CE">
+<div style="max-width: 1280px; margin: 0 auto; padding: 28px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 13px">
+<span style="font: 700 16px 'Space Grotesk', sans-serif; color: #FFFFFF">EdgeFront</span>
+<span>Not affiliated with Kalshi, Polymarket or Robinhood. Data is provided as received. You decide how to use it.</span>
+<span style="display: flex; gap: 16px"><a href="#terms" style="color: #C9D1CE">Terms</a><a href="#privacy" style="color: #C9D1CE">Privacy</a></span>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this, s = Object.assign({ metric: 'now', venue: 'all', sel: 'KDFW' }, this.state || {});
+    var K = 'Kalshi', P = 'Polymarket', R = 'Robinhood';
+    var S = [
+      ['KNYC','New York · Central Park',40.78,-73.97,[K],'E',46,49,'1:51 PM',38,'5:40 AM',-7,-6],['KLGA','New York · LaGuardia',40.78,-73.88,[P,R],'E',47,50,'1:47 PM',40,'6:05 AM',9,4],
+      ['KBOS','Boston · Logan',42.36,-71.01,[K,R],'E',43,45,'12:58 PM',36,'6:20 AM',0,0],['KPHL','Philadelphia Intl',39.87,-75.24,[K,R],'E',49,52,'1:42 PM',39,'6:35 AM',-4,6],
+      ['KDCA','Washington · Reagan',38.85,-77.04,[K,R],'E',53,55,'2:40 PM',42,'6:50 AM',0,0],['KATL','Atlanta',33.64,-84.43,[K,P,R],'E',63,64,'3:35 PM',48,'7:05 AM',0,0],
+      ['KCLT','Charlotte',35.21,-80.94,[R],'E',59,60,'3:20 PM',44,'7:10 AM',0,0],['KMIA','Miami',25.79,-80.29,[K,P,R],'E',78,81,'1:25 PM',71,'6:45 AM',0,0],
+      ['KJAX','Jacksonville',30.49,-81.69,[R],'E',70,73,'2:15 PM',55,'6:55 AM',0,0],['KDTW','Detroit',42.21,-83.35,[K],'E',38,40,'1:50 PM',31,'7:15 AM',0,0],
+      ['KMDW','Chicago · Midway',41.79,-87.75,[K],'C',41,43,'2:30 PM',33,'6:40 AM',4,6],['KORD',"Chicago · O'Hare",41.98,-87.90,[P],'C',40,42,'2:25 PM',32,'6:35 AM',-6,-6],
+      ['KMSP','Minneapolis',44.88,-93.22,[K,R],'C',31,33,'2:10 PM',22,'7:00 AM',0,0],['KBNA','Nashville',36.12,-86.68,[R],'C',53,54,'2:45 PM',39,'6:50 AM',0,0],
+      ['KOKC','Oklahoma City',35.39,-97.60,[R],'C',56,57,'2:40 PM',37,'7:05 AM',0,0],['KDFW','Dallas/Fort Worth',32.90,-97.04,[K],'C',61,62,'2:35 PM',44,'7:00 AM',-6,-4],
+      ['KDAL','Dallas · Love Field',32.85,-96.85,[P],'C',62,63,'2:30 PM',46,'6:55 AM',7,6],['KAUS','Austin',30.19,-97.67,[K,P,R],'C',66,68,'2:20 PM',47,'7:10 AM',0,0],
+      ['KSAT','San Antonio',29.53,-98.47,[K],'C',68,69,'2:50 PM',49,'7:15 AM',0,0],['KHOU','Houston · Hobby',29.65,-95.28,[K,P],'C',67,69,'1:40 PM',55,'6:40 AM',0,0],
+      ['KSDF','Louisville',38.17,-85.74,[K],'E',50,51,'2:55 PM',37,'7:00 AM',0,0],['KDEN','Denver Intl',39.86,-104.67,[K],'M',48,49,'1:30 PM',27,'6:50 AM',4,-6],
+      ['KBKF','Denver · Buckley',39.70,-104.75,[P],'M',47,48,'1:45 PM',26,'6:45 AM',-6,6],['KPHX','Phoenix',33.43,-112.01,[K,R],'M',72,73,'2:00 PM',51,'7:10 AM',0,0],
+      ['KLAX','Los Angeles',33.94,-118.41,[K,P,R],'P',68,69,'12:40 PM',53,'6:30 AM',0,0],['KSFO','San Francisco',37.62,-122.37,[K,R],'P',59,60,'12:55 PM',47,'6:45 AM',0,0],
+      ['KSEA','Seattle',47.45,-122.31,[K,P,R],'P',48,49,'12:30 PM',39,'7:20 AM',0,0],['KLAS','Las Vegas',36.08,-115.15,[K],'P',63,65,'12:50 PM',44,'6:55 AM',0,0]
+    ];
+    var tzn = { E: 'Eastern', C: 'Central', M: 'Mountain', P: 'Pacific' };
+    var col = function (v) { return v < 40 ? '#1F5FA8' : v < 50 ? '#2C6E8F' : v < 60 ? '#0A6E69' : v < 70 ? '#A35F00' : '#B2450D'; };
+    var val = function (r) { return s.metric === 'hi' ? r[7] : s.metric === 'lo' ? r[9] : r[6]; };
+    var vis = S.filter(function (r) { return s.venue === 'all' || r[4].indexOf(s.venue) >= 0; });
+    var sel = S.filter(function (r) { return r[0] === s.sel; })[0] || S[15];
+    var X = function (lon) { return (lon + 125) / 59 * 100; }, Y = function (lat) { return (50 - lat) / 26 * 100; };
+    var markers = vis.map(function (r) {
+      var v = val(r), on = r[0] === s.sel;
+      return { v: v, sel: on, aria: r[0] + ' ' + r[1] + ', ' + v + ' degrees', pick: function () { self.setState({ sel: r[0] }); },
+        style: 'position: absolute; left: calc(' + X(r[3]).toFixed(2) + '% + ' + r[11] * 2 + 'px); top: calc(' + Y(r[2]).toFixed(2) + '% + ' + r[12] * 2 + 'px); transform: translate(-50%, -50%); min-width: 34px; height: 26px; padding: 0 6px; border-radius: 13px; border: ' + (on ? '3px solid #101A1C' : '2px solid #FFFFFF') + '; background: ' + col(v) + '; color: #FFFFFF; font: 700 12.5px "JetBrains Mono", monospace; cursor: pointer; box-shadow: 0 1px 4px rgba(16,26,28,.3); z-index: ' + (on ? 5 : 2) };
+    });
+    var cx = X(sel[3]), cy = Y(sel[2]);
+    var cardStyle = 'position: absolute; z-index: 6; width: 230px; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 12px; box-shadow: 0 8px 24px rgba(16,26,28,.16); ' + (cx > 60 ? 'right: ' + (100 - cx + 3).toFixed(1) + '%; ' : 'left: ' + (cx + 3).toFixed(1) + '%; ') + (cy > 55 ? 'bottom: ' + (100 - cy + 2).toFixed(1) + '%' : 'top: ' + (cy + 2).toFixed(1) + '%');
+    var list = vis.slice().sort(function (a, b) { return val(b) - val(a); }).map(function (r) { var on = r[0] === s.sel; return { id: r[0], name: r[1], v: val(r), col: col(val(r)), pick: function () { self.setState({ sel: r[0] }); }, style: 'width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 16px; border: 0; border-bottom: 1px solid #ECEFEC; background: ' + (on ? '#E6F2F1' : '#FFFFFF') + '; cursor: pointer; font-family: Inter, sans-serif; color: #101A1C' }; });
+    var tab = function (label, on, click) { return { label: label, on: on, cls: on ? 'tab on' : 'tab', click: click }; };
+    var set = function (o) { return function () { self.setState(o); }; };
+    return {
+      markers: markers, list: list, count: vis.length, cardStyle: cardStyle,
+      sel: { id: sel[0], name: sel[1], tz: tzn[sel[5]] + ' time', now: sel[6], hi: sel[7], hiT: sel[8], lo: sel[9], loT: sel[10], venues: sel[4].join(', ') },
+      listTitle: s.metric === 'hi' ? 'Highest so far' : s.metric === 'lo' ? 'Lowest so far' : 'Current temperature',
+      metricTabs: [tab('Now', s.metric === 'now', set({ metric: 'now' })), tab('High so far', s.metric === 'hi', set({ metric: 'hi' })), tab('Low so far', s.metric === 'lo', set({ metric: 'lo' }))],
+      venueTabs: [['All', 'all'], [K, K], [P, P], [R, R]].map(function (v) { return tab(v[0], s.venue === v[1], set({ venue: v[1] })); }),
+      legend: [['#1F5FA8', '<40'], ['#2C6E8F', '40s'], ['#0A6E69', '50s'], ['#A35F00', '60s'], ['#B2450D', '70+']].map(function (l) { return { c: l[0], t: l[1] }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

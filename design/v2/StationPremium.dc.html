@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EdgeFront — KDFW (Premium)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F2}
+a{color:#0A6E69}a:hover{color:#064F4B}
+.tab{font:500 13px Inter,sans-serif;padding:8px 12px;min-height:36px;border:0;background:transparent;color:#4A5552;border-radius:7px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:#101A1C}
+.tab.on{background:#FFFFFF;color:#101A1C;box-shadow:0 1px 2px rgba(16,26,28,.14)}
+.tgl{font:500 13px Inter,sans-serif;padding:8px 14px;min-height:36px;border:1px solid #CFD5D1;border-radius:8px;background:#FFFFFF;color:#2A3533;cursor:pointer;white-space:nowrap}
+.tgl.on{background:#101A1C;border-color:#101A1C;color:#FFFFFF}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:0 20px;border-radius:10px;font:600 15px Inter,sans-serif;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn.primary{background:#0A6E69;color:#FFFFFF;border:0}
+.btn.primary:hover{background:#064F4B;color:#FFFFFF}
+.btn.dark{background:#101A1C;color:#FFFFFF;border:0}
+.btn.ghost{background:#FFFFFF;color:#101A1C;border:1px solid #CFD5D1}
+.btn.ghost:hover{background:#F7F8F6;color:#101A1C}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font:600 13px Inter,sans-serif;color:#2A3533}
+.field input{height:46px;box-sizing:border-box;padding:0 14px;border:1px solid #CFD5D1;border-radius:10px;background:#FFFFFF;font:400 15px Inter,sans-serif;color:#101A1C}
+.tbl{width:100%;border-collapse:collapse;font:400 14px Inter,sans-serif;color:#101A1C}
+.tbl th{font:600 11px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#56625F;text-align:left;padding:12px 16px;border-bottom:1px solid #DDE1DC;background:#FAFBF9}
+.tbl td{padding:12px 16px;border-bottom:1px solid #ECEFEC}
+.mono{font-family:'JetBrains Mono',monospace}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #101A1C; background: #F4F5F2; min-height: 100%">
+<sc-if value="{{isPrem}}" hint-placeholder-val="{{ true }}"><header style="background: #FFFFFF; border-bottom: 1px solid #DDE1DC">
+<div style="max-width: 1280px; margin: 0 auto; padding: 12px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+<a href="Home.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #101A1C">
+<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true"><path d="M1 17 C9 17 11 7 17 7 S25 17 33 17" fill="none" stroke="#0A6E69" stroke-width="2.4" stroke-linecap="round"></path><path d="M7 14.6 L10.6 10.2 L12.4 15.2 Z M15.2 7.4 L19.4 3.6 L19.8 8.6 Z M23.4 11.2 L28 8.8 L26.8 14 Z" fill="#0A6E69"></path></svg>
+<span style="font: 700 20px 'Space Grotesk', sans-serif; letter-spacing: -0.02em">EdgeFront</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-left: auto">
+<a href="Home.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Stations</a>
+<a href="Map.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; color: #4A5552">Map</a>
+<a href="#sources" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Sources</a>
+<a href="Pricing.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Pricing</a>
+<span style="display: inline-flex; align-items: center; gap: 6px; font: 600 11px Inter, sans-serif; letter-spacing: .05em; padding: 5px 10px; border-radius: 999px; background: #E6F2F1; color: #064F4B; margin-left: 8px">PREMIUM</span>
+<a href="Account.dc.html" aria-label="Account" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #101A1C; color: #FFFFFF; font: 600 14px Inter, sans-serif; text-decoration: none; margin-left: 6px">JD</a>
+</nav>
+</div>
+</header></sc-if><sc-if value="{{isFree}}" hint-placeholder-val="{{ false }}"><header style="background: #FFFFFF; border-bottom: 1px solid #DDE1DC">
+<div style="max-width: 1280px; margin: 0 auto; padding: 12px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+<a href="Home.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #101A1C">
+<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true"><path d="M1 17 C9 17 11 7 17 7 S25 17 33 17" fill="none" stroke="#0A6E69" stroke-width="2.4" stroke-linecap="round"></path><path d="M7 14.6 L10.6 10.2 L12.4 15.2 Z M15.2 7.4 L19.4 3.6 L19.8 8.6 Z M23.4 11.2 L28 8.8 L26.8 14 Z" fill="#0A6E69"></path></svg>
+<span style="font: 700 20px 'Space Grotesk', sans-serif; letter-spacing: -0.02em">EdgeFront</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-left: auto">
+<a href="Home.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Stations</a>
+<a href="Map.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; color: #4A5552">Map <span style="display: inline-flex; align-items: center; gap: 4px; font: 600 10px Inter, sans-serif; letter-spacing: .05em; padding: 3px 7px; border-radius: 999px; background: #FFF1E2; color: #8A4100; margin-left: 4px">PRO</span></a>
+<a href="#sources" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Sources</a>
+<a href="Pricing.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Pricing</a>
+<a href="SignIn.dc.html" style="padding: 10px 12px; font-size: 14px; font-weight: 600; color: #101A1C; text-decoration: none; margin-left: 8px">Sign in</a>
+<a href="Pricing.dc.html" class="btn primary" style="min-height: 40px; padding: 0 16px; font-size: 14px">Start free trial</a>
+</nav>
+</div>
+</header></sc-if><div style="background: #FFF7E8; border-bottom: 1px solid #F0DDB8"><div style="max-width: 1280px; margin: 0 auto; padding: 8px 32px; font-size: 13px; color: #6B4600">v2 design mockup · sample data and sample account</div></div>
+<main style="max-width: 1280px; margin: 0 auto; padding: 28px 32px 56px; display: flex; flex-direction: column; gap: 24px">
+<section aria-label="Station" style="display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap"><h1 style="margin: 0; font: 700 46px 'Space Grotesk', sans-serif; letter-spacing: -0.03em">KDFW</h1><span style="font-size: 19px; font-weight: 500">Dallas/Fort Worth International Airport, TX</span></div>
+<div class="mono" style="display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; color: #4A5552"><span>32.898°N 97.019°W</span><span>Elev 171 m</span><span>ASOS</span><span>Local time CST (UTC−6) · 3:55 PM</span></div>
+</div>
+<div style="{{srcStyle}}"><span style="{{srcDot}}"></span><span>{{srcText}}</span></div>
+</section>
+
+<section aria-label="Today so far" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="3">
+<div style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><span style="font-size: 14px; font-weight: 600; color: {{c.labelCol}}">{{c.label}}</span><span style="{{c.tagStyle}}">{{c.tag}}</span></div>
+<div style="display: flex; align-items: flex-start; gap: 4px"><span style="font: 600 80px/0.9 'Space Grotesk', sans-serif; letter-spacing: -0.04em; color: {{c.col}}">{{c.v}}</span><span style="font: 500 24px 'Space Grotesk', sans-serif; color: #4A5552; padding-top: 6px">°F</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #2A3533"><span>{{c.when}}</span><span style="color: #56625F">{{c.compare}}</span></div>
+</div>
+</sc-for>
+</section>
+<p style="margin: -10px 0 0; font-size: 12.5px; color: #56625F">{{dayNote}}</p>
+
+<section aria-labelledby="h-chart" style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 2px"><h2 id="h-chart" style="margin: 0; font: 600 20px 'Space Grotesk', sans-serif">Observed conditions</h2><span style="font-size: 12.5px; color: #56625F">{{chartSub}}</span></div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<div role="group" aria-label="Data resolution" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px">
+<sc-for list="{{modeTabs}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}" aria-disabled="{{t.locked}}">{{t.label}}</button></sc-for>
+</div>
+<div role="group" aria-label="Time range" style="display: flex; padding: 3px; background: #E7EAE6; border-radius: 9px">
+<sc-for list="{{rangeTabs}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" onClick="{{t.click}}" aria-pressed="{{t.on}}">{{t.label}}</button></sc-for>
+</div>
+</div>
+</div>
+<sc-if value="{{lockedNote}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-radius: 10px; background: #FFF7EC; border: 1px dashed #D9A35A; font-size: 13.5px; color: #6B3A00"><span>5-minute readings show peaks between hourly reports. Today one was 1.4 °F above the hourly METAR high.</span><a href="Pricing.dc.html" class="btn primary" style="min-height: 36px; padding: 0 14px; font-size: 13px">Start 7-day free trial</a></div></sc-if>
+<div style="display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 10px">
+<div class="mono" style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; height: 260px; font-size: 11px; color: #56625F"><span style="line-height: 0">70</span><span style="line-height: 0">60</span><span style="line-height: 0">50</span><span style="line-height: 0">40</span></div>
+<div style="position: relative; height: 260px">
+<svg viewBox="0 0 1000 260" preserveAspectRatio="none" width="100%" height="260" role="img" aria-label="{{chartAria}}" style="display: block; overflow: visible">
+<path d="M0 0 H1000 M0 86.7 H1000 M0 173.3 H1000 M0 260 H1000" fill="none" stroke="#E4E8E4" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<path d="{{vgrid}}" fill="none" stroke="#EEF1EE" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+<rect x="{{dayX}}" y="0" width="{{dayW}}" height="260" fill="#F5FAF9"></rect>
+<path d="{{dewPath}}" fill="none" stroke="#1F5FA8" stroke-width="1.8" vector-effect="non-scaling-stroke"></path>
+<path d="{{tempPath}}" fill="none" stroke="#C24E12" stroke-width="{{tempW}}" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+<path d="{{metarTicks}}" fill="none" stroke="#101A1C" stroke-width="7" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+</svg>
+<span style="position: absolute; top: 6px; left: {{dayLeft}}; font-size: 11px; font-weight: 600; color: #0A6E69; background: #FFFFFF; padding: 2px 6px; border-radius: 5px; border: 1px solid #CFE3E1; white-space: nowrap">Today (climate day, from midnight CST)</span>
+<div style="position: absolute; left: {{hiLeft}}; top: {{hiTop}}; transform: translate(-50%, -130%); font: 600 11.5px Inter, sans-serif; color: #FFFFFF; background: #B2450D; padding: 3px 8px; border-radius: 6px; white-space: nowrap">High {{hiV}}° · {{hiT}}</div>
+<div style="position: absolute; left: {{loLeft}}; top: {{loTop}}; transform: translate(-50%, 40%); font: 600 11.5px Inter, sans-serif; color: #FFFFFF; background: #1F5FA8; padding: 3px 8px; border-radius: 6px; white-space: nowrap">Low {{loV}}° · {{loT}}</div>
+<div style="position: absolute; right: 8px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 14px; font-size: 11.5px; background: rgba(255,255,255,.92); padding: 4px 8px; border-radius: 6px"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 3px; background: #C24E12"></span>{{tempLegend}}</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 3px; background: #1F5FA8"></span>Dew point</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; border-radius: 50%; background: #101A1C"></span>Hourly METAR</span></div>
+</div>
+<div></div>
+<div style="position: relative; height: 30px"><sc-for list="{{ticks}}" as="t" hint-placeholder-count="8"><div style="position: absolute; left: {{t.left}}; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px"><span class="mono" style="font-size: 11px; font-weight: 600">{{t.z}}</span><span style="font-size: 10.5px; color: #56625F">{{t.loc}}</span></div></sc-for></div>
+</div>
+<p style="margin: 0; font-size: 12.5px; color: #4A5552">{{summary}}</p>
+</section>
+
+<div style="padding: 16px 20px; border: 1px dashed #CFD5D1; border-radius: 12px; font-size: 13.5px; color: #4A5552; line-height: 1.55">Below this point the page is unchanged from v1: NWS forecast, Daily summaries, Hourly METAR reports and Model guidance. Premium users also get the 5-minute line as the "observed" overlay on the model chart.</div>
+</main>
+<footer style="background: #101A1C; color: #C9D1CE">
+<div style="max-width: 1280px; margin: 0 auto; padding: 28px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 13px">
+<span style="font: 700 16px 'Space Grotesk', sans-serif; color: #FFFFFF">EdgeFront</span>
+<span>Not affiliated with Kalshi, Polymarket or Robinhood. Data is provided as received. You decide how to use it.</span>
+<span style="display: flex; gap: 16px"><a href="#terms" style="color: #C9D1CE">Terms</a><a href="#privacy" style="color: #C9D1CE">Privacy</a></span>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tier":{"editor":"enum","options":["premium","free"],"default":"premium"},"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  pad(n) { return (n < 10 ? '0' : '') + n; }
+  hm(hh) { var t = ((Math.round(hh * 60) % 1440) + 1440) % 1440; return this.pad(Math.floor(t / 60)) + ':' + this.pad(t % 60); }
+  loc(hh) { var t = ((Math.round((hh - 6) * 60) % 1440) + 1440) % 1440; var H = Math.floor(t / 60), M = t % 60, ap = H >= 12 ? 'PM' : 'AM'; H = H % 12; if (H === 0) H = 12; return H + ':' + this.pad(M) + ' ' + ap; }
+  locH(hh) { var t = ((Math.round((hh - 6) * 60) % 1440) + 1440) % 1440; var H = Math.floor(t / 60), ap = H >= 12 ? 'PM' : 'AM'; H = H % 12; if (H === 0) H = 12; return H + ' ' + ap; }
+  gen() {
+    if (this._d) return this._d;
+    var seed = 7, r = function () { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    var now = 21 + 55 / 60, pts = [];
+    for (var i = 0; i < 288; i++) {
+      var hh = now - 24 + 5 / 60 + i * 5 / 60, h = ((hh % 24) + 24) % 24;
+      var t = 52 + 9 * Math.cos(2 * Math.PI * (h - 21.3) / 24) + (r() - 0.5) * 0.7;
+      if (hh > 20.4 && hh < 20.75) t += 1.6;
+      var d = 41 + 1.4 * Math.sin(2 * Math.PI * (h - 15) / 24) + (r() - 0.5) * 0.5;
+      pts.push({ hh: hh, t: t, d: Math.min(d, t - 1) });
+    }
+    var met = [];
+    for (var k = 0; k < 24; k++) { var mh = 21 + 53 / 60 - k; var idx = Math.round((mh - (now - 24 + 5 / 60)) * 12); if (idx >= 0 && idx < 288) met.push({ hh: mh, t: Math.round((pts[idx].t - 32) * 5 / 9 * 10) / 10 * 9 / 5 + 32, d: pts[idx].d }); }
+    met.sort(function (a, b) { return a.hh - b.hh; });
+    this._d = { pts: pts, met: met, now: now };
+    return this._d;
+  }
+  renderVals() {
+    var self = this, D = this.gen(), tier = this.props.tier ?? 'premium', prem = tier === 'premium';
+    var s = Object.assign({ mode: prem ? '5min' : 'metar', range: 24 }, this.state || {});
+    var mode = prem ? s.mode : 'metar', span = s.range, he = D.now, hs = he - span;
+    var X = function (hh) { return ((hh - hs) / span * 1000).toFixed(1); };
+    var Y = function (v) { return (260 - (v - 40) / 30 * 260).toFixed(1); };
+    var five = D.pts.filter(function (p) { return p.hh >= hs; }), met = D.met.filter(function (m) { return m.hh >= hs; });
+    var line = function (arr, key) { return arr.map(function (p, i) { return (i ? 'L' : 'M') + X(p.hh) + ' ' + Y(p[key]); }).join(' '); };
+    var dayStart = 30 - 24, dayPts = (mode === '5min' ? D.pts : D.met).filter(function (p) { return p.hh >= dayStart; });
+    var hi = dayPts[0], lo = dayPts[0];
+    dayPts.forEach(function (p) { if (p.t > hi.t) hi = p; if (p.t < lo.t) lo = p; });
+    var mHi = D.met.filter(function (p) { return p.hh >= dayStart; }).reduce(function (a, b) { return b.t > a.t ? b : a; });
+    var mLo = D.met.filter(function (p) { return p.hh >= dayStart; }).reduce(function (a, b) { return b.t < a.t ? b : a; });
+    var fHi = D.pts.filter(function (p) { return p.hh >= dayStart; }).reduce(function (a, b) { return b.t > a.t ? b : a; });
+    var last5 = D.pts[D.pts.length - 1], lastM = D.met[D.met.length - 1];
+    var R = function (v) { return String(Math.round(v)); };
+    var tag = function (t, p) { return 'font: 600 10.5px Inter, sans-serif; letter-spacing: .05em; padding: 3px 8px; border-radius: 999px; ' + (p ? 'background: #E6F2F1; color: #064F4B' : 'background: #EEF1EE; color: #2A3533'); };
+    var cards = prem ? [
+      { label: 'Current temperature', labelCol: '#4A5552', col: '#101A1C', v: R(last5.t), tag: '5-MIN', tagStyle: tag('', true), when: 'Observed ' + this.hm(last5.hh) + 'Z (' + this.loc(last5.hh) + ') · 5 min ago', compare: 'Hourly METAR at ' + this.hm(lastM.hh) + 'Z: ' + R(lastM.t) + '°' },
+      { label: "Today's high so far", labelCol: '#8A3A0E', col: '#B2450D', v: R(hi.t), tag: '5-MIN', tagStyle: tag('', true), when: 'At ' + this.hm(hi.hh) + 'Z (' + this.loc(hi.hh) + ')', compare: 'Highest hourly METAR: ' + R(mHi.t) + '° at ' + this.loc(mHi.hh) },
+      { label: "Today's low so far", labelCol: '#1D4F8A', col: '#1F5FA8', v: R(lo.t), tag: '5-MIN', tagStyle: tag('', true), when: 'At ' + this.hm(lo.hh) + 'Z (' + this.loc(lo.hh) + ')', compare: 'Lowest hourly METAR: ' + R(mLo.t) + '° at ' + this.loc(mLo.hh) }
+    ] : [
+      { label: 'Current temperature', labelCol: '#4A5552', col: '#101A1C', v: R(lastM.t), tag: 'METAR', tagStyle: tag('', false), when: 'Latest METAR ' + this.hm(lastM.hh) + 'Z (' + this.loc(lastM.hh) + ') · 2 min ago', compare: 'Hourly report from the ASOS' },
+      { label: "Today's high so far", labelCol: '#8A3A0E', col: '#B2450D', v: R(mHi.t), tag: 'METAR', tagStyle: tag('', false), when: 'From the ' + this.hm(mHi.hh) + 'Z METAR (' + this.loc(mHi.hh) + ')', compare: 'Daily summaries below include peaks between reports' },
+      { label: "Today's low so far", labelCol: '#1D4F8A', col: '#1F5FA8', v: R(mLo.t), tag: 'METAR', tagStyle: tag('', false), when: 'From the ' + this.hm(mLo.hh) + 'Z METAR (' + this.loc(mLo.hh) + ')', compare: 'Daily summaries below include dips between reports' }
+    ];
+    var ticks = [], vg = '';
+    var step = span === 6 ? 1 : 3;
+    for (var H0 = Math.ceil(hs); H0 <= he; H0++) { var Hd = ((H0 % 24) + 24) % 24; if (Hd % step) continue; ticks.push({ left: ((H0 - hs) / span * 100).toFixed(2) + '%', z: this.pad(Hd) + 'Z', loc: this.locH(H0) }); vg += 'M' + X(H0) + ' 0 V260 '; }
+    var dx = Math.max(dayStart, hs);
+    var tab = function (label, on, click, locked) { return { label: label, on: on, cls: on ? 'tab on' : 'tab', click: click, locked: !!locked }; };
+    var set = function (o) { return function () { self.setState(o); }; };
+    var srcBase = 'display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; font-size: 13.5px; font-weight: 500; ';
+    return {
+      isPrem: prem, isFree: !prem,
+      srcStyle: srcBase + (prem ? 'background: #E6F2F1; color: #064F4B; border: 1px solid #CFE3E1' : 'background: #FFFFFF; color: #2A3533; border: 1px solid #DDE1DC'),
+      srcDot: 'width: 9px; height: 9px; border-radius: 50%; background: #1A7F4B; box-shadow: 0 0 0 4px #DDF1E5',
+      srcText: prem ? 'Premium · 5-minute ASOS data (NOAA MADIS HFMETAR) · latest 21:50Z, received 21:52Z' : 'Hourly METAR · latest report 21:53Z · 2 min ago',
+      cards: cards,
+      dayNote: 'Today = midnight to midnight local standard time (the NWS climate day). Settlement uses each market\'s named source, which can differ from these values.',
+      chartSub: mode === '5min' ? '5-minute ASOS readings with the hourly METAR reports marked · gaps are left empty' : 'Hourly METAR reports, including SPECI · gaps are left empty',
+      modeTabs: [prem ? tab('5-minute', mode === '5min', set({ mode: '5min' })) : tab('5-minute · Premium', false, function () {}, true), tab('Hourly METAR', mode === 'metar', prem ? set({ mode: 'metar' }) : function () {})],
+      rangeTabs: [tab('6 h', span === 6, set({ range: 6 })), tab('24 h', span === 24, set({ range: 24 }))],
+      lockedNote: !prem,
+      tempPath: mode === '5min' ? line(five, 't') : line(met, 't'), dewPath: mode === '5min' ? line(five, 'd') : line(met, 'd'), tempW: mode === '5min' ? 2 : 2.4,
+      metarTicks: met.map(function (m) { return 'M' + X(m.hh) + ' ' + Y(m.t) + ' l0.01 0'; }).join(' '),
+      vgrid: vg, ticks: ticks, dayX: X(dx), dayW: (X(he) - X(dx)).toFixed(1), dayLeft: ((dx - hs) / span * 100 + 0.5).toFixed(2) + '%',
+      hiLeft: ((hi.hh - hs) / span * 100).toFixed(2) + '%', hiTop: Y(hi.t) / 260 * 100 + '%', hiV: R(hi.t), hiT: this.loc(hi.hh),
+      loLeft: ((lo.hh - hs) / span * 100).toFixed(2) + '%', loTop: Y(lo.t) / 260 * 100 + '%', loV: R(lo.t), loT: this.loc(lo.hh),
+      tempLegend: mode === '5min' ? 'Temperature (5-min)' : 'Temperature (METAR)',
+      chartAria: 'Temperature and dew point over the last ' + span + ' hours',
+      summary: (mode === '5min' ? five.length + ' five-minute readings' : met.length + ' hourly reports') + '; today so far: high ' + R(hi.t) + ' °F at ' + this.loc(hi.hh) + ', low ' + R(lo.t) + ' °F at ' + this.loc(lo.hh) + '.' + (prem ? ' The 5-minute high is ' + (fHi.t - mHi.t).toFixed(1) + ' °F above the highest hourly METAR.' : '')
+    };
+  }
+}
+</script>
+</body>
+</html>
