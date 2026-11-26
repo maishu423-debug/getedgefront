@@ -195,7 +195,11 @@ test.describe("other pages", () => {
     await page.goto("/terms");
     await expect(page.getByText("Draft — pending legal review")).toBeVisible();
     await page.goto("/pricing");
-    await expect(page.getByRole("button", { name: "Coming soon" })).toBeDisabled();
+    // v2 Phase 7: signed out, the CTA leads to sign-in (checkout is Phase 8)
+    await expect(page.getByRole("link", { name: "Start free trial" }).last()).toHaveAttribute(
+      "href",
+      "/signin?next=%2Fpricing",
+    );
     await expect(page.locator('input[type="email"]')).toHaveCount(0);
     await expect(page.getByText(/\$\d/)).toHaveCount(0);
   });

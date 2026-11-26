@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, "phase-*"]
+    branches: [main, "phase-*", "v2-phase-*"]
   pull_request:
 
 concurrency:
@@ -68,6 +68,70 @@ jobs:
       - name: No secrets in the client bundle
         run: node apps/web/scripts/check-bundle.mjs
 
+  auth:
+    # v2 accounts on the production database: Alembic's auth schema must be exactly what Better
+    # Auth expects, and the sign-in flows must work on Postgres (local runs use SQLite).
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18.7-bookworm
+        env:
+          POSTGRES_USER: edgefront
+          POSTGRES_PASSWORD: edgefront
+          POSTGRES_DB: edgefront
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U edgefront" --health-interval 5s
+          --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql://edgefront:edgefront@localhost:5432/edgefront
+      APP_ENV: test
+      WORKER_UPSTREAM_ENABLED: "false"
+      BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      BETTER_AUTH_URL: http://localhost:3000
+      API_INTERNAL_URL: http://localhost:8000
+      EMAIL_OUTBOX_FILE: ${{ github.workspace }}/outbox.jsonl
+      E2E_EMAIL_OUTBOX: ${{ github.workspace }}/outbox.jsonl
+      E2E_FAKE_GOOGLE_URL: http://localhost:4455
+      AUTH_TEST_IP_LIMIT_SCALE: "100"
+      RATE_LIMIT_PER_MINUTE: "100000"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.7"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: uv sync --frozen --python 3.12
+      - run: pnpm install --frozen-lockfile
+      - name: Migrate and seed (the api pre-deploy step)
+        run: uv run python -m edgefront_core.deploy_db
+      - name: Better Auth sees no schema drift
+        run: node apps/web/scripts/auth-schema-check.mjs
+      - run: pnpm --filter @edgefront/web build
+      - name: The auth secret is not in the client bundle
+        run: node apps/web/scripts/check-bundle.mjs
+      - run: pnpm --filter @edgefront/web exec playwright install --with-deps chromium
+      - name: Start api and web
+        run: |
+          PORT=8000 nohup uv run python -m edgefront_api.serve > api.log 2>&1 &
+          nohup pnpm --filter @edgefront/web start > web.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8000/api/v1/health > /dev/null && curl -fsS http://localhost:3000/api/health > /dev/null && exit 0
+            sleep 2
+          done
+          exit 1
+      - name: Account flows (Playwright, fake Google, emails to a file)
+        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts
+      - name: Logs as annotations
+        if: failure()
+        run: |
+          python3 tools/ci_annotate.py text "api" api.log || true
+          python3 tools/ci_annotate.py text "web" web.log || true
+
   audit:
     runs-on: ubuntu-latest
     env:
@@ -108,6 +172,7 @@ jobs:
           curl -fsS http://localhost:8000/api/v1/health
           curl -fsS http://localhost:3000/ | grep -q "Observed weather at the U.S. stations"
           curl -fsS http://localhost:3000/api/health
+          curl -fsS http://localhost:3000/api/auth/get-session  # web image reaches the auth schema
           curl -fsSI http://localhost:3000/ | grep -qi "x-robots-tag: noindex"
           sleep 65
           docker compose -f infra/docker-compose.yml logs worker | grep -c '"msg": "heartbeat"'

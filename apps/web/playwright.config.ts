@@ -11,6 +11,12 @@ export default defineConfig({
   reporter: "list",
   timeout: 45_000,
   use: { baseURL, trace: "on-first-retry" },
+  // Accounts tests sign in with Google against this local fake (never real Google).
+  webServer: {
+    command: "node e2e/fake-google.mjs",
+    url: "http://localhost:4455/health",
+    reuseExistingServer: true,
+  },
   projects: [
     {
       name: "desktop-1440",

@@ -321,12 +321,15 @@ Built in Phase 1 as Alembic revisions `0001` (source_health) + `0002` (everythin
 - `model_values` (**Phase 5**: run_id FK CASCADE, station_id, valid_time, variable ∈ {temp, dewpt, wind, cloud, rh}, value + unit canonical (degC, kt, pct, category), native_value, native_unit (degF, K, mph, m/s, fraction, pct, category), category (cloud code), is_computed) — PK (run_id, station_id, valid_time, variable). Source comes from the parent `model_runs` row.
 - `hf_observations` (**v2, do not create in v1**) (station_id, observed_at, temp_c, dewpt_c, wind_dir_deg, wind_kt, gust_kt, altim_pa, vis_m, qc jsonb, file_name, file_modified_at, ingested_at) — PK (station_id, observed_at)
 - `source_health` (source PK, last_success_at, last_attempt_at, last_error_at, last_error, last_item_time, notes)
+- **v2 Phase 7, migration 0007: schema `auth`** (Better Auth 1.7.28's tables, camelCase columns exactly as Better Auth generates them; on SQLite the same tables without a schema): `user` (id text PK, name, email UNIQUE, emailVerified, image (always NULL), createdAt, updatedAt), `session` (id, expiresAt, token UNIQUE, createdAt, updatedAt, ipAddress, userAgent, userId FK→user CASCADE; index userId), `account` (id, accountId, providerId, userId FK CASCADE, accessToken/refreshToken/idToken + expiries (always NULL: not stored), scope, password (scrypt hash), createdAt, updatedAt; index userId), `verification` (id, identifier (index), value, expiresAt, createdAt, updatedAt), `rateLimit` (id, key UNIQUE, count, lastRequest bigint ms). Alembic owns the DDL (Better Auth never migrates); `auth_schema.include_object` keeps these tables out of the ORM model diff; CI's `auth` job runs `apps/web/scripts/auth-schema-check.mjs` (Better Auth's own migration planner must find nothing to add). Personal data: `docs/privacy-data-inventory.md`.
 
 ---
 
 ## 8. Public API (FastAPI, read-only, `/api/v1`)
 
 All responses include `generated_at` and, per block, `source` + times. Errors distinguish "no data yet" (200, `status: "no_data"`) from "upstream down" (`status: "stale"` with `last_success_at`).
+
+**v2:** `/api/v1/internal/*` is for the web server only (Premium data from Phase 9): it requires header `X-Internal-Token` = `INTERNAL_API_TOKEN` (constant-time compare) and fails closed with 403 when the token is unset. Only `GET /api/v1/internal/ping` exists in Phase 7. Accounts live in the web app (`/api/auth/*`, Better Auth), not in FastAPI.
 
 | Endpoint | Returns |
 |---|---|
@@ -495,6 +498,16 @@ CSP_MODE=report-only                     # web: report-only | enforce
 HSTS_ENABLED=false                       # web: true once getedgefront.com serves HTTPS
 RATE_LIMIT_PER_MINUTE=120                # web: per-IP limit on /api/*
 BACKUP_S3_ENDPOINT / _BUCKET / _ACCESS_KEY_ID / _SECRET_ACCESS_KEY / _REGION, BACKUP_PREFIX  # backup service
+# v2 Phase 7 (accounts) — web unless noted; owner steps in infra/auth-setup.md
+DATABASE_URL (web too)                   # web reads/writes only schema `auth` (search_path=auth)
+BETTER_AUTH_SECRET=                      # 🔒 signs sessions + email links
+BETTER_AUTH_URL=http://localhost:3000    # public origin
+GOOGLE_CLIENT_ID= / GOOGLE_CLIENT_SECRET=  # 🔒 secret; Google button hidden when unset
+RESEND_API_KEY=                          # 🔒 unset locally → console; on Railway unset = error, never console
+EMAIL_FROM=EdgeFront <no-reply@getedgefront.com>
+INTERNAL_API_TOKEN=                      # 🔒 web + api, same value
+AUTH_EXTRA_TRUSTED_ORIGINS=              # optional
+# tests only, never on Railway: EMAIL_OUTBOX_FILE, E2E_FAKE_GOOGLE_URL (refused off localhost/on Railway), AUTH_TEST_IP_LIMIT_SCALE
 ```
 Per-service lists, secrets and Railway reference variables: `infra/railway.md` §4. `DATABASE_URL` may be Railway's `postgresql://…`; settings rewrite it to `postgresql+psycopg://`.
 
@@ -569,6 +582,17 @@ A signed-in user without a subscription is a free user.
 ### V2.8 Open items (owner)
 Q31–Q34 in §14.
 
+### V2.9 As built (Phase 7: accounts)
+- **Stack:** Better Auth 1.7.28 inside Next.js (`/api/auth/*`), Kysely adapter on `pg` (Postgres, `search_path=auth`) or `node:sqlite` locally; tables from Alembic 0007 (§7). Pages `/signin` (Sign in / Create account tabs, `?mode=signup`), `/check-email`, `/verify-email`, `/reset-password`, `/account`. `getViewer()` (server) → `{user, tier: anonymous|free, sessionCreatedAt, fresh}`; never `premium` before Phase 8.
+- **Passwords:** scrypt (Better Auth default), 10–128 characters (code points), refused if in a 9,978-entry common list (SecLists, MIT, 10+ chars, lowercased; server-only, checked at sign-up, reset and change).
+- **No enumeration:** sign-in errors are one generic message; sign-up always shows "check your email" — for an existing address nothing is created and an "you already have an account" email is sent instead (same response shape and timing path); reset and resend always answer the same.
+- **Linking:** only to verified emails (Better Auth `requireLocalEmailVerified`); Google never links to an unconfirmed password account (`account_not_linked` → explained on /signin). Last sign-in method can't be removed.
+- **Sessions:** 30 days rolling (refreshed daily), HttpOnly/SameSite=Lax/Secure in prod; revoked on password reset, on password change (other devices) and by "Sign out of all devices". Deletion needs a session younger than 10 min, else the password (or Google re-auth for Google-only accounts).
+- **Rate limits** (stored in `auth.rateLimit`, survive deploys): per IP — sign-in 10/min, sign-up 10/h, reset 10/h, resend 10/h, reset-confirm 20/h, change-password 10/h, delete 5/h, get-session 600/min, others 100/min; per email (SHA-256 key) — sign-in 10/15 min, sign-up 3/h, reset 3/h, resend 3/h. Generic "Too many attempts".
+- **Data minimisation:** Google avatar URL and OAuth tokens are dropped before saving; logs carry no addresses, tokens or links.
+- **Header:** fixed 228×40 px slot rendered blank until the client session is known (no "Sign in → avatar" flash): signed out "Sign in" + "Start free trial" (→ /pricing); signed in "FREE" + initials menu (Account, Sign out). Header-caused layout shift measured 0 on /, /pricing, /station (e2e). /pricing CTA: signed out → `/signin?next=%2Fpricing`, signed in → disabled "Coming soon" (Phase 8). `?next=` is same-site paths only (`safeNext`).
+- **Deviations / notes:** no restricted DB role (infra/auth-setup.md §4: Railway manages one user; schema separation instead); no staging (real Google tested by hand on localhost while the consent screen is in Testing; revisit Phase 11); the delete-account copy is as designed and **flagged for the owner's lawyer**; Better Auth's email confirmation uses signed links (not stored) while reset tokens use `auth.verification`; the v1 home status strip shifts layout when it wraps (pre-existing, not the header; see Phase 7 report).
+
 ---
 
 ## 14. Open questions (owner)
@@ -628,3 +652,4 @@ Q31–Q34 in §14.
 - 2026-11-26 — **Owner decisions:** the 48-hour production health run before review is **dropped** (launch checklist item B9-1 waived); `phase-6-deploy` merged into `main` (fast-forward to `915b0a1`, CI green) so Railway builds every service from `main` as `infra/railway.md` describes. Phase 6 fixes now go to `main`, each green in CI first.
 - 2026-11-26: Prod Postgres is 18.7 (Railway template). Backup image and CI moved to Postgres 18 to match (`postgres:18.7-bookworm` pinned in the backup Dockerfile, CI, the restore drill and local docker-compose; restore-drill client tools `postgresql-client-18`).
 - 2026-11-26 — **v2 (Premium launch) planned:** `CONTEXT_v2` added as section V2; v1 passages it supersedes are marked (tiers, "no accounts", hidden Sign in). v2 mockups in `design/v2/` (Pricing, SignIn, Account, StationPremium, Map). Q34 checked against raw METARs: real temperature rise, no bug. Phase 7 (accounts) on branch `v2-phase-7-accounts`, waiting for the owner's "go".
+- 2026-11-26 — **Phase 7 (accounts) built** on `v2-phase-7-accounts` (owner "go" with additions: no enumeration on sign-up, fixed header placeholder, trusted origins incl. localhost/Railway/apex/www, trial button → /pricing, no staging, restricted role skipped if impractical). Done: Alembic 0007 `auth` schema; Better Auth (Google + email/password) with the rules in V2.9; Resend emails (verify, reset 1 h, password changed, account deleted, existing account) with console/file fallback locally; pages /signin, /check-email, /verify-email, /reset-password, /account; header states; FastAPI `X-Internal-Token` on `/api/v1/internal/*`; docs `infra/auth-setup.md`, `docs/privacy-data-inventory.md`. Tests: Vitest 94 (+ auth units), Playwright 64 (auth 13 flows × 1440/375 with a fake Google and an email outbox file), Lighthouse /signin and /account: a11y 100, best practices 100, CLS 0. CI: new `auth` job on Postgres 18.7 (deploy_db, Better Auth schema drift check, auth e2e on Postgres, secret value not in bundle). Nothing deployed.

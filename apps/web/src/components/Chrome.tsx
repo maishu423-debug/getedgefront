@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { HeaderAccount } from "./HeaderAccount";
+
 export function LockIcon({ size = 10 }: { size?: number }) {
   return (
     <svg
@@ -80,6 +82,7 @@ export function Header({ active }: { active?: "stations" | "pricing" | "sources"
           >
             Pricing
           </Link>
+          <HeaderAccount />
         </nav>
       </div>
     </header>
