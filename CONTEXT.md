@@ -330,7 +330,7 @@ Built in Phase 1 as Alembic revisions `0001` (source_health) + `0002` (everythin
 
 All responses include `generated_at` and, per block, `source` + times. Errors distinguish "no data yet" (200, `status: "no_data"`) from "upstream down" (`status: "stale"` with `last_success_at`).
 
-**v2:** `/api/v1/internal/*` is for the web server only (Premium data from Phase 9): it requires header `X-Internal-Token` = `INTERNAL_API_TOKEN` (constant-time compare) and fails closed with 403 when the token is unset. Only `GET /api/v1/internal/ping` exists in Phase 7. Accounts live in the web app (`/api/auth/*`, Better Auth), not in FastAPI.
+**v2:** `/api/v1/internal/*` is for the web server only (Premium data from Phase 9): it requires header `X-Internal-Token` = `INTERNAL_API_TOKEN` (constant-time compare) and fails closed with 403 when the token is unset. Phase 7: `GET /api/v1/internal/ping`. Phase 9 adds `GET /api/v1/internal/stations/{id}/hf?hours=6|24`, `/stations/{id}/hf-current` and `/map` (5-minute data, `Cache-Control: private, no-store`). Accounts live in the web app (`/api/auth/*`, Better Auth), not in FastAPI.
 
 | Endpoint | Returns |
 |---|---|
@@ -517,6 +517,11 @@ STRIPE_PORTAL_CONFIGURATION_ID=          # bpc_
 STRIPE_TAX_ENABLED=false                 # automatic_tax in Checkout
 STRIPE_MANAGED_PAYMENTS=true             # Stripe/Link merchant of record (owner decision 2026-11-27); "false" opts out
 BILLING_TEST_ALLOWLIST=                  # test mode only: emails / @domains allowed to start Checkout (empty = nobody)
+# v2 Phase 9 (5-minute HFMETAR) — worker; owner steps in infra/ldm/README.md
+HF_INGEST_ENABLED=false                  # the hfmetar job runs only when true
+LDM_API_BASE_URL=                        # https://ldm.getedgefront.com (https only)
+MADIS_API_TOKEN=                         # 🔒 madis-api bearer token
+HF_POLL_SECONDS=60 / HF_MAX_FILES_PER_RUN=6 / HF_BACKFILL_HOURS=24 / HF_STALE_MINUTES=15 (also api)
 # tests only: E2E_FAKE_STRIPE_URL (refused off localhost/on Railway)
 ```
 Per-service lists, secrets and Railway reference variables: `infra/railway.md` §4. `DATABASE_URL` may be Railway's `postgresql://…`; settings rewrite it to `postgresql+psycopg://`.
@@ -575,6 +580,7 @@ A signed-in user without a subscription is a free user.
 - **Worker job** (`hfmetar`): poll `/api/v1/hfmetar/files` every 60–90 s; download only files whose `modified_at` changed; gunzip and parse the netCDF (**field names from a real file**, `ncdump -h`, recorded in `docs/formats/hfmetar.md`); keep registry stations only; upsert `hf_observations` keyed by (station, observed_at) with the provider QC flags; revisions update the row and store a hash.
 - **Retention:** 7 days of 5-minute data.
 - **Latency:** record `observed_at`, the file's `modified_at` and our `fetched_at`/`ingested_at`; publish P50/P95 age on `/status`.
+- **Built (Phase 9):** tables `hf_observations` (PK station_id + observed_at; values snapped to the verified grid, whole °C; `qc` jsonb as provided plus `off_grid`; first-seen `source_file`/`file_modified_at`/`fetched_at`/`ingested_at`; `row_hash` of values; `revision` bumps only on a value change) and `hf_files` (name, modified_at, size: change detection), migration 0010; 7-day retention (files log 4 days). Worker job `hfmetar` (`edgefront_worker/hfmetar.py`, scipy netCDF reader, in memory): /health → file list → changed files newest first (max 6 per run, 24 h backfill) → upsert. QC-failed = temperature descriptor X/Q/B: stored, left out of the 5-minute high/low, counted (`excluded_qc_count`). Alerts are log lines (`hfmetar alert: ldm_health | no_new_readings`). `/status` has an `hfmetar` block (last file, last reading, P50/P95 per stage and station over 6 h, stations reporting in 30 min, rounding check) outside `sources`, so the public strip and `/api/health` are unchanged.
 - **Rights check:** before charging for it, confirm MADIS's terms for redistributing HFMETAR (ASOS) data and record the verdict and source URL in `docs/sources.md`.
 
 ### V2.6 Phases (v2)
@@ -682,4 +688,5 @@ Q31–Q34 in §14.
 - 2026-11-27 — **Phase 8 (billing, Stripe test mode)** in progress on `v2-phase-8-billing`: migration 0008, webhook mirror, entitlement, checkout/portal, account and pricing states, fake-Stripe e2e (see V2.10). Waiting for the owner's Stripe test key for the manual test-clock run.
 - 2026-11-27 — **Phase 8 merged and live** (PR #4, production in Stripe **test** mode with `BILLING_TEST_ALLOWLIST`). Owner smoke test passed (4242 checkout → PREMIUM + trial; non-listed account sees "Premium is coming soon"). Verified from Stripe: production webhook endpoint enabled (7 events, API `2026-11-18.endive`), the test subscription `trialing` with Managed Payments, all its webhooks delivered (`pending_webhooks: 0`). Managed Payments ON (Link merchant of record, statement `LINK.COM* EDGEFRONT`), prices tax-exclusive ($20 + tax), tax code `txcd_10000000`.
 - 2026-11-27 — **Phase 9 (5-minute HFMETAR)** started on `v2-phase-9-hfmetar`: LDM/Caddy guide (`infra/ldm/`), rights check (MADIS: "1-minute ASOS", category 3 public, no restrictions), Resend DNS update (CNAME `send`/`rsend`, DMARC → quarantine ~2026-12-11).
+- 2026-11-28 — **Phase 9 B4–B8 built** on `v2-phase-9-hfmetar`: migration 0010 (`hf_observations`, `hf_files`), retention 7 days, worker job `hfmetar` behind `HF_INGEST_ENABLED` (off by default), 5-minute high/low so far with QC exclusions, internal endpoints `/hf`, `/hf-current`, `/map`, `/status` `hfmetar` block incl. the ongoing rounding check. Tests use the real cropped fixtures, including the real rewrite (3 new rows, QC-only changes, 0 value revisions). One full real file: ~0.3 s and ~57 MB peak to parse.
 - 2026-11-27 — **Phase 9 B6/B9 (done before the real 5-minute file):** METAR `low_so_far` (6-hour minimum groups inside the day) on the board and `/current`; structured temperatures `{c, f_exact, f_rounded, f_possible, precision, source, observed_at}`; rounding changed to the **NWS rule** (FMH-1 §2.6.3, floor(x+0.5), integer maths) from "half away from zero" (differs only for negative °F at exactly .5, i.e. below −17.8 °C); shared vectors `packages/core/tests/fixtures/temp_cases.json` run by Python and TypeScript. **Q36:** 27 of 28 stations measure in whole °F (every T-group value within ±0.09 °F of a whole °F, 3,031 reports; 18 % expected by chance); KBKF measures in °C → `stations.native_temp_unit` (migration 0009) + weekly drift check (worker, Mondays 10:00 UTC). ASOS °F→tenths °C is nearest (3,031/3,031); METAR body whole °C = NWS half-up of the T-group (3,121/3,125; the 4 exceptions are KSDF reports with the `$` maintenance flag). Free UI: station cards (current, high, new low) with "62.96 °F unrounded · 17.2 °C" (whole °C: "· reading 62–63 °F"); board High/Low so far "at 2:53 PM · 62.96°"; /sources paragraph.

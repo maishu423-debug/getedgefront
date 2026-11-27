@@ -13,6 +13,7 @@ dependencies = [
   "cfgrib>=0.9.15.1",
   "xarray>=2026.9.0",
   "numpy>=2.5.5",
+  "scipy>=1.18.1",  # netCDF-3 reader for HFMETAR (v2 Phase 9)
 ]
 
 [build-system]

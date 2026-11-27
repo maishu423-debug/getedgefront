@@ -23,10 +23,12 @@ EXPECTED_TABLES = {
     "model_values",
     "model_run_stations",
     "source_health",
+    "hf_observations",  # v2 Phase 9
+    "hf_files",
 }
 
 
-def test_all_v1_tables_exist_and_no_hf_observations(engine: Engine) -> None:
+def test_all_tables_exist(engine: Engine) -> None:
     insp = inspect(engine)
     tables = set(insp.get_table_names()) - {"alembic_version"}
     if engine.dialect.name == "postgresql":
@@ -35,7 +37,6 @@ def test_all_v1_tables_exist_and_no_hf_observations(engine: Engine) -> None:
         assert set(insp.get_table_names(schema="billing")) == BILLING_TABLES  # Stripe mirror
     else:  # SQLite has no schemas: the web app's tables sit next to ours
         assert tables == EXPECTED_TABLES | AUTH_TABLES | BILLING_TABLES
-    assert "hf_observations" not in tables  # Premium (v2), never in v1
 
 
 def test_migrations_match_models(engine: Engine) -> None:

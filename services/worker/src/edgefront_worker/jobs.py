@@ -24,6 +24,7 @@ from edgefront_core.retention import run_retention
 from edgefront_core.settings import get_settings
 from edgefront_core.timeutil import utcnow
 from edgefront_worker.grib.ingest import GribModelIngest
+from edgefront_worker.hfmetar import HfmetarIngest
 
 log = logging.getLogger("edgefront.worker.jobs")
 
@@ -49,6 +50,28 @@ def metar_job(factory: sessionmaker[Session]) -> None:
             run_metar_ingest(factory, client)
     except Exception:  # already logged + recorded in source_health by run_metar_ingest
         log.warning("metar job ended with an error", extra={"source": "metar"})
+
+
+class HfmetarJob:
+    """v2 Phase 9: one long-lived client for the LDM API (keep-alive, 60 s cadence)."""
+
+    def __init__(self) -> None:
+        s = get_settings()
+        self.client: httpx.Client = make_client(timeout=30)
+        self.ingest = HfmetarIngest(
+            self.client,
+            s.ldm_api_base_url,
+            s.madis_api_token,
+            max_files=s.hf_max_files_per_run,
+            backfill_hours=s.hf_backfill_hours,
+            stale_minutes=s.hf_stale_minutes,
+        )
+
+    def __call__(self, factory: sessionmaker[Session]) -> None:
+        try:
+            self.ingest.run(factory)
+        except Exception:
+            log.exception("hfmetar job failed", extra={"source": "hfmetar"})
 
 
 class ProductJobs:

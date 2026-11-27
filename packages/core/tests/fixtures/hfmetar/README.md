@@ -18,5 +18,5 @@ removed, measured values never changed, QC letters/words revised for earlier row
 Regenerate (originals are not committed; ~1.2 MB each):
 
 ```sh
-uv run --with scipy python -I packages/core/tests/fixtures/hfmetar/make_fixture.py <src.gz>... packages/core/tests/fixtures/hfmetar
+uv run python -I packages/core/tests/fixtures/hfmetar/make_fixture.py <src.gz>... packages/core/tests/fixtures/hfmetar
 ```

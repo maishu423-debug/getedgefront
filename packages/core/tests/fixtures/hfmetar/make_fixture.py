@@ -1,6 +1,6 @@
 """Crop real MADIS HFMETAR files to EdgeFront's stations (v2 Phase 9 B2 fixture).
 
-    uv run --with scipy python -I packages/core/tests/fixtures/hfmetar/make_fixture.py <src.gz>... <out_dir>
+    uv run python -I packages/core/tests/fixtures/hfmetar/make_fixture.py <src.gz>... <out_dir>
 
 Keeps only our registry stations and the variables the ingest reads, in the same netCDF-3
 layout (names, types, units, fill values), gzip-compressed like the originals.
@@ -16,10 +16,36 @@ from pathlib import Path
 import numpy as np
 from scipy.io import netcdf_file
 
-OURS = set(
-    "KNYC KLGA KBOS KPHL KDCA KATL KCLT KJAX KMIA KDTW KMDW KORD KMSP KBNA KSDF KAUS "
-    "KSAT KHOU KDAL KDFW KOKC KDEN KBKF KPHX KLAS KLAX KSFO KSEA".split()
-)
+OURS = {
+    "KNYC",
+    "KLGA",
+    "KBOS",
+    "KPHL",
+    "KDCA",
+    "KATL",
+    "KCLT",
+    "KJAX",
+    "KMIA",
+    "KDTW",
+    "KMDW",
+    "KORD",
+    "KMSP",
+    "KBNA",
+    "KSDF",
+    "KAUS",
+    "KSAT",
+    "KHOU",
+    "KDAL",
+    "KDFW",
+    "KOKC",
+    "KDEN",
+    "KBKF",
+    "KPHX",
+    "KLAS",
+    "KLAX",
+    "KSFO",
+    "KSEA",
+}
 VALUES = ["temperature", "dewpoint", "altimeter", "windDir", "windSpeed", "windGust",
           "visibility", "precipAccum"]  # fmt: skip
 KEEP = ["stationId", "dataProvider", "observationTime", "receivedTime", "reportTime"] + [

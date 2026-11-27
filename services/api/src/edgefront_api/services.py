@@ -11,7 +11,7 @@ from itertools import pairwise
 from typing import Literal, cast
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from edgefront_api import daily
@@ -25,9 +25,24 @@ from edgefront_core.climate import (
     low_so_far,
     standard_offset,
 )
+from edgefront_core.hf_store import SOURCE as HF_SOURCE
+from edgefront_core.hf_store import (
+    StageStats,
+    latency_report,
+    rounding_check,
+    stations_reporting,
+)
 from edgefront_core.metar_ingest import SOURCE as METAR_SOURCE
 from edgefront_core.metar_ingest import SOURCE_LABEL as METAR_LABEL
-from edgefront_core.models import DailyHighEvent, MetarReport, SourceHealth, Station, StationVenue
+from edgefront_core.models import (
+    DailyHighEvent,
+    HfFile,
+    HfObservation,
+    MetarReport,
+    SourceHealth,
+    Station,
+    StationVenue,
+)
 from edgefront_core.settings import Settings
 from edgefront_core.sources import known_sources
 from edgefront_core.units import (
@@ -531,4 +546,49 @@ def status(session: Session, now: datetime, settings: Settings) -> s.StatusRespo
                 and (now - last_ok).total_seconds() <= src.unhealthy_after_seconds,
             )
         )
-    return s.StatusResponse(generated_at=now, sources=out)
+    return s.StatusResponse(generated_at=now, sources=out, hfmetar=hf_status(session, now))
+
+
+def _stage(v: StageStats) -> s.HfStageOut:
+    return s.HfStageOut(count=v.count, p50_s=v.p50_s, p95_s=v.p95_s)
+
+
+def hf_status(session: Session, now: datetime) -> s.HfStatusOut:
+    """v2 Phase 9 B8: the 5-minute pipeline on /status (a block of its own, not in `sources`)."""
+    h = session.get(SourceHealth, HF_SOURCE)
+    f = session.scalars(select(HfFile).order_by(HfFile.processed_at.desc()).limit(1)).first()
+    last = session.scalar(select(func.max(HfObservation.observed_at)))
+    active = list(session.scalars(select(Station.id).where(Station.active).order_by(Station.id)))
+    reporting = [sid for sid in stations_reporting(session, now, 30) if sid in set(active)]
+    lat = latency_report(session, now, hours=6)
+    rc = rounding_check(session, now - timedelta(days=7))
+    return s.HfStatusOut(
+        last_success_at=utc(h.last_success_at) if h and h.last_success_at else None,
+        last_error_at=utc(h.last_error_at) if h and h.last_error_at else None,
+        last_file=s.HfFileOut(
+            name=f.name,
+            modified_at=utc(f.modified_at),
+            processed_at=utc(f.processed_at),
+            our_rows=f.our_rows,
+        )
+        if f
+        else None,
+        last_reading_at=utc(last) if last else None,
+        stations_reporting_30m=reporting,
+        stations_missing_30m=[sid for sid in active if sid not in set(reporting)],
+        latency=s.HfLatencyOut(
+            window_hours=lat.window_hours,
+            rows=lat.rows,
+            excluded_late=lat.excluded_late,
+            **{k: _stage(v) for k, v in lat.overall.items()},
+            per_station={
+                sid: {k: _stage(v) for k, v in st.items()} for sid, st in lat.per_station.items()
+            },
+        ),
+        rounding_check=s.HfRoundingCheckOut(
+            pairs=rc.pairs,
+            matches=rc.matches,
+            mismatches=len(rc.mismatches),
+            mismatch_examples=[f"{m['station']} {m['observed_at']}" for m in rc.mismatches[:5]],
+        ),
+    )

@@ -162,7 +162,16 @@ Railway → `worker` → Variables (then Deploy):
 |---|---|
 | `LDM_API_BASE_URL` | `https://ldm.getedgefront.com` |
 | `MADIS_API_TOKEN` | the token (step 4) 🔒 |
-| `HF_INGEST_ENABLED` | `false` until I say the job is ready |
+| `HF_INGEST_ENABLED` | `false` until the Phase 9 PR is merged and deployed, then `true` |
+
+Optional (defaults shown): `HF_POLL_SECONDS=60`, `HF_MAX_FILES_PER_RUN=6`, `HF_BACKFILL_HOURS=24`,
+`HF_STALE_MINUTES=15`. The worker refuses to start the job without a token or with an `http://`
+URL (logged as `hfmetar job not started`); the other jobs keep running.
+
+What to look for in the worker logs after switching it on: one `hfmetar ingest` line per minute
+(`files_processed`, `count_new`, `count_revised`, `duration_ms`, `process_peak_rss_mb`). Alerts
+are log lines starting `hfmetar alert:` (`ldm_health`, `no_new_readings`), repeated hourly while
+they last, and `hfmetar alert resolved:` when they clear.
 
 ## Rollback (if anything goes wrong)
 

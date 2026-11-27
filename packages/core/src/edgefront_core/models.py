@@ -1,4 +1,4 @@
-"""ORM models for CONTEXT.md §7 (v1). `hf_observations` is Premium (v2) and deliberately absent.
+"""ORM models for CONTEXT.md §7 (v1) plus the v2 tables (`hf_observations`, `hf_files`: Phase 9).
 
 Portable types: JSON becomes JSONB on Postgres; BigInteger ids become INTEGER on SQLite so
 autoincrement works in the local/test database.
@@ -392,3 +392,56 @@ class SourceHealth(Base):
     last_error: Mapped[str | None] = mapped_column(Text)
     last_item_time: Mapped[datetime | None] = _ts()
     notes: Mapped[str | None] = mapped_column(Text)
+
+
+# ---------------------------------------------------------------- v2 Phase 9: 5-minute data
+
+
+class HfObservation(Base):
+    """One 5-minute observation from MADIS "1-minute ASOS" (HFMETAR), registry stations only.
+
+    Values are converted back to the units the station reports in and snapped to their verified
+    grid (docs/formats/hfmetar.md): temperature/dew point whole °C, wind whole kt, altimeter
+    0.01 inHg. A value more than 0.01 off its grid is kept as is and flagged in `qc`
+    ("off_grid"), never guessed. Missing stays null. Retention: 7 days.
+    """
+
+    __tablename__ = "hf_observations"
+
+    station_id: Mapped[str] = mapped_column(
+        ForeignKey("stations.id", ondelete="CASCADE"), primary_key=True
+    )
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
+    temp_c: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    temp_precision: Mapped[str | None] = mapped_column(String(8))  # whole_c | tenths_c | off_grid
+    dewpt_c: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    wind_dir_deg: Mapped[int | None] = mapped_column(Integer)
+    wind_kt: Mapped[int | None] = mapped_column(Integer)
+    gust_kt: Mapped[int | None] = mapped_column(Integer)
+    altim_inhg: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    vis_mi: Mapped[Decimal | None] = mapped_column(Numeric(7, 4))  # 1/16 mi steps
+    precip_in: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    # Per variable, as provided: {"temperature": {"dd": "V", "qca": 1023, "qcr": 0}, ...}
+    qc: Mapped[Any | None] = mapped_column(JsonType)
+    source_file: Mapped[str] = mapped_column(String(40))  # first file the reading appeared in
+    received_at: Mapped[datetime | None] = _ts()  # MADIS receivedTime
+    file_modified_at: Mapped[datetime | None] = _ts()  # modified_at of that first file version
+    fetched_at: Mapped[datetime] = _ts(nullable=False)  # when we first downloaded it
+    ingested_at: Mapped[datetime] = _ts(nullable=False)  # first stored
+    updated_at: Mapped[datetime] = _ts(nullable=False)  # last value or QC change
+    row_hash: Mapped[str] = mapped_column(String(64))  # sha256 of the values (not QC)
+    revision: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class HfFile(Base):
+    """The HFMETAR files we have processed: a file is downloaded again only when its
+    (modified_at, size) changes."""
+
+    __tablename__ = "hf_files"
+
+    name: Mapped[str] = mapped_column(String(40), primary_key=True)  # hfmetar.YYYYMMDD_HH00.gz
+    modified_at: Mapped[datetime] = _ts(nullable=False)
+    size_bytes: Mapped[int] = mapped_column(BigInteger)
+    processed_at: Mapped[datetime] = _ts(nullable=False)
+    records: Mapped[int] = mapped_column(Integer)  # all stations in the file
+    our_rows: Mapped[int] = mapped_column(Integer)  # registry stations

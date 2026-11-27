@@ -37,6 +37,16 @@ class Settings(BaseSettings):
     # Empty = every internal request is refused.
     internal_api_token: str = ""
 
+    # v2 Phase 9: 5-minute HFMETAR from the owner's LDM API (infra/ldm/README.md). Off until the
+    # owner flips HF_INGEST_ENABLED after the deploy; the token only ever goes over HTTPS.
+    hf_ingest_enabled: bool = False
+    ldm_api_base_url: str = ""  # e.g. https://ldm.getedgefront.com
+    madis_api_token: str = ""
+    hf_poll_seconds: int = 60
+    hf_max_files_per_run: int = 6  # newest first; a first-run backfill spreads over a few runs
+    hf_backfill_hours: int = 24
+    hf_stale_minutes: int = 15  # alert: no new 5-minute reading for this long while /health ok
+
     @field_validator("database_url")
     @classmethod
     def _sqlalchemy_url(cls, v: str) -> str:

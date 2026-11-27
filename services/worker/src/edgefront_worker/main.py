@@ -14,7 +14,13 @@ from edgefront_core.logs import configure_logging
 from edgefront_core.settings import get_settings
 from edgefront_core.timeutil import utcnow
 from edgefront_worker.heartbeat import heartbeat
-from edgefront_worker.jobs import ProductJobs, metar_job, native_unit_job, retention_job
+from edgefront_worker.jobs import (
+    HfmetarJob,
+    ProductJobs,
+    metar_job,
+    native_unit_job,
+    retention_job,
+)
 from edgefront_worker.lock import hold_worker_lock
 
 log = logging.getLogger("edgefront.worker")
@@ -87,6 +93,24 @@ def build_scheduler() -> BlockingScheduler:
             next_run_time=start + timedelta(seconds=delay),  # stagger the first runs
             misfire_grace_time=300,
         )
+    if settings.hf_ingest_enabled:
+        try:
+            hf = HfmetarJob()
+        except ValueError as exc:  # missing token / non-HTTPS URL: refuse, keep the rest running
+            log.error("hfmetar job not started", extra={"source": "hfmetar", "error": str(exc)})
+        else:
+            scheduler.add_job(
+                hf,
+                "interval",
+                seconds=settings.hf_poll_seconds,
+                jitter=10,
+                args=[factory],
+                id="hfmetar",
+                next_run_time=start + timedelta(seconds=30),
+                misfire_grace_time=60,
+            )
+    else:
+        log.info("hfmetar job off (HF_INGEST_ENABLED=false)", extra={"source": "hfmetar"})
     return scheduler
 
 

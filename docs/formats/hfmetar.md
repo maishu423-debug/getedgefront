@@ -35,13 +35,13 @@ METAR observations" and has "no metar quality control" (`madis_metar.shtml`).
 | `stationId` (char[6]) | — | ICAO, e.g. `KDFW` | `station_id` (registry stations only) |
 | `observationTime` (double) | s since 1970-01-01 UTC | **every 5 min, :00…:55** | `observed_at` |
 | `receivedTime` (double) | s since 1970 | ~2.4 min after obs | (latency) |
-| `temperature` (float32) | kelvin | **whole °C** (8,048/8,048) | `temp_c`, `temp_precision = whole` |
+| `temperature` (float32) | kelvin | **whole °C** (8,048/8,048) | `temp_c`, `temp_precision = whole_c` |
 | `dewpoint` (float32) | kelvin | **whole °C** (8,048/8,048) | `dewpt_c` |
 | `windDir` (float32) | degree | multiples of 10° (2,471/2,471) | `wind_dir_deg` |
 | `windSpeed` (float32) | m/s | **whole knots** (2,471/2,471) | `wind_kt` |
 | `windGust` (float32) | m/s | whole knots (304/304) | `gust_kt` |
 | `altimeter` (float32) | pascal | **0.01 inHg** (2,450/2,450) | `altim_inhg` |
-| `visibility` (float32) | meter | statute miles (10, 9, 4 …) | `vis_mi` |
+| `visibility` (float32) | meter | statute miles, 1/16 steps (10, 9, 4 …) | `vis_mi` |
 | `precipAccum` (float32) | mm | 0.01 in (0.254 mm steps) | `precip_in` |
 | `<var>DD`, `<var>QCA`, `<var>QCR` | char, int | see QC | `qc` (jsonb, as provided) |
 

@@ -291,3 +291,45 @@ def test_billing_schema_tables_constraints_and_cascade(db_url: str, engine: Engi
     assert "billing" not in schemas
     assert "auth" in schemas
     upgrade("head", database_url=db_url)
+
+
+def test_hf_observations_types_cascade_and_downgrade(db_url: str, engine: Engine) -> None:
+    """v2 Phase 9 B4: qc is jsonb, values numeric, PK (station_id, observed_at); deleting a
+    station removes its 5-minute rows; downgrading 0010 drops both tables (up → down → up)."""
+    insp = inspect(engine)
+    cols = {c["name"]: c for c in insp.get_columns("hf_observations")}
+    assert cols["qc"]["type"].__class__.__name__ == "JSONB"
+    assert cols["temp_c"]["type"].__class__.__name__ == "NUMERIC"
+    assert getattr(cols["observed_at"]["type"], "timezone", None) is True
+    assert insp.get_pk_constraint("hf_observations")["constrained_columns"] == [
+        "station_id", "observed_at",
+    ]  # fmt: skip
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO stations (id, name, city, state, tz) "
+            "VALUES ('KTST', 'T', 'x', 'TX', 'America/Chicago')"
+        ))  # fmt: skip
+        c.execute(text(
+            "INSERT INTO hf_observations (station_id, observed_at, temp_c, qc, source_file, "
+            "fetched_at, ingested_at, updated_at, row_hash) VALUES ('KTST', now(), 17, "
+            "'{\"temperature\": {\"dd\": \"V\"}}', 'f', now(), now(), now(), 'h')"
+        ))  # fmt: skip
+        dd = c.execute(text("SELECT qc->'temperature'->>'dd' FROM hf_observations")).scalar()
+        assert dd == "V"
+        assert c.execute(text("SELECT revision FROM hf_observations")).scalar() == 0
+    with pytest.raises(IntegrityError), engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO hf_observations (station_id, observed_at, source_file, fetched_at, "
+            "ingested_at, updated_at, row_hash) SELECT station_id, observed_at, 'f', now(), "
+            "now(), now(), 'h' FROM hf_observations"
+        ))  # fmt: skip
+    with engine.begin() as c:
+        c.execute(text("DELETE FROM stations WHERE id = 'KTST'"))
+        assert c.execute(text("SELECT count(*) FROM hf_observations")).scalar() == 0
+    downgrade("0009", database_url=db_url)
+    left = set(inspect(engine).get_table_names())
+    assert "hf_observations" not in left
+    assert "hf_files" not in left
+    assert "stations" in left
+    upgrade("head", database_url=db_url)
+    assert "hf_files" in inspect(engine).get_table_names()
