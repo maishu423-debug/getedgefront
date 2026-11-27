@@ -28,7 +28,9 @@ const arg = (name) => {
 };
 const key = process.env.STRIPE_SECRET_KEY ?? "";
 if (!key.startsWith("sk_test_") && !key.startsWith("rk_test_")) {
-  console.error("Set STRIPE_SECRET_KEY to a TEST-mode key (sk_test_… or rk_test_…). Live mode is Phase 11.");
+  console.error(
+    "Set STRIPE_SECRET_KEY to a TEST-mode key (sk_test_… or rk_test_…). Live mode is Phase 11.",
+  );
   process.exit(2);
 }
 const site = (arg("site") ?? "https://getedgefront.com").replace(/\/+$/, "");
@@ -54,7 +56,9 @@ const prices = await stripe.prices.list({ lookup_keys: [LOOKUP_KEY], active: tru
 let price = prices.data[0];
 if (price) {
   const ok = price.currency === "usd" && price.recurring?.interval === "month";
-  console.log(`✓ price ${price.id} ${price.unit_amount / 100} ${price.currency}/${price.recurring?.interval}${ok ? "" : "  ⚠ not USD monthly"}`);
+  console.log(
+    `✓ price ${price.id} ${price.unit_amount / 100} ${price.currency}/${price.recurring?.interval}${ok ? "" : "  ⚠ not USD monthly"}`,
+  );
 } else {
   price = await stripe.prices.create({
     product: product.id,
@@ -112,7 +116,9 @@ if (webhookUrl) {
   const existing = endpoints.data.find((e) => e.url === webhookUrl);
   if (existing) {
     await stripe.webhookEndpoints.update(existing.id, { enabled_events: EVENTS, disabled: false });
-    console.log(`✓ webhook ${existing.id} → ${webhookUrl} (events updated, API ${existing.api_version})`);
+    console.log(
+      `✓ webhook ${existing.id} → ${webhookUrl} (events updated, API ${existing.api_version})`,
+    );
     console.log("  Its signing secret was shown when it was created; Stripe can't show it again.");
     console.log("  Lost it? Dashboard → Developers → Webhooks → the endpoint → Roll secret.");
   } else {
