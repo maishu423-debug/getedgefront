@@ -22,6 +22,7 @@ from edgefront_core.climate import (
     climate_day_bounds,
     effective_reports,
     high_so_far,
+    low_so_far,
     standard_offset,
 )
 from edgefront_core.metar_ingest import SOURCE as METAR_SOURCE
@@ -29,7 +30,13 @@ from edgefront_core.metar_ingest import SOURCE_LABEL as METAR_LABEL
 from edgefront_core.models import DailyHighEvent, MetarReport, SourceHealth, Station, StationVenue
 from edgefront_core.settings import Settings
 from edgefront_core.sources import known_sources
-from edgefront_core.units import c_to_f_display, compass_point, rh_percent
+from edgefront_core.units import (
+    TempValue,
+    c_to_f_display,
+    compass_point,
+    metar_temp_value,
+    rh_percent,
+)
 
 GAP_MINUTES = 90
 FRESH_HIGH_MINUTES = 60
@@ -153,6 +160,7 @@ class RV:
     temp_c: Decimal | None
     temp_precision: str | None
     max6h_c: Decimal | None
+    min6h_c: Decimal | None
 
     @classmethod
     def of(cls, r: MetarReport) -> RV:
@@ -165,6 +173,7 @@ class RV:
             r.temp_c,
             r.temp_precision,
             r.max6h_c,
+            r.min6h_c,
         )
 
 
@@ -198,6 +207,20 @@ def metar_brief(r: RV, now: datetime) -> s.MetarBrief:
         temp_c=_num(r.temp_c),
         temp_f=c_to_f_display(r.temp_c),
         temp_precision=_precision(r.temp_precision),
+        temp=_temp_out(metar_temp_value(r.temp_c, r.temp_precision, r.observed_at))
+        if r.temp_c is not None
+        else None,
+    )
+
+
+def _temp_out(t: TempValue) -> s.TempValueOut:
+    return s.TempValueOut(
+        c=float(t.c),
+        f_exact=float(t.f_exact),
+        f_rounded=t.f_rounded,
+        precision=t.precision,
+        source=t.source,
+        observed_at=t.observed_at,
     )
 
 
@@ -243,10 +266,34 @@ def _high_out(reports: list[RV], st: Station, now: datetime) -> s.HighSoFarOut |
         value_c=float(h.value_c),
         value_f=c_to_f_display(h.value_c),
         precision=_precision(h.precision),
-        kind=h.kind,
+        kind="max6h" if h.kind == "max6h" else "report",
         report_id=h.report_id,
         report_type=_rtype(src.report_type),
         observed_at=h.observed_at,
+        temp=_temp_out(
+            metar_temp_value(h.value_c, h.precision, h.observed_at, six_hour=h.kind == "max6h")
+        ),
+    )
+
+
+def _low_out(reports: list[RV], st: Station, now: datetime) -> s.LowSoFarOut | None:
+    b = basis(st)
+    start, end = climate_day_bounds(climate_date(now, st.tz, b), st.tz, b)
+    lo = low_so_far(reports, start, end)
+    if lo is None:
+        return None
+    src = next(r for r in reports if r.id == lo.report_id)
+    return s.LowSoFarOut(
+        value_c=float(lo.value_c),
+        value_f=c_to_f_display(lo.value_c),
+        precision=_precision(lo.precision),
+        kind="min6h" if lo.kind == "min6h" else "report",
+        report_id=lo.report_id,
+        report_type=_rtype(src.report_type),
+        observed_at=lo.observed_at,
+        temp=_temp_out(
+            metar_temp_value(lo.value_c, lo.precision, lo.observed_at, six_hour=lo.kind == "min6h")
+        ),
     )
 
 
@@ -308,6 +355,7 @@ def board(
                 venues=venues.get(st.id, []),
                 latest=metar_brief(latest, now) if latest else None,
                 high_so_far=_high_out(reps, st, now),
+                low_so_far=_low_out(reps, st, now),
                 nws_today_high_f=daily.today_high_f(daily.latest_forecast(session, st.id), st, now),
                 is_stale=latest is None
                 or _age(now, latest.observed_at) > settings.stale_metar_minutes,
@@ -337,6 +385,7 @@ def current(session: Session, st: Station, now: datetime, settings: Settings) ->
         is_stale=status != "ok",
         latest=metar_out(latest, now) if latest else None,
         high_so_far=_high_out(reps, st, now),
+        low_so_far=_low_out(reps, st, now),
         climate_day=climate_day_out(st, now),
     )
 

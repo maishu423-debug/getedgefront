@@ -1,3 +1,5 @@
+import type { TempValue } from "./temp";
+
 /** API response types, hand-kept to match services/api/src/edgefront_api/schemas.py. */
 
 export type DataStatus = "ok" | "no_data" | "stale";
@@ -50,6 +52,8 @@ export interface MetarBrief {
   temp_c: number | null;
   temp_f: number | null;
   temp_precision: "tenths" | "whole" | null;
+  /** v2 Phase 9: exact and rounded */
+  temp?: TempValue | null;
 }
 
 export interface MetarOut extends MetarBrief {
@@ -83,6 +87,19 @@ export interface HighSoFar {
   report_id: number;
   report_type: ReportType;
   observed_at: string;
+  temp?: TempValue;
+}
+
+/** v2 Phase 9 B6: lowest METAR temperature of the climate day so far. */
+export interface LowSoFar {
+  value_c: number;
+  value_f: number;
+  precision: "tenths" | "whole" | null;
+  kind: "report" | "min6h";
+  report_id: number;
+  report_type: ReportType;
+  observed_at: string;
+  temp: TempValue;
 }
 
 export interface BoardRow {
@@ -98,6 +115,7 @@ export interface BoardRow {
   venues: VenueOut[];
   latest: MetarBrief | null;
   high_so_far: HighSoFar | null;
+  low_so_far?: LowSoFar | null;
   nws_today_high_f: number | null;
   is_stale: boolean;
   fresh_high: boolean;
@@ -150,6 +168,7 @@ export interface CurrentResponse {
   is_stale: boolean;
   latest: MetarOut | null;
   high_so_far: HighSoFar | null;
+  low_so_far?: LowSoFar | null;
   climate_day: ClimateDay;
 }
 

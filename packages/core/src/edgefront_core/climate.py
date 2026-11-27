@@ -6,6 +6,8 @@
 - High so far: max of (a) temperatures of every effective METAR/SPECI observed inside the day,
   and (b) 6-hour max groups whose 6-hour window lies entirely inside the day (a window ending
   exactly at `end` counts, Q12). Ties keep the earliest report.
+- Low so far (v2 Phase 9): the mirror image: min of the same report temperatures and of 6-hour
+  *minimum* groups (`2snTTT`) whose window lies entirely inside the day.
 - Corrections: a COR replaces the report it corrects (same station, time and type).
 """
 
@@ -88,10 +90,15 @@ def effective_reports[R: ReportLike](reports: Iterable[R]) -> list[R]:
     return sorted(best.values(), key=lambda r: (r.observed_at, r.id))
 
 
+class LowReportLike(ReportLike, Protocol):
+    @property
+    def min6h_c(self) -> Decimal | None: ...
+
+
 @dataclass(frozen=True)
 class Candidate:
     value_c: Decimal
-    kind: Literal["report", "max6h"]
+    kind: Literal["report", "max6h", "min6h"]
     precision: str | None
     report_id: int
     observed_at: datetime  # time of the report the value came from
@@ -123,6 +130,28 @@ def _best(cands: Sequence[Candidate]) -> Candidate | None:
 def high_so_far(reports: Iterable[ReportLike], start: datetime, end: datetime) -> Candidate | None:
     cands = [c for r in effective_reports(reports) for c in candidates(r, start, end)]
     return _best(cands)
+
+
+def low_candidates(r: LowReportLike, start: datetime, end: datetime) -> list[Candidate]:
+    out: list[Candidate] = []
+    if start <= r.observed_at < end and r.temp_c is not None:
+        out.append(Candidate(Decimal(r.temp_c), "report", r.temp_precision, r.id, r.observed_at))
+    if r.min6h_c is not None:
+        win = six_hour_window(r.observed_at)
+        if win is not None and win[0] >= start and win[1] <= end:
+            out.append(Candidate(Decimal(r.min6h_c), "min6h", "tenths", r.id, r.observed_at))
+    return out
+
+
+def low_so_far(
+    reports: Iterable[LowReportLike], start: datetime, end: datetime
+) -> Candidate | None:
+    """Lowest temperature of the climate day so far; ties keep the earliest report (then a
+    plain reading over a 6-hour group), like `high_so_far`."""
+    cands = [c for r in effective_reports(reports) for c in low_candidates(r, start, end)]
+    if not cands:
+        return None
+    return min(cands, key=lambda c: (c.value_c, c.observed_at, c.kind != "report"))
 
 
 @dataclass(frozen=True)

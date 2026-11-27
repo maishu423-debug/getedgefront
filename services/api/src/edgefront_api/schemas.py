@@ -51,6 +51,19 @@ class SkyLayerOut(BaseModel):
     type: str | None = None
 
 
+class TempValueOut(BaseModel):
+    """A temperature with both the exact and the whole-°F value (v2 Phase 9 B9)."""
+
+    c: float = Field(description="Degrees Celsius as reported")
+    f_exact: float = Field(description="°C * 9/5 + 32, not rounded")
+    f_rounded: int = Field(description="Whole °F, rounded half away from zero")
+    precision: Literal["tenths_c", "whole_c"] = Field(
+        description="'whole_c': only good to ±0.5 °C (±0.9 °F); show the uncertainty"
+    )
+    source: Literal["metar_tgroup", "metar_body", "metar_6h_group", "hfmetar"]
+    observed_at: datetime
+
+
 class MetarBrief(BaseModel):
     report_id: int
     report_type: Literal["METAR", "SPECI"]
@@ -59,6 +72,7 @@ class MetarBrief(BaseModel):
     temp_c: float | None
     temp_f: int | None
     temp_precision: Literal["tenths", "whole"] | None
+    temp: TempValueOut | None = Field(None, description="Current temperature, exact and rounded")
 
 
 class MetarOut(MetarBrief):
@@ -95,6 +109,23 @@ class HighSoFarOut(BaseModel):
     report_id: int
     report_type: Literal["METAR", "SPECI"]
     observed_at: datetime = Field(description="Observation time of the report it came from")
+    temp: TempValueOut | None = Field(None, description="The same value, exact and rounded")
+
+
+class LowSoFarOut(BaseModel):
+    """Lowest temperature of the climate day so far, from METAR (v2 Phase 9 B6)."""
+
+    value_c: float
+    value_f: int
+    precision: Literal["tenths", "whole"] | None
+    kind: Literal["report", "min6h"] = Field(
+        description="'report': a METAR/SPECI temperature; 'min6h': a 6-hour minimum group "
+        "whose window lies entirely inside the climate day"
+    )
+    report_id: int
+    report_type: Literal["METAR", "SPECI"]
+    observed_at: datetime = Field(description="Observation time of the report it came from")
+    temp: TempValueOut
 
 
 class StationMeta(BaseModel):
@@ -133,6 +164,7 @@ class BoardRow(BaseModel):
     venues: list[VenueOut]
     latest: MetarBrief | None
     high_so_far: HighSoFarOut | None
+    low_so_far: LowSoFarOut | None = None
     nws_today_high_f: int | None = Field(None, description="Filled from Phase 3 (NWS forecast)")
     is_stale: bool
     fresh_high: bool = Field(description="A new high was observed within the last 60 minutes")
@@ -162,6 +194,7 @@ class CurrentResponse(BaseModel):
     is_stale: bool
     latest: MetarOut | None
     high_so_far: HighSoFarOut | None
+    low_so_far: LowSoFarOut | None = None
     climate_day: ClimateDayOut
 
 
