@@ -189,9 +189,7 @@ test.describe("other pages", () => {
     });
   }
 
-  test("legal pages are marked as drafts; pricing has no email form", async ({
-    page,
-  }) => {
+  test("legal pages are marked as drafts; pricing has no email form", async ({ page }) => {
     await page.goto("/terms");
     await expect(page.getByText("Draft — pending legal review")).toBeVisible();
     await page.goto("/pricing");
