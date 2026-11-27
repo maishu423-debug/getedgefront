@@ -34,6 +34,8 @@ describe("security headers", () => {
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("upgrade-insecure-requests");
     expect(contentSecurityPolicy(false)).not.toContain("upgrade-insecure-requests");
+    // ignored (with a console warning) in report-only mode, so only sent when enforcing
+    expect(contentSecurityPolicy(true, false)).not.toContain("upgrade-insecure-requests");
   });
   it("defaults: report-only CSP, noindex, no HSTS", () => {
     vi.stubEnv("NODE_ENV", "production");

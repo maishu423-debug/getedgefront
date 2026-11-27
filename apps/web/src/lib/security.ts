@@ -8,7 +8,9 @@
  */
 import { cspMode, hstsEnabled, indexingEnabled } from "./deploy";
 
-export function contentSecurityPolicy(https: boolean): string {
+/** `upgrade-insecure-requests` only takes effect in an enforced policy (browsers ignore it, with a
+ * console warning, in report-only mode), so it is sent only when enforcing over HTTPS. */
+export function contentSecurityPolicy(https: boolean, enforce = true): string {
   return [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline'",
@@ -20,7 +22,7 @@ export function contentSecurityPolicy(https: boolean): string {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    ...(https ? ["upgrade-insecure-requests"] : []),
+    ...(https && enforce ? ["upgrade-insecure-requests"] : []),
     "report-uri /api/csp-report",
   ].join("; ");
 }
@@ -34,9 +36,9 @@ export function securityHeaders(https: boolean): Record<string, string> {
   };
   if (process.env.NODE_ENV === "production") {
     // `next dev` needs eval for fast refresh, so the policy is only sent by production builds.
-    const name =
-      cspMode() === "enforce" ? "Content-Security-Policy" : "Content-Security-Policy-Report-Only";
-    h[name] = contentSecurityPolicy(https);
+    const enforce = cspMode() === "enforce";
+    const name = enforce ? "Content-Security-Policy" : "Content-Security-Policy-Report-Only";
+    h[name] = contentSecurityPolicy(https, enforce);
   }
   if (hstsEnabled()) h["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
   if (!indexingEnabled()) h["X-Robots-Tag"] = "noindex, nofollow";
