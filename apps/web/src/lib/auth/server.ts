@@ -1,15 +1,18 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
-import { DatabaseSync } from "node:sqlite";
 
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
-import { genericOAuth } from "better-auth/plugins";
+import { customSession, genericOAuth } from "better-auth/plugins";
 import { Pool } from "pg";
 
+import { sqlStore } from "@/lib/billing/store";
+import { getStripe } from "@/lib/billing/stripe";
+import { billingSummary } from "@/lib/billing/summary";
 import { logJson } from "@/lib/deploy";
+import { sharedSqlite } from "@/lib/sqlite";
 
 import { COMMON_PASSWORDS } from "./common-passwords";
 import { sendEmail } from "./email";
@@ -35,15 +38,13 @@ function database() {
     });
   }
   if (url.startsWith("sqlite:///")) {
-    // Local dev and tests only. The API and worker share the file: wait for their write locks.
-    const db = new DatabaseSync(url.slice("sqlite:///".length));
-    db.exec("PRAGMA busy_timeout = 5000");
-    return db;
+    // Local dev and tests only: the one connection shared with billing (see lib/sqlite.ts).
+    return sharedSqlite(url.slice("sqlite:///".length));
   }
   throw new Error("DATABASE_URL must be a postgresql:// or sqlite:/// URL");
 }
 
-function siteUrl(): string {
+export function siteUrl(): string {
   return (
     process.env.BETTER_AUTH_URL ??
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -158,13 +159,45 @@ function ipScale(): number {
 
 // ---------------------------------------------------------------- deletion hook (Phase 8)
 
+/** Subscription statuses that still bill or grant access, so they must end with the account. */
+const LIVE_STATUSES = new Set(["trialing", "active", "past_due", "unpaid", "incomplete", "paused"]);
+
 /**
- * Runs before an account is deleted. TODO(Phase 8): cancel the user's Stripe subscription first
- * (and refuse the deletion if that fails) — billing does not exist yet. Kept as one named hook so
- * the Phase 8 change and its test have an obvious home.
+ * Runs before an account is deleted: cancels every live subscription immediately through Stripe
+ * (no further charges), and refuses the deletion if that fails. The Stripe customer itself is
+ * kept in Stripe for invoices and the law; our billing rows go with the account (FK cascade).
  */
 export async function beforeAccountDeletion(user: { id: string; email: string }): Promise<void> {
-  void user; // Phase 8: look up and cancel this user's subscription
+  const subs = (await sqlStore().subscriptionsOf(user.id)).filter((s) =>
+    LIVE_STATUSES.has(s.status),
+  );
+  if (!subs.length) return;
+  try {
+    const stripe = getStripe();
+    for (const s of subs) {
+      try {
+        await stripe.subscriptions.cancel(s.id, {}, { idempotencyKey: `delete-account:${s.id}` });
+      } catch (err) {
+        // Already gone or already canceled at Stripe: fine. Anything else: stop.
+        const code = (err as { code?: string }).code;
+        if (code !== "resource_missing") throw err;
+      }
+    }
+    logJson("info", "subscriptions canceled for account deletion", {
+      user_ref: ref(user.id),
+      count: subs.length,
+    });
+  } catch (err) {
+    logJson("error", "account deletion blocked: subscription cancel failed", {
+      user_ref: ref(user.id),
+      error: err instanceof Error ? err.message : "unknown",
+    });
+    throw new APIError("BAD_GATEWAY", {
+      message:
+        "We couldn't cancel your subscription, so your account was not deleted. Please try again in a minute.",
+      code: "SUBSCRIPTION_CANCEL_FAILED",
+    });
+  }
 }
 
 const NO_OAUTH_TOKENS = {
@@ -337,7 +370,17 @@ function build() {
       }),
     },
 
-    plugins: [...plugins, nextCookies()], // nextCookies must stay last
+    plugins: [
+      ...plugins,
+      // Phase 8: the session also says what the user's plan is (computed on the server from
+      // billing.subscriptions), so the header and pricing CTA need no extra request.
+      customSession(async ({ user, session }) => ({
+        user,
+        session,
+        billing: await billingSummary(user.id),
+      })),
+      nextCookies(), // must stay last
+    ],
   });
 }
 

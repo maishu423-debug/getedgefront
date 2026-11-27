@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
-import { LockIcon, PageShell } from "@/components/Chrome";
+import { PageShell } from "@/components/Chrome";
+import { PremiumPrice } from "@/components/billing/PremiumPrice";
 import { PricingCta } from "@/components/PricingCta";
+import { TRIAL_REMINDER_DAYS } from "@/lib/billing/entitlement";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "EdgeFront Free and Premium. Free is available now; Premium (5-minute data, live map) is coming later.",
+    "EdgeFront Free and Premium. Free needs no account; Premium adds 5-minute ASOS data and a live station map, with a 7-day free trial.",
   alternates: { canonical: "/pricing" },
 };
 
@@ -71,8 +74,8 @@ export default function PricingPage() {
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-[36px] font-bold tracking-[-0.02em]">Pricing</h1>
           <p className="max-w-2xl text-text-2">
-            EdgeFront Free is available now, with no account needed. Premium adds high-frequency
-            data and a live map; it is not available yet.
+            Free gives you the official hourly reports. Premium adds the 5-minute ASOS readings and
+            a live map of every settlement station.
           </p>
         </div>
 
@@ -88,17 +91,19 @@ export default function PricingPage() {
             </Link>
           </div>
           <div className="flex flex-col gap-3 rounded-[16px] border border-[#F0DDB8] bg-[#FFFBF4] p-6">
-            <h2 className="flex items-center gap-2 font-display text-xl font-semibold">
-              Premium
-              <span className="inline-flex items-center gap-1 rounded-full bg-premium-bg px-2 py-[3px] text-[10px] font-semibold tracking-[.06em] text-premium-text">
-                <LockIcon />
-                COMING SOON
-              </span>
-            </h2>
-            <p className="text-sm text-text-2">
-              5-minute ASOS data, a live station map and more sources.
-            </p>
+            <span className="self-start rounded-full bg-premium-bg px-2.5 py-[3px] text-[10px] font-semibold tracking-[.06em] text-premium-text">
+              7-DAY FREE TRIAL
+            </span>
+            <h2 className="font-display text-xl font-semibold">Premium</h2>
+            <Suspense fallback={<span aria-hidden className="block min-h-[84px]" />}>
+              <PremiumPrice />
+            </Suspense>
             <PricingCta />
+            <p className="text-[12.5px] leading-relaxed text-muted-2">
+              Card required. You won&apos;t be charged if you cancel before the trial ends;
+              we&apos;ll email you {TRIAL_REMINDER_DAYS} days before it does. Prices in USD; sales
+              tax may apply depending on your location.
+            </p>
           </div>
         </div>
 

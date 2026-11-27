@@ -39,9 +39,9 @@ test.describe("accounts", () => {
     await signIn(page, email);
     await expect(page).toHaveURL(/\/$/);
     await expectSignedIn(page);
-    // signed in, the trial can't start yet (billing is Phase 8)
+    // signed in with a confirmed email: the trial can start (Phase 8, see billing.spec.ts)
     await page.goto("/pricing");
-    await expect(page.getByRole("button", { name: "Coming soon" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Start 7-day free trial" })).toBeEnabled();
   });
 
   test("sign-up never reveals an existing email", async ({ page }, info) => {
@@ -216,7 +216,7 @@ test.describe("accounts", () => {
       const res = await page.goto(p);
       expect(res?.status()).toBe(200);
     }
-    await expect(page.getByRole("link", { name: "Start free trial" }).last()).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Start 7-day free trial" })).toHaveAttribute(
       "href",
       "/signin?next=%2Fpricing",
     );

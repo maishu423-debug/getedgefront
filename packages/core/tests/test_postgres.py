@@ -238,3 +238,56 @@ def test_auth_schema_tables_and_cascade(db_url: str, engine: Engine) -> None:
             "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'auth'"
         )).scalar() == 0  # fmt: skip
     upgrade("head", database_url=db_url)
+
+
+def test_billing_schema_tables_constraints_and_cascade(db_url: str, engine: Engine) -> None:
+    """v2 Phase 8: the Stripe mirror lives in schema `billing`; one Stripe customer per user,
+    event ids are unique, a deleted account takes its billing rows with it; downgrading 0008
+    removes the schema and leaves `auth` in place."""
+    insp = inspect(engine)
+    assert set(insp.get_table_names(schema="billing")) == {
+        "customers", "subscriptions", "webhook_events",
+    }  # fmt: skip
+    cols = {c["name"]: c for c in insp.get_columns("subscriptions", schema="billing")}
+    assert cols["current_period_end"]["type"].__class__.__name__ == "TIMESTAMP"
+    assert cols["cancel_at_period_end"]["type"].__class__.__name__ == "BOOLEAN"
+    with engine.begin() as c:
+        c.execute(text(
+            'INSERT INTO auth."user" (id, name, email, "emailVerified", "createdAt", "updatedAt") '
+            "VALUES ('u1', 'A', 'a@example.org', true, now(), now())"
+        ))  # fmt: skip
+        c.execute(text(
+            "INSERT INTO billing.customers (user_id, stripe_customer_id, created_at) "
+            "VALUES ('u1', 'cus_1', now())"
+        ))  # fmt: skip
+        c.execute(text(
+            "INSERT INTO billing.subscriptions (stripe_subscription_id, user_id, "
+            "stripe_customer_id, status, updated_at) "
+            "VALUES ('sub_1', 'u1', 'cus_1', 'trialing', now())"
+        ))  # fmt: skip
+        c.execute(text(
+            "INSERT INTO billing.webhook_events (stripe_event_id, type, received_at) "
+            "VALUES ('evt_1', 'customer.subscription.created', now())"
+        ))  # fmt: skip
+        flag = c.execute(text("SELECT cancel_at_period_end FROM billing.subscriptions")).scalar()
+        assert flag is False
+    for dup in (
+        "INSERT INTO billing.webhook_events (stripe_event_id, type, received_at) "
+        "VALUES ('evt_1', 'x', now())",
+        "INSERT INTO billing.customers (user_id, stripe_customer_id, created_at) "
+        "VALUES ('u2', 'cus_1', now())",
+    ):
+        with pytest.raises(IntegrityError), engine.begin() as c:
+            c.execute(text(dup))
+    with engine.begin() as c:
+        c.execute(text("DELETE FROM auth.\"user\" WHERE id = 'u1'"))
+        assert c.execute(text("SELECT count(*) FROM billing.customers")).scalar() == 0
+        assert c.execute(text("SELECT count(*) FROM billing.subscriptions")).scalar() == 0
+        assert c.execute(text("SELECT count(*) FROM billing.webhook_events")).scalar() == 1
+    downgrade("0007", database_url=db_url)
+    with engine.connect() as c:
+        q = text("SELECT schema_name FROM information_schema.schemata")
+        schemas = set(c.execute(q).scalars())
+    assert "billing" not in schemas
+    assert "auth" in schemas
+    upgrade("head", database_url=db_url)

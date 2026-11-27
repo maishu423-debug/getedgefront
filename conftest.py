@@ -31,6 +31,7 @@ def db_url(tmp_path: Path) -> str:
         engine = make_engine(url)
         with engine.begin() as conn:
             conn.execute(text("DROP SCHEMA public CASCADE"))
+            conn.execute(text("DROP SCHEMA IF EXISTS billing CASCADE"))  # v2 billing (0008)
             conn.execute(text("DROP SCHEMA IF EXISTS auth CASCADE"))  # v2 accounts (0007)
             conn.execute(text("CREATE SCHEMA public"))
         engine.dispose()

@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { HeaderAccount } from "./HeaderAccount";
+import { PastDueBanner } from "./billing/PastDueBanner";
+import { ProPill } from "./billing/ProPill";
 import { LockIcon } from "./LockIcon";
 import { MobileMenu } from "./MobileMenu";
 
@@ -51,10 +53,7 @@ export function Header({ active }: { active?: "stations" | "pricing" | "sources"
           </Link>
           <Link href="/pricing" className={`${navLink} gap-1.5`}>
             Map
-            <span className="inline-flex items-center gap-1 rounded-full bg-premium-bg px-[7px] py-[3px] text-[10px] font-semibold tracking-[.05em] text-premium-text">
-              <LockIcon />
-              PRO
-            </span>
+            <ProPill />
           </Link>
           <Link
             href="/sources"
@@ -153,6 +152,7 @@ export function PageShell({
       <Header active={active} />
       {children}
       <Footer iem={iem} ecmwf={ecmwf} />
+      <PastDueBanner />
     </>
   );
 }

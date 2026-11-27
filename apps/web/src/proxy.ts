@@ -28,7 +28,9 @@ function withHeaders(res: NextResponse, request: NextRequest): NextResponse {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/api/")) {
+  // Stripe's webhook is exempt: every request is signature-checked, and Stripe sends bursts
+  // (e.g. many events at once when a subscription renews) from a few shared addresses.
+  if (pathname.startsWith("/api/") && pathname !== "/api/stripe/webhook") {
     const ip = clientIp(request.headers);
     const v = hit(ip, Date.now(), rateLimitPerMinute());
     if (!v.ok) {

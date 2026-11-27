@@ -189,19 +189,19 @@ test.describe("other pages", () => {
     });
   }
 
-  test("legal pages are marked as drafts; pricing has no prices or email form", async ({
+  test("legal pages are marked as drafts; pricing has no email form", async ({
     page,
   }) => {
     await page.goto("/terms");
     await expect(page.getByText("Draft — pending legal review")).toBeVisible();
     await page.goto("/pricing");
-    // v2 Phase 7: signed out, the CTA leads to sign-in (checkout is Phase 8)
-    await expect(page.getByRole("link", { name: "Start free trial" }).last()).toHaveAttribute(
+    // v2: signed out, the CTA leads to sign-in, then back here (checkout: billing.spec.ts).
+    // The price itself comes from Stripe (v2 Phase 8), so it is no longer absent.
+    await expect(page.getByRole("link", { name: "Start 7-day free trial" })).toHaveAttribute(
       "href",
       "/signin?next=%2Fpricing",
     );
     await expect(page.locator('input[type="email"]')).toHaveCount(0);
-    await expect(page.getByText(/\$\d/)).toHaveCount(0);
   });
 
   test("sitemap lists every station", async ({ request }) => {

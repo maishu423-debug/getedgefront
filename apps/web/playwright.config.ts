@@ -14,12 +14,19 @@ export default defineConfig({
   timeout: 45_000,
   // Failed and retried tests keep a trace and a screenshot (uploaded as CI artifacts).
   use: { baseURL, trace: "retain-on-failure", screenshot: "only-on-failure" },
-  // Accounts tests sign in with Google against this local fake (never real Google).
-  webServer: {
-    command: "node e2e/fake-google.mjs",
-    url: "http://localhost:4455/health",
-    reuseExistingServer: true,
-  },
+  // Local fakes, never the real services: Google sign-in (accounts) and Stripe (billing).
+  webServer: [
+    {
+      command: "node e2e/fake-google.mjs",
+      url: "http://localhost:4455/health",
+      reuseExistingServer: true,
+    },
+    {
+      command: "node e2e/fake-stripe.mjs",
+      url: "http://localhost:4466/health",
+      reuseExistingServer: true,
+    },
+  ],
   projects: [
     {
       name: "desktop-1440",
