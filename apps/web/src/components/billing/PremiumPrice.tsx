@@ -25,7 +25,7 @@ export async function PremiumPrice() {
         <span className="text-sm text-text-2">per {p.interval}</span>
       </div>
       <span className="text-sm text-text-2">
-        Free for 7 days, then {short}/{p.interval}. Cancel anytime.
+        Free for 7 days, then {short}/{p.interval} plus tax where applicable. Cancel anytime.
       </span>
     </div>
   );

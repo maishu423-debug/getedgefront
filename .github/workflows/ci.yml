@@ -101,6 +101,7 @@ jobs:
       STRIPE_SECRET_KEY: sk_test_ci_fake_placeholder
       STRIPE_PRICE_ID: price_e2e_premium
       STRIPE_WEBHOOK_SECRET: whsec_e2e_secret
+      BILLING_TEST_ALLOWLIST: "@example.org" # test accounts only; @example.net checks the gate
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6

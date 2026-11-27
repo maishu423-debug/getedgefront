@@ -88,6 +88,7 @@ describe("viewerFromSession", () => {
       currentPeriodEnd: "2026-12-03T12:00:00.000Z",
       trialEligible: false,
       billingEnabled: true,
+      checkoutAllowed: true,
     };
     expect(viewerFromSession({ ...base, billing: summary }, now).tier).toBe("premium");
     expect(viewerFromSession({ ...base, billing: { ...summary, tier: "free" } }, now).tier).toBe(

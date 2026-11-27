@@ -14,6 +14,8 @@ export interface BillingSummary {
   trialEligible: boolean;
   /** Stripe is configured on this server (else checkout is unavailable). */
   billingEnabled: boolean;
+  /** This user may start Checkout (test mode: only allow-listed emails; see allowlist.ts). */
+  checkoutAllowed: boolean;
 }
 
 export const FREE_SUMMARY: BillingSummary = {
@@ -24,4 +26,5 @@ export const FREE_SUMMARY: BillingSummary = {
   currentPeriodEnd: null,
   trialEligible: true,
   billingEnabled: false,
+  checkoutAllowed: false,
 };

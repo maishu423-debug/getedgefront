@@ -7,6 +7,7 @@ import {
   trialEligible,
   type SubscriptionSnapshot,
 } from "./entitlement";
+import { checkoutAllowed, parseAllowlist, testModeGate } from "./allowlist";
 import { formatDay, formatMoney } from "./format";
 import type { BillingStore } from "./store";
 import { billingConfig, e2eFakeStripeUrl, STRIPE_API_VERSION } from "./stripe";
@@ -174,7 +175,9 @@ describe("config and safety", () => {
   });
   it("tax collection is a config flag", () => {
     expect(billingConfig({ STRIPE_SECRET_KEY: "sk_test_x", STRIPE_PRICE_ID: "p", STRIPE_TAX_ENABLED: "true" })?.taxEnabled).toBe(true);
-    expect(billingConfig({ STRIPE_SECRET_KEY: "sk_test_x", STRIPE_PRICE_ID: "p" })?.managedPayments).toBe(false);
+    // Managed Payments (Stripe/Link as merchant of record) is on unless explicitly turned off
+    expect(billingConfig({ STRIPE_SECRET_KEY: "sk_test_x", STRIPE_PRICE_ID: "p" })?.managedPayments).toBe(true);
+    expect(billingConfig({ STRIPE_SECRET_KEY: "sk_test_x", STRIPE_PRICE_ID: "p", STRIPE_MANAGED_PAYMENTS: "false" })?.managedPayments).toBe(false);
   });
   it("the fake Stripe is local-only", () => {
     expect(e2eFakeStripeUrl({})).toBeNull();
@@ -439,3 +442,27 @@ describe("webhook handling", () => {
     expect(sent).toEqual(["u1"]);
   });
 });
+
+describe("test-mode allowlist (BILLING_TEST_ALLOWLIST)", () => {
+  const test = { STRIPE_SECRET_KEY: "sk_test_x" };
+  it("parses addresses and domains, separated by commas or spaces", () => {
+    expect(parseAllowlist(" Owner@Example.com, @team.example.org  qa@x.io ")).toEqual(["owner@example.com", "@team.example.org", "qa@x.io"]);
+    expect(parseAllowlist(undefined)).toEqual([]);
+  });
+  it("test mode: only listed emails or domains", () => {
+    const env = { ...test, BILLING_TEST_ALLOWLIST: "owner@example.com, @team.example.org" };
+    expect(checkoutAllowed("OWNER@example.com", env)).toBe(true);
+    expect(checkoutAllowed("anyone@team.example.org", env)).toBe(true);
+    expect(checkoutAllowed("someone@example.com", env)).toBe(false);
+    expect(checkoutAllowed("x@sub.team.example.org", env)).toBe(false); // exact domain only
+    expect(checkoutAllowed("owner@example.com.evil.io", env)).toBe(false);
+  });
+  it("test mode with no list: nobody", () => {
+    expect(checkoutAllowed("owner@example.com", test)).toBe(false);
+    expect(testModeGate(test)).toBe(true);
+  });
+  it("live mode (Phase 11): the list no longer applies", () => {
+    expect(checkoutAllowed("anyone@example.com", { STRIPE_SECRET_KEY: "sk_live_x" })).toBe(true);
+    expect(testModeGate({ STRIPE_SECRET_KEY: "rk_live_x" })).toBe(false);
+  });
+}); // prettier-ignore

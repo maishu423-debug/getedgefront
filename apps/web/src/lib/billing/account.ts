@@ -4,6 +4,7 @@ import type Stripe from "stripe";
 
 import { logJson } from "@/lib/deploy";
 
+import { checkoutAllowed } from "./allowlist";
 import { entitlementFrom, trialEligible, type Entitlement } from "./entitlement";
 import { CARD_BRANDS } from "./format";
 import { premiumPrice, type PremiumPrice } from "./price";
@@ -16,15 +17,22 @@ export interface AccountBilling {
   trialEligible: boolean;
   hasCustomer: boolean;
   billingEnabled: boolean;
+  checkoutAllowed: boolean;
   price: PremiumPrice | null;
   /** Read live from Stripe for display only; never stored (we keep ids, statuses, dates). */
   card: { brand: string; last4: string } | null;
   amountDue: { amount: number; currency: string } | null;
+  /** The next charge as Stripe previews it (tax included); null if Stripe didn't say. */
+  nextCharge: { total: number; tax: number; subtotal: number; currency: string } | null;
   failedAt: Date | null;
   nextAttempt: Date | null;
 }
 
-export async function accountBilling(userId: string, now = new Date()): Promise<AccountBilling> {
+export async function accountBilling(
+  userId: string,
+  email: string,
+  now = new Date(),
+): Promise<AccountBilling> {
   let enabled = false;
   try {
     enabled = billingConfig() !== null;
@@ -42,9 +50,11 @@ export async function accountBilling(userId: string, now = new Date()): Promise<
     trialEligible: trialEligible(customer?.trialUsedAt ?? null, subs),
     hasCustomer: customer !== null,
     billingEnabled: enabled,
+    checkoutAllowed: enabled && checkoutAllowed(email),
     price: enabled ? await premiumPrice() : null,
     card: null,
     amountDue: null,
+    nextCharge: null,
     failedAt: null,
     nextAttempt: null,
   };
@@ -63,6 +73,15 @@ export async function accountBilling(userId: string, now = new Date()): Promise<
       out.amountDue = { amount: inv.amount_due, currency: inv.currency };
       out.failedAt = inv.created ? new Date(inv.created * 1000) : null;
       out.nextAttempt = inv.next_payment_attempt ? new Date(inv.next_payment_attempt * 1000) : null;
+    }
+    if (entitlement.state === "trialing" || entitlement.state === "active") {
+      const preview = await getStripe().invoices.createPreview({ subscription: sub.id });
+      out.nextCharge = {
+        total: preview.total,
+        tax: (preview.total_taxes ?? []).reduce((n, t) => n + t.amount, 0),
+        subtotal: preview.subtotal,
+        currency: preview.currency,
+      };
     }
   } catch (err) {
     // The card details are a nicety: show the rest from our mirror.

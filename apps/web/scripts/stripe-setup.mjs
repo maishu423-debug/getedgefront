@@ -3,6 +3,7 @@
 //
 //   STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-setup.mjs \
 //     [--webhook-url https://getedgefront.com/api/stripe/webhook] [--site https://getedgefront.com]
+//     [--tax-code txcd_10000000]
 //
 // Prints the values to put in Railway (web): STRIPE_PRICE_ID, STRIPE_PORTAL_CONFIGURATION_ID and,
 // only when the webhook endpoint is created, STRIPE_WEBHOOK_SECRET (Stripe shows it once).
@@ -38,17 +39,26 @@ const webhookUrl = arg("webhook-url");
 const stripe = new Stripe(key, { apiVersion: API_VERSION, appInfo: { name: "EdgeFront setup" } });
 const out = [];
 
-// 1. Product
+// 1. Product, with a tax code eligible for Managed Payments (Stripe as merchant of record
+// requires one on every product). Default: "General – electronically supplied services";
+// your accountant may prefer a SaaS code (txcd_10103000 personal use / txcd_10103001 business).
+const TAX_CODE = arg("tax-code") ?? "txcd_10000000";
 const products = await stripe.products.list({ limit: 100, active: true });
 let product = products.data.find((p) => p.metadata?.edgefront_key === PRODUCT_KEY);
-if (product) console.log(`✓ product ${product.id} "${product.name}" exists`);
-else {
+if (product) {
+  const code = typeof product.tax_code === "string" ? product.tax_code : product.tax_code?.id;
+  if (code !== TAX_CODE) {
+    product = await stripe.products.update(product.id, { tax_code: TAX_CODE });
+    console.log(`✓ product ${product.id} "${product.name}" exists; tax code set to ${TAX_CODE}`);
+  } else console.log(`✓ product ${product.id} "${product.name}" exists (tax code ${code})`);
+} else {
   product = await stripe.products.create({
     name: "EdgeFront Premium",
     description: "5-minute ASOS data and a live map of every settlement station.",
+    tax_code: TAX_CODE,
     metadata: { edgefront_key: PRODUCT_KEY },
   });
-  console.log(`+ created product ${product.id}`);
+  console.log(`+ created product ${product.id} (tax code ${TAX_CODE})`);
 }
 
 // 2. Price (found by lookup key; the amount shown on the site is read from it)

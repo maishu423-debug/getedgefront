@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 import { PageShell } from "@/components/Chrome";
 import { PremiumPrice } from "@/components/billing/PremiumPrice";
-import { PricingCta } from "@/components/PricingCta";
+import { PremiumCta } from "@/components/billing/PremiumCta";
 import { TRIAL_REMINDER_DAYS } from "@/lib/billing/entitlement";
 
 export const metadata: Metadata = {
@@ -98,11 +98,14 @@ export default function PricingPage() {
             <Suspense fallback={<span aria-hidden className="block min-h-[84px]" />}>
               <PremiumPrice />
             </Suspense>
-            <PricingCta />
+            <Suspense fallback={<span aria-hidden className="block h-10 w-48" />}>
+              <PremiumCta />
+            </Suspense>
             <p className="text-[12.5px] leading-relaxed text-muted-2">
               Card required. You won&apos;t be charged if you cancel before the trial ends;
-              we&apos;ll email you {TRIAL_REMINDER_DAYS} days before it does. Prices in USD; sales
-              tax may apply depending on your location.
+              we&apos;ll email you {TRIAL_REMINDER_DAYS} days before it does. Prices in USD. Sales
+              tax is added at checkout where it applies, based on your billing address. Sold through
+              Link (Stripe), the seller of record for payments.
             </p>
           </div>
         </div>

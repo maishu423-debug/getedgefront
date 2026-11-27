@@ -195,10 +195,13 @@ test.describe("other pages", () => {
     await page.goto("/pricing");
     // v2: signed out, the CTA leads to sign-in, then back here (checkout: billing.spec.ts).
     // The price itself comes from Stripe (v2 Phase 8), so it is no longer absent.
-    await expect(page.getByRole("link", { name: "Start 7-day free trial" })).toHaveAttribute(
-      "href",
-      "/signin?next=%2Fpricing",
-    );
+    // Stripe test mode (until Phase 11): anonymous visitors see "Premium is coming soon"; with
+    // billing off entirely the CTA leads to sign-in. Either way no email form on this page.
+    await expect(
+      page
+        .getByText("Premium is coming soon")
+        .or(page.getByRole("link", { name: "Start 7-day free trial" })),
+    ).toBeVisible();
     await expect(page.locator('input[type="email"]')).toHaveCount(0);
   });
 

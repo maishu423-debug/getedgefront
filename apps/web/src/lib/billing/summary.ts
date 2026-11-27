@@ -2,6 +2,7 @@ import "server-only";
 
 import { logJson } from "@/lib/deploy";
 
+import { checkoutAllowed } from "./allowlist";
 import { entitlementFrom, trialEligible } from "./entitlement";
 import { sqlStore } from "./store";
 import { billingConfig } from "./stripe";
@@ -13,7 +14,11 @@ export { FREE_SUMMARY, type BillingSummary };
  * Computed on the server from billing.subscriptions only. If billing isn't configured or the
  * lookup fails, the user is Free (sign-in and the free site never depend on billing).
  */
-export async function billingSummary(userId: string, now = new Date()): Promise<BillingSummary> {
+export async function billingSummary(
+  userId: string,
+  email: string,
+  now = new Date(),
+): Promise<BillingSummary> {
   let enabled = false;
   try {
     enabled = billingConfig() !== null;
@@ -36,6 +41,7 @@ export async function billingSummary(userId: string, now = new Date()): Promise<
       currentPeriodEnd: s?.currentPeriodEnd?.toISOString() ?? null,
       trialEligible: trialEligible(customer?.trialUsedAt ?? null, subs),
       billingEnabled: enabled,
+      checkoutAllowed: enabled && checkoutAllowed(email),
     };
   } catch (err) {
     logJson("error", "billing summary failed", {

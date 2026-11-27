@@ -37,7 +37,7 @@ async function Content({ searchParams }: { searchParams: PageProps<"/account">["
   const viewer = await getViewer();
   if (!viewer.user) redirect("/signin?next=%2Faccount");
   const sp = await searchParams;
-  const billing = await accountBilling(viewer.user.id);
+  const billing = await accountBilling(viewer.user.id, viewer.user.email);
   // Back from Stripe Checkout: Premium appears only once the webhook has been mirrored.
   const activating = sp.checkout === "success" && billing.entitlement.tier !== "premium";
   const accounts = await getAuth().api.listUserAccounts({ headers: await headers() });

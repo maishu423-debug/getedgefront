@@ -31,6 +31,16 @@ export function SubscriptionCard({
     ? `Premium · ${formatMoney(price.unitAmount, price.currency, true)} / ${price.interval}`
     : "Premium";
   const cardText = card ? `${card.brand} •••• ${card.last4}` : "On file with Stripe";
+  // The next charge: Stripe's own preview (tax included) when we have it, else the price
+  // "plus any applicable tax" -- never a total we haven't been given.
+  const nc = billing.nextCharge;
+  const charge = nc
+    ? nc.tax > 0
+      ? `${formatMoney(nc.total, nc.currency)} (${formatMoney(nc.subtotal, nc.currency)} + ${formatMoney(nc.tax, nc.currency)} tax)`
+      : formatMoney(nc.total, nc.currency)
+    : amount
+      ? `${amount} plus any applicable tax`
+      : null;
   const day = (d: Date | null | undefined) => (d ? <LocalDay iso={d.toISOString()} /> : null);
   const manageNote =
     "Opens our secure payment page (Stripe) to update your card, see invoices or cancel.";
@@ -55,7 +65,7 @@ export function SubscriptionCard({
         <>
           Your trial ends on {day(s?.trialEnd)}.{" "}
           {card ? `Your card ending ${card.last4}` : "Your card"} will be charged
-          {amount ? ` ${amount}` : ""} then, unless you cancel before.
+          {charge ? ` ${charge}` : ""} then, unless you cancel before.
         </>
       ),
       facts: [
@@ -74,7 +84,7 @@ export function SubscriptionCard({
       detail: (
         <>
           Renews on {day(s?.currentPeriodEnd)}
-          {amount ? ` for ${amount}` : ""}.
+          {charge ? ` for ${charge}` : ""}.
         </>
       ),
       facts: [
@@ -149,16 +159,20 @@ export function SubscriptionCard({
       ],
       action: !billing.billingEnabled ? (
         <span className="text-sm text-muted">Subscriptions aren&apos;t available right now.</span>
+      ) : !billing.checkoutAllowed ? (
+        <span className="text-sm font-semibold text-muted">Premium is coming soon.</span>
       ) : !emailVerified ? (
         <VerifyEmailPrompt email={email} next="/account" />
       ) : (
         <CheckoutButton label={label} />
       ),
-      note: billing.trialEligible
-        ? "Card required for the trial. Cancel before it ends and you won't be charged."
-        : amount
-          ? `${amount} a month, starting today. Cancel anytime.`
-          : undefined,
+      note: !billing.checkoutAllowed
+        ? undefined
+        : billing.trialEligible
+          ? "Card required for the trial. Cancel before it ends and you won't be charged."
+          : amount
+            ? `${amount} a month plus any applicable tax, starting today. Cancel anytime.`
+            : undefined,
     };
   }
 

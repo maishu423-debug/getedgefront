@@ -158,8 +158,33 @@ test.describe("billing", () => {
 
   test("the price shown comes from Stripe", async ({ page }) => {
     await page.goto("/pricing");
-    await expect(page.getByText("Free for 7 days, then $20/month. Cancel anytime.")).toBeVisible();
-    await expect(page.getByText("Prices in USD; sales tax may apply")).toBeVisible();
+    await expect(
+      page.getByText("Free for 7 days, then $20/month plus tax where applicable. Cancel anytime."),
+    ).toBeVisible();
+    await expect(page.getByText(/Sales tax is added at checkout where it applies/)).toBeVisible();
+    await expect(
+      page.getByText(/Sold through Link \(Stripe\), the seller of record/),
+    ).toBeVisible();
+  });
+
+  test("test mode: only allow-listed emails may subscribe", async ({ page }) => {
+    // the test web server allow-lists @example.org only (BILLING_TEST_ALLOWLIST)
+    const email = `outsider-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.net`;
+    await page.goto("/pricing");
+    await expect(page.getByText("Premium is coming soon")).toBeVisible(); // signed out
+    await signUp(page, "Outsider", email);
+    await verify(page, email);
+    await page.goto("/pricing");
+    await expect(page.getByText("Premium is coming soon")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Start 7-day free trial" })).toHaveCount(0);
+    const res = await page.request.post("/api/billing/checkout", {
+      data: { clickId: "abcdefgh12" },
+      headers: { origin: "http://localhost:3000" },
+    });
+    expect(res.status()).toBe(403);
+    expect(await res.json()).toEqual({ code: "not_available" });
+    await page.goto("/account");
+    await expect(page.locator("[data-billing-state]")).toContainText("Premium is coming soon");
   });
 
   test("billing endpoints refuse bad requests", async ({ request }) => {

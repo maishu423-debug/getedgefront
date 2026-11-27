@@ -377,7 +377,7 @@ function build() {
       customSession(async ({ user, session }) => ({
         user,
         session,
-        billing: await billingSummary(user.id),
+        billing: await billingSummary(user.id, user.email),
       })),
       nextCookies(), // must stay last
     ],

@@ -216,10 +216,8 @@ test.describe("accounts", () => {
       const res = await page.goto(p);
       expect(res?.status()).toBe(200);
     }
-    await expect(page.getByRole("link", { name: "Start 7-day free trial" })).toHaveAttribute(
-      "href",
-      "/signin?next=%2Fpricing",
-    );
+    // Stripe test mode: anonymous visitors see "coming soon" (only allow-listed accounts subscribe)
+    await expect(page.getByText("Premium is coming soon")).toBeVisible();
   });
 
   test("header has no layout shift while the session loads", async ({ page }, info) => {

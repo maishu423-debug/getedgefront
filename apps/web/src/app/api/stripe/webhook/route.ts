@@ -44,11 +44,18 @@ export async function POST(req: Request) {
       const user = await ctx.internalAdapter.findUserById(userId);
       const price = sub.items.data[0]?.price;
       if (!user || !sub.trial_end || price?.unit_amount == null) return;
+      let amount = `${formatMoney(price.unit_amount, price.currency)} plus any applicable tax`;
+      try {
+        const preview = await getStripe().invoices.createPreview({ subscription: sub.id });
+        amount = formatMoney(preview.total, preview.currency); // what Stripe will charge, tax included
+      } catch {
+        // keep the price "plus any applicable tax"
+      }
       await sendEmail(
         T.trialEnding(
           user.email,
           formatDay(new Date(sub.trial_end * 1000), "UTC"),
-          formatMoney(price.unit_amount, price.currency),
+          amount,
           `${siteUrl()}/account`,
         ),
       );

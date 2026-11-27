@@ -32,6 +32,7 @@ export type BillingActionError =
   | "already_premium"
   | "billing_unavailable"
   | "no_customer"
+  | "not_available"
   | "failed";
 
 async function post(path: string, body: unknown): Promise<{ url?: string; code?: string }> {
@@ -86,5 +87,6 @@ export const BILLING_ERRORS: Record<BillingActionError, string> = {
   already_premium: "You're already on Premium.",
   billing_unavailable: "Subscriptions aren't available right now. Please try again later.",
   no_customer: "There's no billing account yet.",
+  not_available: "Premium is coming soon.",
   failed: "Something went wrong reaching our payment page. Please try again.",
 };

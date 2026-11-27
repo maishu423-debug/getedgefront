@@ -143,7 +143,7 @@ export const trialEnding = (to: string, when: string, amount: string, accountUrl
     "Your EdgeFront Premium trial ends soon",
     "Your free trial ends soon",
     [
-      `Your EdgeFront Premium trial ends on ${when}. Your card will then be charged ${amount} a month, unless you cancel before.`,
+      `Your EdgeFront Premium trial ends on ${when}. Your card will then be charged ${amount} for the first month, unless you cancel before.`,
       "To keep Premium, you don't need to do anything. To cancel, open your account page and choose Manage billing.",
     ],
     { label: "Manage billing", url: accountUrl },

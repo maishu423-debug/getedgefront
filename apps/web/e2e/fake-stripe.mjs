@@ -164,6 +164,25 @@ createServer(async (req, res) => {
       return reply(200, view(sub));
     }
   }
+  if (req.method === "POST" && p === "/v1/invoices/create_preview") {
+    const sub = subs.get(form.get("subscription"));
+    if (!sub)
+      return json(404, {
+        error: {
+          type: "invalid_request_error",
+          code: "resource_missing",
+          message: "No such subscription",
+        },
+      });
+    const amount = sub.items.data[0].price.unit_amount;
+    return json(200, {
+      object: "invoice",
+      subtotal: amount,
+      total_taxes: [],
+      total: amount,
+      currency: "usd",
+    });
+  }
   if (req.method === "POST" && p === "/v1/billing_portal/sessions") {
     const ps = {
       id: id("bps"),

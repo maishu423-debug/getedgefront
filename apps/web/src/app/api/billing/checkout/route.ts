@@ -1,5 +1,6 @@
 import { siteUrl } from "@/lib/auth/server";
 import { getViewer } from "@/lib/auth/viewer";
+import { checkoutAllowed } from "@/lib/billing/allowlist";
 import { trialEligible } from "@/lib/billing/entitlement";
 import { fromOurSite, json } from "@/lib/billing/http";
 import { sqlStore } from "@/lib/billing/store";
@@ -27,6 +28,8 @@ export async function POST(req: Request) {
   if (!user) return json({ code: "signed_out" }, 401);
   if (!user.emailVerified) return json({ code: "email_unverified" }, 403);
   if (viewer.tier === "premium") return json({ code: "already_premium" }, 409);
+  // Test mode (also production until Phase 11): only allow-listed emails may subscribe.
+  if (!checkoutAllowed(user.email)) return json({ code: "not_available" }, 403);
 
   const body = (await req.json().catch(() => ({}))) as { clickId?: unknown };
   const clickId = typeof body.clickId === "string" ? body.clickId : "";

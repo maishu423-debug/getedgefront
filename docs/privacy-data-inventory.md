@@ -59,7 +59,7 @@ sign in. No third-party or advertising cookies.
 | Who | What | Why |
 |---|---|---|
 | Google (OAuth) | the user's choice to sign in with Google; Google returns name, email, email-verified, account id | "Continue with Google" (scopes: openid, email, profile only) |
-| Stripe (payments, processor) | the account's email and name (on the Stripe customer), our user id (metadata), and everything entered in Stripe Checkout / Customer Portal (card, billing address) | subscriptions, invoices, trial reminders, failed-payment emails |
+| Stripe, selling through **Link** (merchant of record, Managed Payments) | the account's email and name (on the Stripe customer), our user id (metadata), and everything entered in Checkout / Customer Portal (card, billing address, used for sales tax) | Stripe/Link **sells** the subscription to the customer: payments, sales tax, receipts and invoices ("Sold through Link"), trial and renewal emails, payment support via Link, refunds and disputes. Customers also see their subscription in their Link account |
 | Resend (email delivery) | recipient email address and the email content (which includes one-time links) | sending account emails |
 | Railway (hosting) | everything above, as our database and server host; request metadata in platform logs | hosting |
 | Backup storage (Cloudflare R2 or Backblaze B2, owner's choice) | full database dumps, including the `auth` schema | disaster recovery; newest 14 daily + 8 weekly dumps kept, then deleted (infra/backup-restore.md). A deleted account can remain in backups until they age out (up to ~8 weeks) |
@@ -86,3 +86,24 @@ except the one-time email links, which are spent on use).
 - `billing.webhook_events` rows are not swept; a retention job can drop processed events older than e.g. 90 days.
 - Q31: the privacy policy itself, and the delete-account copy on `/account`, are for the
   owner's lawyer.
+
+## 6. Notes for the owner's lawyer (facts only, no legal text)
+
+- **Merchant of record:** since 2026-11-27 (owner decision), payments use Stripe **Managed
+  Payments**. Stripe sells the Premium subscription **through Link** as the merchant of record:
+  Checkout says "By subscribing, you agree to Link's Terms and Privacy Policy and authorize Link
+  to charge you … This subscription is provided by EdgeFront in accordance with their terms.
+  Sold through Link". Card statements read `LINK.COM* EDGEFRONT`; receipts and invoices come
+  from Link. The Terms and Privacy Policy need to reflect this (who sells, who charges, who
+  handles refunds, disputes and payment support, and that Link/Stripe receives the customer's
+  payment and billing data as an independent party).
+- **Sales tax** is calculated and collected by Stripe/Link on top of the price, from the billing
+  address; EdgeFront doesn't collect or file sales tax.
+- **Refunds:** Stripe may refund within 60 days in certain cases, and without EdgeFront's approval
+  if EdgeFront doesn't answer an escalation within 48 hours; regional cooling-off periods apply
+  where required. EdgeFront can also refund.
+- **Account deletion** cancels the subscription immediately at Stripe; Stripe keeps the customer,
+  invoices and payment records.
+- **Trial:** 7 days, card required, one per account; Stripe's and EdgeFront's reminder emails.
+- The delete-account copy on `/account` was already flagged for review in Phase 7.
+

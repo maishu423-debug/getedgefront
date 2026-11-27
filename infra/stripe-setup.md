@@ -4,6 +4,9 @@ What you (the owner) set up so Premium subscriptions work. Everything here is **
 until Phase 11: production also runs with test keys, so nobody can pay real money yet. The
 server refuses `sk_live_` keys unless `STRIPE_ALLOW_LIVE=true` (set only in Phase 11).
 
+**While in test mode only emails in `BILLING_TEST_ALLOWLIST` can start Checkout;** everyone else
+sees "Premium is coming soon". The list stops applying with a live key.
+
 Pinned Stripe API version: **`2026-11-18.endive`** (stripe-node 23.2.0). Free trial: Checkout
 `subscription_data.trial_period_days = 7` (Stripe's stable mechanism; "trial offers" are a private
 preview in Checkout), card always collected, one trial per account.
@@ -35,24 +38,62 @@ Make sure the Dashboard shows **Test mode** (toggle at the top) for every step.
    Premium with a "payment failed" notice.
    Emails (<https://dashboard.stripe.com/revenue_recovery/emails>): turn on **"Send emails when
    card payments fail"** and **"Send emails about expiring cards"**.
-4. **Stripe Tax, collection OFF** — Settings → Tax (<https://dashboard.stripe.com/settings/tax>)
-   → *Get started*: confirm the head office address and pick a preset product tax code (ask your
-   accountant; software-as-a-service codes are the usual choice). **Add no tax registrations**
-   (Tax → Locations): without one, Stripe calculates zero tax. EdgeFront's Checkout only asks Stripe
-   to calculate tax when `STRIPE_TAX_ENABLED=true`; it stays `false` until you decide otherwise.
-5. **Managed Payments and payment methods (found in the first real test run, 2026-11-27)**
-   - Your account has **Managed Payments** (Stripe as *merchant of record*: Stripe sells on your
-     behalf and handles sales tax) **on by default**. EdgeFront's design has EdgeFront as the
-     seller with Stripe Tax collection off, so every Checkout Session explicitly sends
-     `managed_payments[enabled]=false`. To switch to Managed Payments instead (a business, tax and
-     legal decision, with Stripe's own fees and terms), set `STRIPE_MANAGED_PAYMENTS=true`; tax is
-     then Stripe's and `STRIPE_TAX_ENABLED` is ignored. The account default is at Settings →
-     Managed Payments.
-   - **Payment methods** for Checkout are managed in the Dashboard (Settings → Payment methods;
-     this API version no longer takes a list in code). The test Checkout offered card, Apple Pay,
-     Google Pay, Link, Amazon Pay, Cash App Pay, Klarna and bank debit. The pricing copy says
-     "Card required": if that's what you want, turn off everything except **Cards** (Apple Pay
-     and Google Pay carry cards and can stay on).
+4. **Stripe Tax: leave it off.** With Managed Payments, Stripe (Link) is the merchant of record and
+   calculates, collects and remits sales tax itself; EdgeFront doesn't register or file anywhere.
+   (Stripe Tax would only matter in countries Managed Payments doesn't cover for tax; Japan
+   domestic sales and Singapore B2B are the listed exceptions, irrelevant for US customers.)
+5. **Managed Payments (owner decision 2026-11-27: ON) and payment methods**
+   - **What it means.** Stripe sells EdgeFront Premium *through Link* as the merchant of record.
+     Verified in test mode:
+     - Checkout is Link-branded and says "By subscribing, you agree to Link's Terms and Privacy
+       Policy and authorize Link to charge you … This subscription is provided by EdgeFront in
+       accordance with their terms. **Sold through Link**".
+     - **Tax is added on top of $20**, by billing address: Checkout shows "Subtotal $20.00 · Tax
+       (calculated from the address) · Total after trial". Test addresses gave $0.00 tax in New
+       York and $21.60–$22.11 totals in other states. Our price is tax-*exclusive*; this can't be
+       changed on an existing price (a new tax-inclusive price would make $20 the total).
+     - Card statements read `LINK.COM* EDGEFRONT`. Receipts and invoices come from Link ("Sold
+       through Link, LLC"), not from your Stripe receipt settings.
+     - The subscription webhooks, our account page (Stripe's own invoice preview gives the exact
+       next charge, tax included), the Customer Portal and API cancellation (account deletion) all
+       work unchanged.
+   - **Refunds, disputes, support** (Stripe's Managed Payments docs, "How it works"):
+     - Customers reach payment and subscription support through **Link support**, and can manage
+       their subscription, card and billing address on the **Link website**. You still handle
+       product questions, and can refund or update subscriptions yourself.
+     - Stripe can refund within 60 days "in certain cases" and may refund without your approval
+       if you don't answer a support escalation within **48 hours**. Refunds include the sales
+       tax.
+     - **Stripe handles disputes** (it may accept rather than fight one). A dispute fee applies
+       (see stripe.com/pricing). Managed Payments' own fee is on that page too; I couldn't read it.
+     - Keep the **support email** current (Settings → Business details): Stripe uses it for every
+       escalation.
+   - **Payment methods: Cards, Apple Pay, Google Pay and Link only (owner decision).** Managed
+     Payments chooses methods dynamically from Stripe-managed payment method configurations; the
+     API can't take a list. Your account has three, named **"Managed Payments Configuration 1",
+     "2" and "3"**. In **Settings → Payment methods**, open each of them (configuration picker at
+     the top) and turn **off** everything except **Cards, Apple Pay, Google Pay, Link**:
+     - **Cash App Pay** (it appeared in our US Checkout)
+     - **Klarna** and **Afterpay / Clearpay** (off by default for Managed Payments, but listed in
+       configuration 3)
+     - **Bancontact**, **Crypto**
+     - **Kakao Pay, Korean cards, Naver Pay, PAYCO, Samsung Pay**
+     Stripe notes that Managed Payments "controls the payment methods available" (support article
+     "Payment method configurations for Managed Payments"). If a switch can't be turned off, it's
+     a Managed Payments limit: tell me which one. After switching, open a test Checkout: it
+     should show only Card (plus Apple Pay / Google Pay / Link where the browser supports them).
+   - **Before live mode (Phase 11)**:
+     1. Activate Managed Payments in live mode (Settings → Managed Payments). Stripe runs an
+        **eligibility review**: digital products only, sold directly by you, from an eligible
+        country (US is).
+     2. Every product needs an **eligible tax code**. The setup script sets
+        `txcd_10000000` ("General – electronically supplied services"); ask your accountant
+        whether a SaaS code (`txcd_10103000` personal / `txcd_10103001` business use) fits better,
+        then re-run it with `--tax-code …`.
+     3. Keep the support email current, and answer Stripe's escalations within 48 h.
+     4. Checkout can't use a custom domain with Managed Payments.
+     5. Have your Terms and Privacy Policy reviewed (see `docs/privacy-data-inventory.md`, notes
+        for the lawyer).
 6. **API key** — Developers → API keys: copy the **test** secret key (`sk_test_…`). Better: create
    a *restricted* test key with write access to Products, Prices, Customers, Checkout Sessions,
    Subscriptions, Customer portal, Webhook endpoints and Test clocks.
@@ -67,8 +108,9 @@ Make sure the Dashboard shows **Test mode** (toggle at the top) for every step.
    ```
 
    It creates or verifies, and is safe to run again:
-   - Product **EdgeFront Premium** and a monthly price of **$20.00 USD** (lookup key
-     `edgefront_premium_monthly_usd`, tax exclusive).
+   - Product **EdgeFront Premium** with an eligible tax code (default `txcd_10000000`,
+     `--tax-code` to change) and a monthly price of **$20.00 USD** (lookup key
+     `edgefront_premium_monthly_usd`, tax exclusive: tax is added on top).
    - **Customer Portal** configuration: update payment method, invoice history, cancel at period
      end (with a reason), **no** plan switching or quantity changes, no email editing; returns to
      `/account`.
@@ -87,8 +129,8 @@ Make sure the Dashboard shows **Test mode** (toggle at the top) for every step.
    | `STRIPE_WEBHOOK_SECRET` | `whsec_…` from step 7 | 🔒 |
    | `STRIPE_PRICE_ID` | `price_…` from step 7 | |
    | `STRIPE_PORTAL_CONFIGURATION_ID` | `bpc_…` from step 7 | |
-   | `STRIPE_TAX_ENABLED` | `false` | |
-   | `STRIPE_MANAGED_PAYMENTS` | `false` (step 5) | |
+   | `STRIPE_MANAGED_PAYMENTS` | `true` (step 5; also the default) | |
+   | `BILLING_TEST_ALLOWLIST` | the emails allowed to subscribe while in test mode, e.g. `you@yourdomain.com` (comma-separated; `@domain` allows a whole domain; empty = nobody) | |
 
    Never set `STRIPE_ALLOW_LIVE` or `E2E_FAKE_STRIPE_URL` on Railway (the server refuses the fake
    on Railway).
