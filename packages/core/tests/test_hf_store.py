@@ -150,7 +150,7 @@ def test_percentile_is_nearest_rank() -> None:
     assert (percentile(vals, 0.5), percentile(vals, 0.95)) == (50.0, 95.0)
 
 
-def test_latency_stages_and_late_rows_left_out(session_factory: sessionmaker[Session]) -> None:
+def test_latency_stages_and_backfill_rows_left_out(session_factory: sessionmaker[Session]) -> None:
     with session_scope(session_factory) as s:
         seed(s, load_registry())
     now = z(12)
@@ -162,7 +162,7 @@ def test_latency_stages_and_late_rows_left_out(session_factory: sessionmaker[Ses
             t = at + timedelta(seconds=delay)
             upsert_readings(s, [rd], source_file="f.gz", file_modified_at=t - timedelta(seconds=5),
                             fetched_at=t, now=t + timedelta(seconds=1))  # fmt: skip
-        old = now - timedelta(hours=3)  # first fetched 2 h late: a backfill row
+        old = now - timedelta(hours=3)  # stored by a catch-up run 2 h later
         upsert_readings(
             s,
             [HfReading("KLAX", old)],
@@ -170,15 +170,23 @@ def test_latency_stages_and_late_rows_left_out(session_factory: sessionmaker[Ses
             file_modified_at=old,
             fetched_at=old + timedelta(hours=2),
             now=old + timedelta(hours=2),
+            backfill=True,
         )
+        late = now - timedelta(minutes=50)  # live, but late (an outage): counted
+        upsert_readings(
+            s, [HfReading("KSEA", late)], source_file="h.gz", file_modified_at=now,
+            fetched_at=now, now=now,
+        )  # fmt: skip
     with session_scope(session_factory) as s:
         rep = latency_report(s, now, hours=6)
-        assert (rep.rows, rep.excluded_late) == (5, 1)
+        assert (rep.rows, rep.excluded_backfill) == (6, 1)
         assert rep.overall["received"].p50_s == 140.0
-        assert (rep.overall["fetched"].p50_s, rep.overall["fetched"].p95_s) == (160.0, 180.0)
-        assert rep.overall["ingested"].p95_s == 181.0
-        assert rep.overall["file_modified"].count == 4
-        assert list(rep.per_station) == ["KDFW"]
+        assert rep.overall["received"].count == 4  # KSEA has no receivedTime
+        assert (rep.overall["fetched"].p50_s, rep.overall["fetched"].p95_s) == (170.0, 3000.0)
+        assert rep.per_station["KDFW"]["fetched"].p95_s == 180.0
+        assert rep.per_station["KDFW"]["ingested"].p95_s == 181.0
+        assert rep.overall["file_modified"].count == 5
+        assert list(rep.per_station) == ["KDFW", "KSEA"]
         assert stations_reporting(s, now, 30) == ["KDFW"]
         assert stations_reporting(s, now, 4) == []
 

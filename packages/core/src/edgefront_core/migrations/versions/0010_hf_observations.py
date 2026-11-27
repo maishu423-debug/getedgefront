@@ -55,6 +55,7 @@ def upgrade() -> None:
         sa.Column("updated_at", ts, nullable=False),
         sa.Column("row_hash", sa.String(64), nullable=False),
         sa.Column("revision", sa.Integer(), nullable=False, server_default="0"),
+        sa.Column("backfill", sa.Boolean(), nullable=False, server_default=sa.false()),
         sa.PrimaryKeyConstraint("station_id", "observed_at"),
     )
     op.create_table(

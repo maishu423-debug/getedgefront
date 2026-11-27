@@ -184,5 +184,5 @@ def test_status_hfmetar_block_and_public_strip_unchanged(loaded: Engine) -> None
     lat = hf["latency"]
     assert lat["received"]["p50_s"] == 142.0
     assert lat["rows"] > 0
-    assert lat["fetched"]["count"] + lat["excluded_late"] == lat["rows"]
+    assert lat["fetched"]["count"] + lat["excluded_backfill"] == lat["rows"]
     assert hf["rounding_check"]["pairs"] == 0  # no METAR at a 5-minute mark here

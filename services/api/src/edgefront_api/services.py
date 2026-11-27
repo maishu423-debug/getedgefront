@@ -556,7 +556,8 @@ def _stage(v: StageStats) -> s.HfStageOut:
 def hf_status(session: Session, now: datetime) -> s.HfStatusOut:
     """v2 Phase 9 B8: the 5-minute pipeline on /status (a block of its own, not in `sources`)."""
     h = session.get(SourceHealth, HF_SOURCE)
-    f = session.scalars(select(HfFile).order_by(HfFile.processed_at.desc()).limit(1)).first()
+    newest = select(HfFile).order_by(HfFile.name.desc()).limit(1)  # the newest hour
+    f = session.scalars(newest).first()
     last = session.scalar(select(func.max(HfObservation.observed_at)))
     active = list(session.scalars(select(Station.id).where(Station.active).order_by(Station.id)))
     reporting = [sid for sid in stations_reporting(session, now, 30) if sid in set(active)]
@@ -579,7 +580,7 @@ def hf_status(session: Session, now: datetime) -> s.HfStatusOut:
         latency=s.HfLatencyOut(
             window_hours=lat.window_hours,
             rows=lat.rows,
-            excluded_late=lat.excluded_late,
+            excluded_backfill=lat.excluded_backfill,
             **{k: _stage(v) for k, v in lat.overall.items()},
             per_station={
                 sid: {k: _stage(v) for k, v in st.items()} for sid, st in lat.per_station.items()

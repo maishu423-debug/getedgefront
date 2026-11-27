@@ -431,6 +431,9 @@ class HfObservation(Base):
     updated_at: Mapped[datetime] = _ts(nullable=False)  # last value or QC change
     row_hash: Mapped[str] = mapped_column(String(64))  # sha256 of the values (not QC)
     revision: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    # First stored by a catch-up (the worker's first run, or a file deferred by the per-run cap):
+    # its stamps say nothing about live delay, so latency stats leave it out.
+    backfill: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class HfFile(Base):

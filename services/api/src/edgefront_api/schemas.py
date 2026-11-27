@@ -287,9 +287,9 @@ class HfStageOut(BaseModel):
 class HfLatencyOut(BaseModel):
     window_hours: int
     rows: int
-    excluded_late: int = Field(
-        description="Readings first fetched over 60 min after observation (backfill or catching "
-        "up after an outage): left out of the percentiles"
+    excluded_backfill: int = Field(
+        description="Readings first stored by a catch-up run (worker start, files deferred by the "
+        "per-run cap): left out of the percentiles"
     )
     received: HfStageOut = Field(description="Observation -> MADIS received")
     file_modified: HfStageOut = Field(description="Observation -> LDM file written")
@@ -299,6 +299,8 @@ class HfLatencyOut(BaseModel):
 
 
 class HfFileOut(BaseModel):
+    """The newest hourly file processed."""
+
     name: str
     modified_at: datetime
     processed_at: datetime

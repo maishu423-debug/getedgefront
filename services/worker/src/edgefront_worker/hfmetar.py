@@ -267,6 +267,7 @@ def check_base_url(base_url: str) -> str:
 @dataclass
 class RunMetrics:
     health_ok: bool = False
+    backfill: bool = False  # the process's first run: every row it stores is backfill
     files_listed: int = 0
     files_changed: int = 0
     files_processed: int = 0
@@ -310,6 +311,8 @@ class HfmetarIngest:
         self.now = now
         self.sleep = sleep
         self.alerts: dict[str, tuple[datetime, datetime]] = {}  # key → (since, last logged)
+        self.live = False  # True after the first run that got a file list: later rows are live
+        self.deferred: set[str] = set()  # files left for a later run by the cap: still backfill
 
     # -- HTTP
 
@@ -399,9 +402,13 @@ class HfmetarIngest:
         )  # fmt: skip
         m.files_changed = len(changed)
         m.files_deferred = max(0, len(changed) - self.max_files)
+        m.backfill = not self.live
+        self.deferred |= {f.name for f in changed[self.max_files :]}
         for f in changed[: self.max_files]:
             try:
-                self._process(factory, f, stations, m)
+                bf = not self.live or f.name in self.deferred
+                self._process(factory, f, stations, m, backfill=bf)
+                self.deferred.discard(f.name)
             except Exception as exc:
                 m.files_failed += 1
                 m.errors.append(f"{f.name}: {type(exc).__name__}: {exc}"[:300])
@@ -417,6 +424,7 @@ class HfmetarIngest:
             )  # fmt: skip
             if m.errors:
                 record_failure(s, SOURCE, self.now(), "; ".join(m.errors)[:2000])
+        self.live = True
         stale = last_new is None or self.now() - last_new > self.stale
         self._alert("no_new_readings", stale, "no new 5-minute readings while LDM /health is ok",
                     {"last_ingested_at": last_new.isoformat() if last_new else None,
@@ -425,7 +433,13 @@ class HfmetarIngest:
         return m
 
     def _process(
-        self, factory: sessionmaker[Session], f: RemoteFile, stations: set[str], m: RunMetrics
+        self,
+        factory: sessionmaker[Session],
+        f: RemoteFile,
+        stations: set[str],
+        m: RunMetrics,
+        *,
+        backfill: bool,
     ) -> None:
         gz, header_mod = self.download(f)
         fetched_at = self.now()
@@ -443,7 +457,7 @@ class HfmetarIngest:
         with session_scope(factory) as s:
             res = upsert_readings(
                 s, parsed.readings, source_file=f.name, file_modified_at=file_mod,
-                fetched_at=fetched_at, now=self.now(),
+                fetched_at=fetched_at, now=self.now(), backfill=backfill,
             )  # fmt: skip
             row = s.get(HfFile, f.name) or HfFile(name=f.name)
             row.modified_at = f.modified_at
@@ -465,6 +479,7 @@ class HfmetarIngest:
             extra={
                 "source": SOURCE,
                 "health_ok": m.health_ok,
+                "backfill_run": m.backfill,
                 "files_listed": m.files_listed,
                 "files_changed": m.files_changed,
                 "files_processed": m.files_processed,

@@ -91,6 +91,7 @@ def upsert_readings(
     file_modified_at: datetime | None,
     fetched_at: datetime,
     now: datetime,
+    backfill: bool = False,
 ) -> UpsertResult:
     res = UpsertResult()
     if not readings:
@@ -126,6 +127,7 @@ def upsert_readings(
                 updated_at=now,
                 row_hash=h,
                 revision=0,
+                backfill=backfill,
             )
             session.add(row)
             existing[(r.station_id, r.observed_at)] = row
@@ -196,7 +198,7 @@ class StageStats:
 class LatencyReport:
     window_hours: int
     rows: int
-    excluded_late: int  # first fetched more than `late_after` after observation (backfill/outage)
+    excluded_backfill: int  # first stored by a catch-up run: no live delay to measure
     overall: dict[str, StageStats]
     per_station: dict[str, dict[str, StageStats]]
 
@@ -212,23 +214,23 @@ def latency_report(
     now: datetime,
     *,
     hours: int = 6,
-    late_after: timedelta = timedelta(minutes=60),
 ) -> LatencyReport:
     """Delay from observation to each stage (MADIS received → LDM file modified → our fetch →
     our insert), P50/P95 per station and overall, over readings observed in the last `hours`.
-    Readings we first fetched more than `late_after` after their observation (first-run backfill,
-    or catching up after an outage) are counted in `excluded_late`, not in the percentiles."""
+    Backfill rows (first stored by a catch-up run) are counted in `excluded_backfill`, not in the
+    percentiles; readings that arrived late during an outage do count (users saw that delay)."""
     q = select(
         HfObservation.station_id, HfObservation.observed_at, HfObservation.received_at,
         HfObservation.file_modified_at, HfObservation.fetched_at, HfObservation.ingested_at,
+        HfObservation.backfill,
     ).where(HfObservation.observed_at >= now - timedelta(hours=hours))  # fmt: skip
     overall: dict[str, list[float]] = defaultdict(list)
     per: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
     rows = late = 0
-    for sid, obs, rec, mod, fet, ing in session.execute(q):
+    for sid, obs, rec, mod, fet, ing, backfill in session.execute(q):
         rows += 1
         obs = as_utc(obs)
-        if as_utc(fet) - obs > late_after:
+        if backfill:
             late += 1
             continue
         for stage, t in zip(STAGES, (rec, mod, fet, ing), strict=True):
@@ -240,7 +242,7 @@ def latency_report(
     return LatencyReport(
         window_hours=hours,
         rows=rows,
-        excluded_late=late,
+        excluded_backfill=late,
         overall={st: _stats(overall[st]) for st in STAGES},
         per_station={sid: {st: _stats(v[st]) for st in STAGES} for sid, v in sorted(per.items())},
     )

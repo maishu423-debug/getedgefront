@@ -209,6 +209,14 @@ def test_ingest_dedupes_and_handles_a_rewrite(seeded: sessionmaker[Session]) -> 
     assert m3.new == 3
     assert m3.revised == 0  # MADIS never changed a measured value (B2 finding)
     assert m3.qc_changed > 0
+    assert (m1.backfill, m3.backfill) == (True, False)
+    with session_scope(seeded) as s:  # first run = catch-up; rows of the rewrite are live
+        flags = dict(
+            s.execute(
+                select(HfObservation.backfill, func.count()).group_by(HfObservation.backfill)
+            ).all()
+        )
+        assert flags == {True: 607, False: 3}
     assert m3.new + m3.qc_changed + m3.unchanged == 298
     with session_scope(seeded) as s:
         assert s.scalar(select(func.count()).select_from(HfObservation)) == 312 + 298
@@ -283,6 +291,14 @@ def test_backfill_window_and_per_run_cap(seeded: sessionmaker[Session]) -> None:
         assert [f.name for f in s.scalars(select(HfFile))] == ["hfmetar.20261127_1700.gz"]
     m = job.run(seeded)  # the deferred file comes next
     assert (m.files_changed, m.files_processed) == (1, 1)
+    with session_scope(seeded) as s:  # a deferred file stays backfill on the later run
+        late = s.scalars(
+            select(HfObservation.backfill).where(
+                HfObservation.source_file == "hfmetar.20261127_1500.gz"
+            )
+        ).all()
+        assert late
+        assert all(late)
 
 
 def test_bad_file_is_recorded_and_others_still_load(seeded: sessionmaker[Session]) -> None:
