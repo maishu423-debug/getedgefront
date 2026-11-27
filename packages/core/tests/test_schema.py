@@ -7,7 +7,7 @@ from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 from sqlalchemy import Engine, inspect
 
-from edgefront_core.auth_schema import AUTH_TABLES, include_object
+from edgefront_core.auth_schema import AUTH_TABLES, BILLING_TABLES, include_object
 from edgefront_core.migrate import alembic_config, upgrade
 from edgefront_core.models import Base
 
@@ -32,8 +32,9 @@ def test_all_v1_tables_exist_and_no_hf_observations(engine: Engine) -> None:
     if engine.dialect.name == "postgresql":
         assert tables == EXPECTED_TABLES
         assert set(insp.get_table_names(schema="auth")) == AUTH_TABLES  # Better Auth, own schema
-    else:  # SQLite has no schemas: Better Auth's tables sit next to ours
-        assert tables == EXPECTED_TABLES | AUTH_TABLES
+        assert set(insp.get_table_names(schema="billing")) == BILLING_TABLES  # Stripe mirror
+    else:  # SQLite has no schemas: the web app's tables sit next to ours
+        assert tables == EXPECTED_TABLES | AUTH_TABLES | BILLING_TABLES
     assert "hf_observations" not in tables  # Premium (v2), never in v1
 
 

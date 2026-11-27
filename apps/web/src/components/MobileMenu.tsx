@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import { authClient, reloadTo } from "@/lib/auth/client";
 
-import { LockIcon } from "./LockIcon";
+import { ProPill } from "./billing/ProPill";
 
 type Active = "stations" | "pricing" | "sources" | undefined;
 
@@ -89,10 +89,7 @@ export function MobileMenu({ active }: { active: Active }) {
           </Link>
           <Link href="/pricing" className={item} onClick={close}>
             Map
-            <span className="inline-flex items-center gap-1 rounded-full bg-premium-bg px-[7px] py-[3px] text-[10px] font-semibold tracking-[.05em] text-premium-text">
-              <LockIcon />
-              PRO
-            </span>
+            <ProPill />
           </Link>
           <Link href="/sources" className={item} aria-current={current("sources")} onClick={close}>
             Sources

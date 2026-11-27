@@ -158,6 +158,7 @@ reference variable: type it literally, do not paste the URL.
 | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `INTERNAL_API_TOKEN` | see [auth-setup.md](auth-setup.md) §1 | 🔒 (secrets) |
 
 v2 adds `INTERNAL_API_TOKEN` on **api** as well (same value as web).
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`, `STRIPE_PORTAL_CONFIGURATION_ID`, `STRIPE_MANAGED_PAYMENTS`, `BILLING_TEST_ALLOWLIST` (web, v2 billing, **test mode**) | see [stripe-setup.md](stripe-setup.md) step 8 | 🔒 (key and webhook secret) |
 
 **backup**
 

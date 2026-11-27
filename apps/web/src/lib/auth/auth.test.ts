@@ -69,14 +69,33 @@ describe("viewerFromSession", () => {
   const now = Date.parse("2026-11-26T12:00:00Z");
 
   it("anonymous without a session", () => {
-    expect(viewerFromSession(null, now)).toEqual({
+    expect(viewerFromSession(null, now)).toMatchObject({
       user: null,
       tier: "anonymous",
       sessionCreatedAt: null,
       fresh: false,
     });
+    expect(viewerFromSession(null, now).billing.tier).toBe("free");
   });
-  it("free (never premium before billing) and fresh for 10 minutes", () => {
+  it("tier comes only from the server-computed billing summary", () => {
+    const base = { user, session: { createdAt: new Date(now) } };
+    expect(viewerFromSession(base, now).tier).toBe("free"); // no summary: Free
+    const summary = {
+      tier: "premium" as const,
+      state: "trialing" as const,
+      premiumUntil: null,
+      trialEnd: "2026-12-03T12:00:00.000Z",
+      currentPeriodEnd: "2026-12-03T12:00:00.000Z",
+      trialEligible: false,
+      billingEnabled: true,
+      checkoutAllowed: true,
+    };
+    expect(viewerFromSession({ ...base, billing: summary }, now).tier).toBe("premium");
+    expect(viewerFromSession({ ...base, billing: { ...summary, tier: "free" } }, now).tier).toBe(
+      "free",
+    );
+  });
+  it("free without a subscription, and fresh for 10 minutes", () => {
     const fresh = viewerFromSession({ user, session: { createdAt: new Date(now - 60_000) } }, now);
     expect(fresh.tier).toBe("free");
     expect(fresh.fresh).toBe(true);

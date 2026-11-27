@@ -95,6 +95,13 @@ jobs:
       E2E_FAKE_GOOGLE_URL: http://localhost:4455
       AUTH_TEST_IP_LIMIT_SCALE: "100"
       RATE_LIMIT_PER_MINUTE: "100000"
+      # Billing against the local fake Stripe (e2e/fake-stripe.mjs): CI never contacts Stripe.
+      # These are placeholders, not keys: the fake accepts anything.
+      E2E_FAKE_STRIPE_URL: http://localhost:4466
+      STRIPE_SECRET_KEY: sk_test_ci_fake_placeholder
+      STRIPE_PRICE_ID: price_e2e_premium
+      STRIPE_WEBHOOK_SECRET: whsec_e2e_secret
+      BILLING_TEST_ALLOWLIST: "@example.org" # test accounts only; @example.net checks the gate
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -111,8 +118,10 @@ jobs:
         run: uv run python -m edgefront_core.deploy_db
       - name: Better Auth sees no schema drift
         run: node apps/web/scripts/auth-schema-check.mjs
+      - name: Billing tables match the web app
+        run: node apps/web/scripts/billing-schema-check.mjs
       - run: pnpm --filter @edgefront/web build
-      - name: The auth secret is not in the client bundle
+      - name: Auth and Stripe secrets are not in the client bundle
         run: node apps/web/scripts/check-bundle.mjs
       - run: pnpm --filter @edgefront/web exec playwright install --with-deps chromium
       - name: Start api and web
@@ -124,10 +133,10 @@ jobs:
             sleep 2
           done
           exit 1
-      - name: Account flows and layout stability (Playwright, fake Google, emails to a file)
+      - name: Accounts, billing and layout (Playwright, fake Google + fake Stripe, emails to a file)
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/pw.xml
-        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts e2e/layout.spec.ts --reporter=list,junit
+        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts e2e/billing.spec.ts e2e/layout.spec.ts --reporter=list,junit
       - name: Logs as annotations
         if: failure()
         run: |
@@ -138,7 +147,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-auth-${{ github.run_attempt }}
+          name: playwright-auth-billing-${{ github.run_attempt }}
           path: apps/web/test-results/
           retention-days: 14
           if-no-files-found: ignore

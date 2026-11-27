@@ -4,7 +4,13 @@
  */
 
 export interface Email {
-  kind: "verify" | "reset" | "password_changed" | "account_deleted" | "existing_account";
+  kind:
+    | "verify"
+    | "reset"
+    | "password_changed"
+    | "account_deleted"
+    | "existing_account"
+    | "trial_ending";
   to: string;
   subject: string;
   html: string;
@@ -126,4 +132,19 @@ export const existingAccount = (to: string, signInUrl: string, resetUrl: string)
       `Reset your password: ${resetUrl}`,
     ],
     { label: "Sign in", url: signInUrl },
+  );
+
+/** v2 Phase 8: sent when Stripe reports the trial is about to end (customer.subscription
+ * trial_will_end). `when` and `amount` come from Stripe ("Dec 3, 2026", "$20.00"). */
+export const trialEnding = (to: string, when: string, amount: string, accountUrl: string) =>
+  make(
+    "trial_ending",
+    to,
+    "Your EdgeFront Premium trial ends soon",
+    "Your free trial ends soon",
+    [
+      `Your EdgeFront Premium trial ends on ${when}. Your card will then be charged ${amount} for the first month, unless you cancel before.`,
+      "To keep Premium, you don't need to do anything. To cancel, open your account page and choose Manage billing.",
+    ],
+    { label: "Manage billing", url: accountUrl },
   );

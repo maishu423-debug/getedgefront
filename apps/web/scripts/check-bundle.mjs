@@ -11,10 +11,13 @@ const NEEDLES = [
   // env getter that is empty in browsers, so secret values are checked below instead.)
   "GOOGLE_CLIENT_SECRET", "RESEND_API_KEY", "INTERNAL_API_TOKEN", "EMAIL_OUTBOX_FILE",
   "E2E_FAKE_GOOGLE_URL",
+  // v2 billing: the Stripe secret names (their values are checked below)
+  "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "STRIPE_PRICE_ID", "E2E_FAKE_STRIPE_URL",
   "$hex[687474703a2f2f616473]", // an entry of the server-only common-password list
 ]; // prettier-ignore
 // Secret values present at build time (CI's auth job builds with them set) must not be inlined.
-const SECRET_VALUES = ["BETTER_AUTH_SECRET", "GOOGLE_CLIENT_SECRET", "RESEND_API_KEY", "INTERNAL_API_TOKEN"]
+const SECRET_VALUES = ["BETTER_AUTH_SECRET", "GOOGLE_CLIENT_SECRET", "RESEND_API_KEY", "INTERNAL_API_TOKEN",
+  "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "STRIPE_PRICE_ID"]
   .map((k) => [k, process.env[k]])
   .filter(([, v]) => v && v.length >= 12); // prettier-ignore
 const EMAIL = /[A-Za-z0-9._%+-]+@(?!example\.)[A-Za-z0-9.-]+\.(?:com|org|net|io|edu|gov)\b/g;

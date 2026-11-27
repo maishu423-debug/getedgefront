@@ -2,7 +2,7 @@
 
 An engineering record of what personal data EdgeFront stores, where, why and for how long, for
 whoever drafts the privacy policy (Q31). **This is not the privacy policy and contains no legal
-text.** Update it whenever a phase adds or changes personal data (Phase 8 adds billing).
+text.** Update it whenever a phase adds or changes personal data.
 
 Before Phase 7 the site stored no personal data: no accounts, no analytics, no cookies.
 
@@ -20,11 +20,28 @@ Not stored, by design:
 
 - Google profile photo URL (removed before saving; the UI shows initials).
 - Google access, refresh and ID tokens (removed before saving: we never call Google APIs).
-- Plain passwords, payment data (no billing before Phase 8), analytics or tracking identifiers.
+- Plain passwords, card numbers or any card data, analytics or tracking identifiers.
 
 Account deletion (`/account` → Delete account) removes the `user` row and, by cascade, all of
 that user's sessions and sign-in methods, then sends a confirmation email. Pending
 verification rows expire on their own.
+
+## 1b. Billing (v2 Phase 8, Postgres schema `billing`)
+
+| Table | Data | Why | Kept until |
+|---|---|---|---|
+| `customers` | our user id ↔ Stripe customer id; when the account's one free trial was used | reuse one Stripe customer per account; one trial per account | account deletion |
+| `subscriptions` | Stripe subscription id, status, price id, period end, cancellation and trial dates, latest invoice status, the Stripe event id that last updated it | who is Premium (computed on the server from this mirror only) | account deletion |
+| `webhook_events` | Stripe event id, type, received/processed times, error text (no personal data) | process each Stripe event once; debugging | not swept yet (see §5) |
+
+We **never see or store card numbers** or other card data: Stripe's hosted Checkout and Customer
+Portal collect them. The account page reads the card brand and last 4 digits from Stripe when it
+is shown, to display them, and does not store them.
+
+Deleting an account first cancels any live subscription immediately at Stripe (no further
+charges), then deletes the account; our billing rows go with it. The **Stripe customer and its
+invoices are kept at Stripe**, as payment records the law requires (retention is Stripe's and the
+business's legal obligation, for the lawyer to describe).
 
 ## 2. Cookies
 
@@ -42,6 +59,7 @@ sign in. No third-party or advertising cookies.
 | Who | What | Why |
 |---|---|---|
 | Google (OAuth) | the user's choice to sign in with Google; Google returns name, email, email-verified, account id | "Continue with Google" (scopes: openid, email, profile only) |
+| Stripe, selling through **Link** (merchant of record, Managed Payments) | the account's email and name (on the Stripe customer), our user id (metadata), and everything entered in Checkout / Customer Portal (card, billing address, used for sales tax) | Stripe/Link **sells** the subscription to the customer: payments, sales tax, receipts and invoices ("Sold through Link"), trial and renewal emails, payment support via Link, refunds and disputes. Customers also see their subscription in their Link account |
 | Resend (email delivery) | recipient email address and the email content (which includes one-time links) | sending account emails |
 | Railway (hosting) | everything above, as our database and server host; request metadata in platform logs | hosting |
 | Backup storage (Cloudflare R2 or Backblaze B2, owner's choice) | full database dumps, including the `auth` schema | disaster recovery; newest 14 daily + 8 weekly dumps kept, then deleted (infra/backup-restore.md). A deleted account can remain in backups until they age out (up to ~8 weeks) |
@@ -65,6 +83,27 @@ except the one-time email links, which are spent on use).
   added to the worker's retention job if the tables grow (not needed at launch size).
 - Data export (copy of my data) is not built; the account page shows everything stored except
   sessions.
-- Phase 8 adds Stripe customer/subscription ids (payment details stay with Stripe).
+- `billing.webhook_events` rows are not swept; a retention job can drop processed events older than e.g. 90 days.
 - Q31: the privacy policy itself, and the delete-account copy on `/account`, are for the
   owner's lawyer.
+
+## 6. Notes for the owner's lawyer (facts only, no legal text)
+
+- **Merchant of record:** since 2026-11-27 (owner decision), payments use Stripe **Managed
+  Payments**. Stripe sells the Premium subscription **through Link** as the merchant of record:
+  Checkout says "By subscribing, you agree to Link's Terms and Privacy Policy and authorize Link
+  to charge you … This subscription is provided by EdgeFront in accordance with their terms.
+  Sold through Link". Card statements read `LINK.COM* EDGEFRONT`; receipts and invoices come
+  from Link. The Terms and Privacy Policy need to reflect this (who sells, who charges, who
+  handles refunds, disputes and payment support, and that Link/Stripe receives the customer's
+  payment and billing data as an independent party).
+- **Sales tax** is calculated and collected by Stripe/Link on top of the price, from the billing
+  address; EdgeFront doesn't collect or file sales tax.
+- **Refunds:** Stripe may refund within 60 days in certain cases, and without EdgeFront's approval
+  if EdgeFront doesn't answer an escalation within 48 hours; regional cooling-off periods apply
+  where required. EdgeFront can also refund.
+- **Account deletion** cancels the subscription immediately at Stripe; Stripe keeps the customer,
+  invoices and payment records.
+- **Trial:** 7 days, card required, one per account; Stripe's and EdgeFront's reminder emails.
+- The delete-account copy on `/account` was already flagged for review in Phase 7.
+

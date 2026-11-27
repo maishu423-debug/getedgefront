@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { authClient, reloadTo } from "@/lib/auth/client";
+import { useBilling } from "@/lib/billing/client";
 
 /**
  * Header account slot (v2 Phase 7 B). Pages are prerendered and the same for everyone, so the
@@ -42,6 +43,26 @@ export function HeaderAccount({ compact = false }: { compact?: boolean }) {
         </>
       )}
     </div>
+  );
+}
+
+/** FREE or PREMIUM, from the server-computed session (v2 Phase 8). */
+function PlanBadge() {
+  const { billing } = useBilling();
+  return billing.tier === "premium" ? (
+    <span
+      data-testid="plan-badge"
+      className="rounded-full bg-[#E6F2F1] px-2.5 py-[5px] text-[11px] font-semibold tracking-[.05em] text-[#064F4B]"
+    >
+      PREMIUM
+    </span>
+  ) : (
+    <span
+      data-testid="plan-badge"
+      className="rounded-full bg-[#EEF1EE] px-2.5 py-[5px] text-[11px] font-semibold tracking-[.05em] text-text-2"
+    >
+      FREE
+    </span>
   );
 }
 
@@ -87,11 +108,7 @@ function SignedIn({ name, compact }: { name: string; compact: boolean }) {
 
   return (
     <div className="relative flex items-center gap-1.5">
-      {compact ? null : (
-        <span className="rounded-full bg-[#EEF1EE] px-2.5 py-[5px] text-[11px] font-semibold tracking-[.05em] text-text-2">
-          FREE
-        </span>
-      )}
+      {compact ? null : <PlanBadge />}
       <button
         ref={button}
         type="button"
