@@ -5,6 +5,7 @@ from __future__ import annotations
 from alembic import context
 from sqlalchemy import Connection
 
+from edgefront_core.auth_schema import include_object
 from edgefront_core.db import make_engine
 from edgefront_core.models import Base
 
@@ -13,7 +14,12 @@ target_metadata = Base.metadata
 
 
 def _run(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        compare_type=True,
+        include_object=include_object,  # Better Auth's tables are not ORM models
+    )
     with context.begin_transaction():
         context.run_migrations()
 

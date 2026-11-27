@@ -74,39 +74,53 @@ export function StatusStrip({ initial }: { initial: StatusResponse | null }) {
   const dsmBad = dsm.find((s) => !s.healthy);
 
   return (
-    <div className="bg-footer text-[#DCE3E0]" aria-label="Data status">
-      <div className="mx-auto flex max-w-(--container-content) flex-wrap items-center gap-x-6 gap-y-2 px-4 py-[11px] font-mono text-xs sm:px-8">
-        <span className="flex items-center gap-2 font-sans font-semibold text-white">
-          <span
-            aria-hidden
-            className={`size-2 rounded-full ${allOk ? "bg-[#3DD68C]" : "bg-[#F2B572]"}`}
-          />
-          Data status · {data ? formatZulu(data.generated_at) : "—"}
-        </span>
-        {data === null ? (
-          <span className="text-[#F2B572]">
-            Status unavailable: the EdgeFront API is not responding.
+    // Always one 38 px line (the Suspense fallback's height), whatever the data: it never wraps,
+    // so it can't push the page down (CLS). What doesn't fit scrolls sideways, with a fade.
+    <div className="bg-footer text-[#DCE3E0]">
+      <div className="relative mx-auto max-w-(--container-content)">
+        <div
+          role="region"
+          aria-label="Data status"
+          tabIndex={0}
+          data-testid="status-strip"
+          className="flex h-[38px] [scrollbar-width:none] items-center gap-x-6 overflow-x-auto overflow-y-hidden px-4 font-mono text-xs whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white sm:px-8 [&::-webkit-scrollbar]:hidden [&>*]:shrink-0"
+        >
+          <span className="flex items-center gap-2 font-sans font-semibold text-white">
+            <span
+              aria-hidden
+              className={`size-2 rounded-full ${allOk ? "bg-[#3DD68C]" : "bg-[#F2B572]"}`}
+            />
+            Data status · {data ? formatZulu(data.generated_at) : "—"}
           </span>
-        ) : (
-          <>
-            <Item label="METARs fetched" src={by.get("metar")} />
-            <span>
-              Daily summaries: <Item label="CLI" src={by.get("cli")} />
-              {" · "}
-              {dsmBad ? (
-                <Item label="DSM" src={dsmBad} />
-              ) : (
-                <span>DSM {formatZulu(dsmLatest)}</span>
-              )}
+          {data === null ? (
+            <span className="text-[#F2B572]">
+              Status unavailable: the EdgeFront API is not responding.
             </span>
-            <Item label="NWS forecasts updated" src={by.get("forecast")} />
-            <Models by={by} />
-            {failed ? (
-              <span className="text-[#F2B572]">refresh failed, showing last status</span>
-            ) : null}
-          </>
-        )}
-        <span className="text-[#F2B572]">5-min feed: Premium</span>
+          ) : (
+            <>
+              <Item label="METARs fetched" src={by.get("metar")} />
+              <span>
+                Daily summaries: <Item label="CLI" src={by.get("cli")} />
+                {" · "}
+                {dsmBad ? (
+                  <Item label="DSM" src={dsmBad} />
+                ) : (
+                  <span>DSM {formatZulu(dsmLatest)}</span>
+                )}
+              </span>
+              <Item label="NWS forecasts updated" src={by.get("forecast")} />
+              <Models by={by} />
+              {failed ? (
+                <span className="text-[#F2B572]">refresh failed, showing last status</span>
+              ) : null}
+            </>
+          )}
+          <span className="text-[#F2B572]">5-min feed: Premium</span>
+        </div>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-footer to-transparent"
+        />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 """Turn CI failures into GitHub annotations (readable through the public API, unlike raw logs).
 
 python tools/ci_annotate.py junit pytest.xml      # one ::error per failed/errored test
+python tools/ci_annotate.py junit pw.xml head     # keeps the start (Playwright: error first)
 python tools/ci_annotate.py text <title> <file>   # the file's last 60 lines as one ::error
 """
 
@@ -15,7 +16,7 @@ def esc(s: str) -> str:
     return s.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
 
 
-def junit(path: str) -> None:
+def junit(path: str, keep: str = "tail") -> None:
     root = ET.parse(path).getroot()  # noqa: S314 - our own file
     n = 0
     for case in root.iter("testcase"):
@@ -39,6 +40,6 @@ def text(title: str, path: str) -> None:
 
 if __name__ == "__main__":
     if sys.argv[1] == "junit":
-        junit(sys.argv[2])
+        junit(sys.argv[2], *sys.argv[3:4])
     else:
         text(sys.argv[2], sys.argv[3])

@@ -154,6 +154,10 @@ reference variable: type it literally, do not paste the URL.
 | `HSTS_ENABLED` | `false` until the custom domain serves HTTPS | |
 | `RATE_LIMIT_PER_MINUTE` | `120` | |
 | `HOSTNAME` | `::` (also set in the Dockerfile) | |
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (v2 accounts; web uses only the `auth` schema) | 🔒 (reference) |
+| `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `INTERNAL_API_TOKEN` | see [auth-setup.md](auth-setup.md) §1 | 🔒 (secrets) |
+
+v2 adds `INTERNAL_API_TOKEN` on **api** as well (same value as web).
 
 **backup**
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LockIcon, PageShell } from "@/components/Chrome";
+import { PricingCta } from "@/components/PricingCta";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -97,14 +98,7 @@ export default function PricingPage() {
             <p className="text-sm text-text-2">
               5-minute ASOS data, a live station map and more sources.
             </p>
-            <button
-              type="button"
-              disabled
-              aria-disabled
-              className="inline-flex min-h-10 cursor-not-allowed items-center self-start rounded-[9px] bg-[#E7EAE6] px-4 text-sm font-semibold text-muted"
-            >
-              Coming soon
-            </button>
+            <PricingCta />
           </div>
         </div>
 

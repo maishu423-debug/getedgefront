@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EdgeFront — Pricing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F2}
+a{color:#0A6E69}a:hover{color:#064F4B}
+.tab{font:500 13px Inter,sans-serif;padding:8px 12px;min-height:36px;border:0;background:transparent;color:#4A5552;border-radius:7px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:#101A1C}
+.tab.on{background:#FFFFFF;color:#101A1C;box-shadow:0 1px 2px rgba(16,26,28,.14)}
+.tgl{font:500 13px Inter,sans-serif;padding:8px 14px;min-height:36px;border:1px solid #CFD5D1;border-radius:8px;background:#FFFFFF;color:#2A3533;cursor:pointer;white-space:nowrap}
+.tgl.on{background:#101A1C;border-color:#101A1C;color:#FFFFFF}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:0 20px;border-radius:10px;font:600 15px Inter,sans-serif;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn.primary{background:#0A6E69;color:#FFFFFF;border:0}
+.btn.primary:hover{background:#064F4B;color:#FFFFFF}
+.btn.dark{background:#101A1C;color:#FFFFFF;border:0}
+.btn.ghost{background:#FFFFFF;color:#101A1C;border:1px solid #CFD5D1}
+.btn.ghost:hover{background:#F7F8F6;color:#101A1C}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font:600 13px Inter,sans-serif;color:#2A3533}
+.field input{height:46px;box-sizing:border-box;padding:0 14px;border:1px solid #CFD5D1;border-radius:10px;background:#FFFFFF;font:400 15px Inter,sans-serif;color:#101A1C}
+.tbl{width:100%;border-collapse:collapse;font:400 14px Inter,sans-serif;color:#101A1C}
+.tbl th{font:600 11px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#56625F;text-align:left;padding:12px 16px;border-bottom:1px solid #DDE1DC;background:#FAFBF9}
+.tbl td{padding:12px 16px;border-bottom:1px solid #ECEFEC}
+.mono{font-family:'JetBrains Mono',monospace}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</helmet>
+<div style="font-family: Inter, sans-serif; color: #101A1C; background: #F4F5F2; min-height: 100%">
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE1DC">
+<div style="max-width: 1280px; margin: 0 auto; padding: 12px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+<a href="Home.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #101A1C">
+<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true"><path d="M1 17 C9 17 11 7 17 7 S25 17 33 17" fill="none" stroke="#0A6E69" stroke-width="2.4" stroke-linecap="round"></path><path d="M7 14.6 L10.6 10.2 L12.4 15.2 Z M15.2 7.4 L19.4 3.6 L19.8 8.6 Z M23.4 11.2 L28 8.8 L26.8 14 Z" fill="#0A6E69"></path></svg>
+<span style="font: 700 20px 'Space Grotesk', sans-serif; letter-spacing: -0.02em">EdgeFront</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-left: auto">
+<a href="Home.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Stations</a>
+<a href="Map.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; color: #4A5552">Map <span style="display: inline-flex; align-items: center; gap: 4px; font: 600 10px Inter, sans-serif; letter-spacing: .05em; padding: 3px 7px; border-radius: 999px; background: #FFF1E2; color: #8A4100; margin-left: 4px">PRO</span></a>
+<a href="#sources" style="padding: 10px 12px; font-size: 14px; text-decoration: none; color: #4A5552">Sources</a>
+<a href="Pricing.dc.html" style="padding: 10px 12px; font-size: 14px; text-decoration: none; font-weight: 600; color: #101A1C">Pricing</a>
+<a href="SignIn.dc.html" style="padding: 10px 12px; font-size: 14px; font-weight: 600; color: #101A1C; text-decoration: none; margin-left: 8px">Sign in</a>
+<a href="Pricing.dc.html" class="btn primary" style="min-height: 40px; padding: 0 16px; font-size: 14px">Start free trial</a>
+</nav>
+</div>
+</header><div style="background: #FFF7E8; border-bottom: 1px solid #F0DDB8"><div style="max-width: 1280px; margin: 0 auto; padding: 8px 32px; font-size: 13px; color: #6B4600">v2 design mockup · sample data and sample account</div></div>
+<main style="max-width: 1120px; margin: 0 auto; padding: 56px 32px 72px; display: flex; flex-direction: column; gap: 48px">
+<section style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px">
+<h1 style="margin: 0; font: 700 44px/1.1 'Space Grotesk', sans-serif; letter-spacing: -0.03em; max-width: 760px">See every reading, not just the hourly ones.</h1>
+<p style="margin: 0; font-size: 17px; line-height: 1.55; color: #3A4644; max-width: 640px">Free gives you the official hourly reports. Premium adds the 5-minute ASOS readings and a live map of every settlement station.</p>
+</section>
+
+<section aria-label="Plans" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: stretch">
+<div style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 18px; padding: 32px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font: 600 22px 'Space Grotesk', sans-serif">Free</h2>
+<div style="display: flex; align-items: baseline; gap: 6px"><span style="font: 700 44px 'Space Grotesk', sans-serif">$0</span><span style="color: #4A5552">forever</span></div>
+<span style="font-size: 14px; color: #4A5552">No account needed.</span>
+</div>
+<a href="Home.dc.html" class="btn ghost">Browse stations</a>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px"><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Hourly METAR reports, raw and decoded</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Daily summaries: NWS climate report (CLI) and ASOS summary (DSM)</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>NWS forecast for today</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Model guidance: GFS, IFS, AIFS, NBM, GFS-MOS, LAMP, PFM</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>High and low so far from hourly METARs</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>All 28 settlement stations</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#A3ACA9" stroke-width="2.4" style="flex: none; margin-top: 2px"><path d="M6 12h12"></path></svg><span>5-minute data and live map</span></li></ul>
+</div>
+
+<div style="background: #FFFFFF; border: 2px solid #0A6E69; border-radius: 18px; padding: 32px; display: flex; flex-direction: column; gap: 22px; position: relative; box-shadow: 0 10px 30px rgba(10,110,105,.10)">
+<span style="position: absolute; top: -13px; left: 32px; font: 600 11px Inter, sans-serif; letter-spacing: .06em; padding: 5px 10px; border-radius: 999px; background: #0A6E69; color: #FFFFFF">7-DAY FREE TRIAL</span>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font: 600 22px 'Space Grotesk', sans-serif">Premium</h2>
+<div style="display: flex; align-items: baseline; gap: 6px"><span style="font: 700 44px 'Space Grotesk', sans-serif">{{price}}</span><span style="color: #4A5552">per month</span></div>
+<span style="font-size: 14px; color: #4A5552">Free for 7 days, then {{price}}/month. Cancel anytime.</span>
+</div>
+<a href="SignIn.dc.html" class="btn primary">Start 7-day free trial</a>
+<p style="margin: -10px 0 0; font-size: 12.5px; line-height: 1.5; color: #4A5552">Card required. You won't be charged if you cancel before the trial ends; we'll email you 2 days before it does. Prices in USD; sales tax may apply depending on your location.</p>
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px"><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><strong>Everything in Free</strong></span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><strong>5-minute ASOS data</strong>: current temperature, high and low so far, and the observed chart, updated as new readings arrive</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><strong>Live station map</strong> with all 28 stations</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Peaks between hourly reports, as they happen</span></li><li style="display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; margin-top: 2px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Same sources, time stamps and provenance on every value</span></li></ul>
+</div>
+</section>
+
+<section aria-labelledby="h-compare" style="display: flex; flex-direction: column; gap: 14px">
+<h2 id="h-compare" style="margin: 0; font: 600 22px 'Space Grotesk', sans-serif">Compare plans</h2>
+<div style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 14px; overflow-x: auto">
+<table class="tbl"><thead><tr><th scope="col">Feature</th><th scope="col" style="text-align: center">Free</th><th scope="col" style="text-align: center">Premium</th></tr></thead><tbody><tr><td style="font-weight: 500">Hourly METAR (raw + decoded)</td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td></tr><tr><td style="font-weight: 500">Daily summaries (CLI, DSM)</td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td></tr><tr><td style="font-weight: 500">NWS forecast</td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td></tr><tr><td style="font-weight: 500">Model guidance (7 models)</td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td></tr><tr><td style="font-weight: 500">High / low so far</td><td style="text-align: center; font-size: 13.5px; color: #2A3533">From hourly METAR</td><td style="text-align: center; font-size: 13.5px; color: #2A3533">From 5-minute data</td></tr><tr><td style="font-weight: 500">Observed chart</td><td style="text-align: center; font-size: 13.5px; color: #2A3533">Hourly METAR</td><td style="text-align: center; font-size: 13.5px; color: #2A3533">5-minute + hourly METAR</td></tr><tr><td style="font-weight: 500">Live station map</td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#A3ACA9" stroke-width="2.4" style="flex: none; display: inline-block"><path d="M6 12h12"></path></svg></td><td style="text-align: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#0A6E69" stroke-width="2.6" style="flex: none; display: inline-block"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></td></tr><tr><td style="font-weight: 500">Stations</td><td style="text-align: center; font-size: 13.5px; color: #2A3533">All 28</td><td style="text-align: center; font-size: 13.5px; color: #2A3533">All 28</td></tr></tbody></table>
+</div>
+</section>
+
+<section aria-labelledby="h-faq" style="display: flex; flex-direction: column; gap: 14px">
+<h2 id="h-faq" style="margin: 0; font: 600 22px 'Space Grotesk', sans-serif">Questions</h2>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{faq}}" as="f" hint-placeholder-count="5">
+<div style="background: #FFFFFF; border: 1px solid #DDE1DC; border-radius: 12px">
+<button onClick="{{f.toggle}}" aria-expanded="{{f.open}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; background: transparent; border: 0; cursor: pointer; font: 600 15px Inter, sans-serif; color: #101A1C; text-align: left">{{f.q}}<span aria-hidden="true" style="font-size: 18px; color: #4A5552">{{f.sign}}</span></button>
+<sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 0 20px 18px; font-size: 14.5px; line-height: 1.6; color: #2A3533">{{f.a}}</p></sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+</main>
+<footer style="background: #101A1C; color: #C9D1CE">
+<div style="max-width: 1280px; margin: 0 auto; padding: 28px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 13px">
+<span style="font: 700 16px 'Space Grotesk', sans-serif; color: #FFFFFF">EdgeFront</span>
+<span>Not affiliated with Kalshi, Polymarket or Robinhood. Data is provided as received. You decide how to use it.</span>
+<span style="display: flex; gap: 16px"><a href="#terms" style="color: #C9D1CE">Terms</a><a href="#privacy" style="color: #C9D1CE">Privacy</a></span>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"price":{"editor":"text","default":"$20"},"$preview":{"width":1440,"height":2150}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this, open = (this.state && this.state.open !== undefined) ? this.state.open : 0;
+    var qa = [
+      ['What does "5-minute data" mean?', 'ASOS stations measure continuously and send a reading every 5 minutes through NOAA\'s high-frequency METAR feed (MADIS HFMETAR). Free shows the official hourly METAR reports; Premium adds every 5-minute reading, so you see peaks and dips between hourly reports. Each value shows its observation time and when it reached us.'],
+      ['How does the free trial work?', 'Start Premium with a card and use everything for 7 days. We email you 2 days before the trial ends. Cancel any time before then and you won\'t be charged; otherwise it continues at the monthly price.'],
+      ['How do I cancel?', 'From your account page, open Manage billing. Cancelling keeps Premium until the end of the period you\'ve paid for.'],
+      ['Where does the data come from?', 'NOAA and the National Weather Service (METAR, daily summaries, forecasts, 5-minute ASOS via MADIS), ECMWF and NOAA models, and the Iowa Environmental Mesonet for some daily summaries. See Sources for details.'],
+      ['Does EdgeFront tell me what to trade?', 'No. EdgeFront shows observed data, official products and third-party model output with their sources and times. Market outcomes are decided by each venue\'s own rules and named settlement source, so always read the market\'s rules.']
+    ];
+    return {
+      price: this.props.price ?? '$20',
+      faq: qa.map(function (x, i) { var on = open === i; return { q: x[0], a: x[1], open: on, sign: on ? '−' : '+', toggle: function () { self.setState({ open: on ? -1 : i }); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

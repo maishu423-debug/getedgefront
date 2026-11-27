@@ -1,21 +1,10 @@
 import Link from "next/link";
 
-export function LockIcon({ size = 10 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      aria-hidden
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.6"
-    >
-      <rect x="5" y="11" width="14" height="10" rx="2" />
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
-  );
-}
+import { HeaderAccount } from "./HeaderAccount";
+import { LockIcon } from "./LockIcon";
+import { MobileMenu } from "./MobileMenu";
+
+export { LockIcon }; // kept for existing imports
 
 export function Logo() {
   return (
@@ -48,10 +37,11 @@ const navLink =
 export function Header({ active }: { active?: "stations" | "pricing" | "sources" }) {
   const cls = (k: string) => `${navLink} ${active === k ? "font-semibold text-ink" : ""}`;
   return (
-    <header className="border-b border-border bg-surface">
-      <div className="mx-auto flex max-w-(--container-content) flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 sm:px-8">
+    <header className="relative border-b border-border bg-surface">
+      {/* Below 640 px: one 64 px row (logo, account, Menu). From 640 px: the full nav. */}
+      <div className="mx-auto flex h-16 max-w-(--container-content) items-center gap-x-5 px-4 sm:h-auto sm:min-h-16 sm:flex-wrap sm:gap-y-2 sm:px-8 sm:py-3">
         <Logo />
-        <nav aria-label="Main" className="ml-auto flex flex-wrap items-center gap-1">
+        <nav aria-label="Main" className="ml-auto hidden flex-wrap items-center gap-1 sm:flex">
           <Link
             href="/"
             className={cls("stations")}
@@ -80,7 +70,12 @@ export function Header({ active }: { active?: "stations" | "pricing" | "sources"
           >
             Pricing
           </Link>
+          <HeaderAccount />
         </nav>
+        <div className="ml-auto flex items-center gap-1 sm:hidden">
+          <HeaderAccount compact />
+          <MobileMenu active={active} />
+        </div>
       </div>
     </header>
   );

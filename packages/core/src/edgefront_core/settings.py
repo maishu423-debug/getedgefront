@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     # CI's Docker smoke test runs the worker with upstream jobs off (no CONTACT_EMAIL there, and
     # CI must never contact NOAA/NWS/IEM/ECMWF). Always true in deployed environments.
     worker_upstream_enabled: bool = True
+    # v2: shared secret the Next.js server sends as X-Internal-Token on /api/v1/internal/*.
+    # Empty = every internal request is refused.
+    internal_api_token: str = ""
 
     @field_validator("database_url")
     @classmethod

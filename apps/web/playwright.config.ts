@@ -8,9 +8,18 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // A test that only passes on retry is a bug, not a pass: CI fails on flaky tests.
+  failOnFlakyTests: !!process.env.CI,
   reporter: "list",
   timeout: 45_000,
-  use: { baseURL, trace: "on-first-retry" },
+  // Failed and retried tests keep a trace and a screenshot (uploaded as CI artifacts).
+  use: { baseURL, trace: "retain-on-failure", screenshot: "only-on-failure" },
+  // Accounts tests sign in with Google against this local fake (never real Google).
+  webServer: {
+    command: "node e2e/fake-google.mjs",
+    url: "http://localhost:4455/health",
+    reuseExistingServer: true,
+  },
   projects: [
     {
       name: "desktop-1440",

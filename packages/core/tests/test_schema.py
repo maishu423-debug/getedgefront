@@ -7,6 +7,7 @@ from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 from sqlalchemy import Engine, inspect
 
+from edgefront_core.auth_schema import AUTH_TABLES, include_object
 from edgefront_core.migrate import alembic_config, upgrade
 from edgefront_core.models import Base
 
@@ -26,14 +27,21 @@ EXPECTED_TABLES = {
 
 
 def test_all_v1_tables_exist_and_no_hf_observations(engine: Engine) -> None:
-    tables = set(inspect(engine).get_table_names()) - {"alembic_version"}
-    assert tables == EXPECTED_TABLES
+    insp = inspect(engine)
+    tables = set(insp.get_table_names()) - {"alembic_version"}
+    if engine.dialect.name == "postgresql":
+        assert tables == EXPECTED_TABLES
+        assert set(insp.get_table_names(schema="auth")) == AUTH_TABLES  # Better Auth, own schema
+    else:  # SQLite has no schemas: Better Auth's tables sit next to ours
+        assert tables == EXPECTED_TABLES | AUTH_TABLES
     assert "hf_observations" not in tables  # Premium (v2), never in v1
 
 
 def test_migrations_match_models(engine: Engine) -> None:
     with engine.connect() as conn:
-        ctx = MigrationContext.configure(conn, opts={"compare_type": False})
+        ctx = MigrationContext.configure(
+            conn, opts={"compare_type": False, "include_object": include_object}
+        )
         diff = compare_metadata(ctx, Base.metadata)
     assert diff == []
 
