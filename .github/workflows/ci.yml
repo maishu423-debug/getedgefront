@@ -132,6 +132,8 @@ jobs:
         if: failure()
         run: |
           test -f pw.xml && python3 tools/ci_annotate.py junit pw.xml head || true
+          python3 tools/ci_annotate.py text "api" api.log || true
+          python3 tools/ci_annotate.py text "web" web.log || true
       - name: Playwright traces and screenshots (failed or flaky tests)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -140,8 +142,6 @@ jobs:
           path: apps/web/test-results/
           retention-days: 14
           if-no-files-found: ignore
-          python3 tools/ci_annotate.py text "api" api.log || true
-          python3 tools/ci_annotate.py text "web" web.log || true
 
   audit:
     runs-on: ubuntu-latest
