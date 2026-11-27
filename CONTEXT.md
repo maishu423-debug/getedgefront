@@ -515,6 +515,7 @@ STRIPE_WEBHOOK_SECRET=                   # 🔒 whsec_
 STRIPE_PRICE_ID=                         # price_ (amount shown is read from Stripe, cached 10 min)
 STRIPE_PORTAL_CONFIGURATION_ID=          # bpc_
 STRIPE_TAX_ENABLED=false                 # automatic_tax in Checkout
+STRIPE_MANAGED_PAYMENTS=false            # Stripe as merchant of record (owner decision); false → managed_payments[enabled]=false sent explicitly
 # tests only: E2E_FAKE_STRIPE_URL (refused off localhost/on Railway)
 ```
 Per-service lists, secrets and Railway reference variables: `infra/railway.md` §4. `DATABASE_URL` may be Railway's `postgresql://…`; settings rewrite it to `postgresql+psycopg://`.
@@ -611,7 +612,8 @@ Q31–Q34 in §14.
 - **UI:** account card in the 5 design states (trialing, active, past_due with red notice + Update card, cancelled "Premium until …" + resume via portal, free with Start trial / Subscribe); card brand/last4 and amount due read live from Stripe, not stored. Pricing CTA per state (sign in → verify email with resend → checkout; Premium → "You're on Premium" + Manage billing). Header PREMIUM badge; Map PRO pill hidden for Premium (space kept: no shift); fixed bottom "payment failed" bar site-wide while past_due.
 - **Delete account** cancels live subscriptions at Stripe immediately first (refuses the deletion if Stripe fails); the Stripe customer stays for invoices.
 - **Tests:** unit 136; e2e (local + CI) against `e2e/fake-stripe.mjs` (hosted pages + signed webhooks): trial → Premium, portal cancel/resume, payment failure → past_due → recovery, trial used → Subscribe without trial, delete cancels, unverified email, Stripe price, endpoint refusals.
-- **Deviations / notes:** design copy "we'll email you 2 days before" shown as **3** days (Stripe's default `trial_will_end` timing, constant `TRIAL_REMINDER_DAYS`; owner to choose); past_due card omits "moves to Free on <date>" (Stripe doesn't give the final retry date; we show the next retry date); local SQLite now shares one connection between auth and billing (fixes an event-loop lock deadlock).
+- **Real test-mode run (2026-11-27):** setup script (idempotent, verified by a re-run); Checkout with 4242 (→ trialing), 4000…0002 ("Your card was declined", nothing created), 4000 0027 6000 3184 (3-D Secure challenge → trialing); test clock: trialing → active (trial end) → past_due (failing card, real next-retry date) → recovered (invoice paid) → cancelled in the real Customer Portal (Stripe set `cancel_at`, flexible billing) → Free with the trial used. Findings: the account defaults to **Managed Payments** (now explicitly off per request, `STRIPE_MANAGED_PAYMENTS`); Checkout payment methods are Dashboard-managed in this API version (no `payment_method_types`): owner to keep cards only.
+- **Deviations / notes:** trial reminder "3 days before" (owner: keep Stripe's default 3; design updated to match); past_due card shows the next retry date and no "moves to Free on" date (owner: never show a date we don't know); free state shows "Card: —" for past customers (a card may remain at Stripe); local SQLite now shares one connection between auth and billing (fixes an event-loop lock deadlock).
 
 ---
 

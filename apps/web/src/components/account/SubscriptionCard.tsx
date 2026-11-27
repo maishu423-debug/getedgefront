@@ -144,7 +144,8 @@ export function SubscriptionCard({
       facts: [
         ["Plan", "Free"],
         ["Trial", billing.trialEligible ? "Available · 7 days" : "Already used"],
-        ["Card", "None on file"],
+        // "None on file" only when we know it: a past Stripe customer may still have a card there
+        ["Card", billing.hasCustomer ? "—" : "None on file"],
       ],
       action: !billing.billingEnabled ? (
         <span className="text-sm text-muted">Subscriptions aren&apos;t available right now.</span>

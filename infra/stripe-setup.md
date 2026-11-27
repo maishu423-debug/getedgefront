@@ -40,10 +40,23 @@ Make sure the Dashboard shows **Test mode** (toggle at the top) for every step.
    accountant; software-as-a-service codes are the usual choice). **Add no tax registrations**
    (Tax → Locations): without one, Stripe calculates zero tax. EdgeFront's Checkout only asks Stripe
    to calculate tax when `STRIPE_TAX_ENABLED=true`; it stays `false` until you decide otherwise.
-5. **API key** — Developers → API keys: copy the **test** secret key (`sk_test_…`). Better: create
+5. **Managed Payments and payment methods (found in the first real test run, 2026-11-27)**
+   - Your account has **Managed Payments** (Stripe as *merchant of record*: Stripe sells on your
+     behalf and handles sales tax) **on by default**. EdgeFront's design has EdgeFront as the
+     seller with Stripe Tax collection off, so every Checkout Session explicitly sends
+     `managed_payments[enabled]=false`. To switch to Managed Payments instead (a business, tax and
+     legal decision, with Stripe's own fees and terms), set `STRIPE_MANAGED_PAYMENTS=true`; tax is
+     then Stripe's and `STRIPE_TAX_ENABLED` is ignored. The account default is at Settings →
+     Managed Payments.
+   - **Payment methods** for Checkout are managed in the Dashboard (Settings → Payment methods;
+     this API version no longer takes a list in code). The test Checkout offered card, Apple Pay,
+     Google Pay, Link, Amazon Pay, Cash App Pay, Klarna and bank debit. The pricing copy says
+     "Card required": if that's what you want, turn off everything except **Cards** (Apple Pay
+     and Google Pay carry cards and can stay on).
+6. **API key** — Developers → API keys: copy the **test** secret key (`sk_test_…`). Better: create
    a *restricted* test key with write access to Products, Prices, Customers, Checkout Sessions,
    Subscriptions, Customer portal, Webhook endpoints and Test clocks.
-6. **Products, price, portal, webhook** — run the setup script (or let me run it with your test
+7. **Products, price, portal, webhook** — run the setup script (or let me run it with your test
    key in the repo's `.env`):
 
    ```sh
@@ -66,15 +79,16 @@ Make sure the Dashboard shows **Test mode** (toggle at the top) for every step.
 
    It prints `STRIPE_PRICE_ID`, `STRIPE_PORTAL_CONFIGURATION_ID` and, the first time only,
    `STRIPE_WEBHOOK_SECRET` (Stripe shows it once; lost → Developers → Webhooks → Roll secret).
-7. **Railway → web → Variables**, then Deploy:
+8. **Railway → web → Variables**, then Deploy:
 
    | Variable | Value | |
    |---|---|---|
    | `STRIPE_SECRET_KEY` | your `sk_test_…` / `rk_test_…` key | 🔒 |
-   | `STRIPE_WEBHOOK_SECRET` | `whsec_…` from step 6 | 🔒 |
-   | `STRIPE_PRICE_ID` | `price_…` from step 6 | |
-   | `STRIPE_PORTAL_CONFIGURATION_ID` | `bpc_…` from step 6 | |
+   | `STRIPE_WEBHOOK_SECRET` | `whsec_…` from step 7 | 🔒 |
+   | `STRIPE_PRICE_ID` | `price_…` from step 7 | |
+   | `STRIPE_PORTAL_CONFIGURATION_ID` | `bpc_…` from step 7 | |
    | `STRIPE_TAX_ENABLED` | `false` | |
+   | `STRIPE_MANAGED_PAYMENTS` | `false` (step 5) | |
 
    Never set `STRIPE_ALLOW_LIVE` or `E2E_FAKE_STRIPE_URL` on Railway (the server refuses the fake
    on Railway).

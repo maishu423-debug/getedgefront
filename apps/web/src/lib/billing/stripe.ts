@@ -13,6 +13,8 @@ export interface BillingConfig {
   webhookSecret: string;
   priceId: string;
   taxEnabled: boolean;
+  /** Stripe Managed Payments (Stripe as merchant of record). Off unless the owner decides. */
+  managedPayments: boolean;
   portalConfigurationId: string | null;
 }
 
@@ -38,6 +40,7 @@ export function billingConfig(
     webhookSecret: env.STRIPE_WEBHOOK_SECRET ?? "",
     priceId,
     taxEnabled: env.STRIPE_TAX_ENABLED === "true",
+    managedPayments: env.STRIPE_MANAGED_PAYMENTS === "true",
     portalConfigurationId: env.STRIPE_PORTAL_CONFIGURATION_ID || null,
   };
 }

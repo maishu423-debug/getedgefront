@@ -53,6 +53,7 @@ export async function POST(req: Request) {
         withTrial: trialEligible(existing?.trialUsedAt ?? null, subs),
         siteUrl: siteUrl(),
         taxEnabled: config.taxEnabled,
+        managedPayments: config.managedPayments,
       }),
       { idempotencyKey: `checkout:${user.id}:${clickId}` },
     );

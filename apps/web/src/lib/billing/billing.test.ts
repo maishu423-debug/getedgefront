@@ -139,6 +139,17 @@ describe("Checkout Session parameters", () => {
     const p = checkoutSessionParams({ ...base, withTrial: false });
     expect(p.subscription_data).toEqual({ metadata: { user_id: "u1" } });
   });
+  it("EdgeFront sells by default: Managed Payments explicitly off (accounts may default it on)", () => {
+    const p = checkoutSessionParams({ ...base, withTrial: true });
+    expect(p.managed_payments).toEqual({ enabled: false });
+    expect(p.automatic_tax).toEqual({ enabled: false });
+  });
+  it("Managed Payments only if the owner switches it on; Stripe then handles tax", () => {
+    const p = checkoutSessionParams({ ...base, withTrial: true, managedPayments: true });
+    expect(p.managed_payments).toEqual({ enabled: true });
+    expect(p).not.toHaveProperty("automatic_tax");
+    expect(p.subscription_data?.trial_period_days).toBe(7);
+  });
   it("tax switched on by config only", () => {
     const p = checkoutSessionParams({ ...base, withTrial: false, taxEnabled: true });
     expect(p.automatic_tax).toEqual({ enabled: true });
@@ -163,6 +174,7 @@ describe("config and safety", () => {
   });
   it("tax collection is a config flag", () => {
     expect(billingConfig({ STRIPE_SECRET_KEY: "sk_test_x", STRIPE_PRICE_ID: "p", STRIPE_TAX_ENABLED: "true" })?.taxEnabled).toBe(true);
+    expect(billingConfig({ STRIPE_SECRET_KEY: "sk_test_x", STRIPE_PRICE_ID: "p" })?.managedPayments).toBe(false);
   });
   it("the fake Stripe is local-only", () => {
     expect(e2eFakeStripeUrl({})).toBeNull();

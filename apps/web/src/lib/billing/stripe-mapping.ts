@@ -87,6 +87,8 @@ export interface CheckoutInput {
   withTrial: boolean;
   siteUrl: string;
   taxEnabled: boolean;
+  /** Stripe as merchant of record (it then handles tax itself). */
+  managedPayments?: boolean;
 }
 
 /**
@@ -103,9 +105,17 @@ export function checkoutSessionParams(i: CheckoutInput): Stripe.Checkout.Session
     payment_method_collection: "always",
     success_url: `${i.siteUrl}/account?checkout=success`,
     cancel_url: `${i.siteUrl}/pricing?checkout=cancelled`,
-    automatic_tax: { enabled: i.taxEnabled },
-    // With tax on, Checkout needs the customer's address and may save it on the customer.
-    ...(i.taxEnabled ? { customer_update: { address: "auto" as const } } : {}),
+    // Who sells: EdgeFront (default; Stripe Tax only if STRIPE_TAX_ENABLED) or, if the owner
+    // turns it on, Stripe as merchant of record (Managed Payments), which handles tax itself.
+    // Stated explicitly because Stripe accounts can default to Managed Payments.
+    ...(i.managedPayments
+      ? { managed_payments: { enabled: true } }
+      : {
+          managed_payments: { enabled: false },
+          automatic_tax: { enabled: i.taxEnabled },
+          // With tax on, Checkout needs the customer's address and may save it on the customer.
+          ...(i.taxEnabled ? { customer_update: { address: "auto" as const } } : {}),
+        }),
     metadata: { user_id: i.userId },
     subscription_data: {
       metadata: { user_id: i.userId },
