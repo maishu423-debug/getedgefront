@@ -27,7 +27,8 @@ export function billingConfig(
   const secretKey = env.STRIPE_SECRET_KEY ?? "";
   const priceId = env.STRIPE_PRICE_ID ?? "";
   if (!secretKey || !priceId) return null;
-  if (secretKey.startsWith("sk_live_") && env.STRIPE_ALLOW_LIVE !== "true") {
+  // secret (sk_) and restricted (rk_) live keys alike
+  if (/^(sk|rk)_live_/.test(secretKey) && env.STRIPE_ALLOW_LIVE !== "true") {
     throw new Error(
       "Live Stripe keys are not allowed yet (set STRIPE_ALLOW_LIVE=true in Phase 11)",
     );

@@ -152,6 +152,10 @@ describe("config and safety", () => {
     expect(billingConfig({})).toBeNull();
     expect(billingConfig({ STRIPE_SECRET_KEY: "sk_test_x" })).toBeNull();
   });
+  it("restricted live keys are refused too", () => {
+    expect(() => billingConfig({ STRIPE_SECRET_KEY: "rk_live_x", STRIPE_PRICE_ID: "price_1" })).toThrow();
+    expect(billingConfig({ STRIPE_SECRET_KEY: "rk_test_x", STRIPE_PRICE_ID: "price_1" })).not.toBeNull();
+  });
   it("test keys work; live keys are refused until Phase 11", () => {
     expect(billingConfig({ STRIPE_SECRET_KEY: "sk_test_x", STRIPE_PRICE_ID: "price_1" })?.taxEnabled).toBe(false);
     expect(() => billingConfig({ STRIPE_SECRET_KEY: "sk_live_x", STRIPE_PRICE_ID: "price_1" })).toThrow();
