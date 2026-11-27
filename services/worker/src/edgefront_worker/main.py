@@ -14,7 +14,7 @@ from edgefront_core.logs import configure_logging
 from edgefront_core.settings import get_settings
 from edgefront_core.timeutil import utcnow
 from edgefront_worker.heartbeat import heartbeat
-from edgefront_worker.jobs import ProductJobs, metar_job, retention_job
+from edgefront_worker.jobs import ProductJobs, metar_job, native_unit_job, retention_job
 from edgefront_worker.lock import hold_worker_lock
 
 log = logging.getLogger("edgefront.worker")
@@ -44,6 +44,16 @@ def build_scheduler() -> BlockingScheduler:
         args=[factory],
         id="retention",
         misfire_grace_time=3600,
+    )
+    scheduler.add_job(
+        native_unit_job,  # stored METARs only: no upstream traffic
+        "cron",
+        day_of_week="mon",
+        hour=10,
+        minute=0,
+        args=[factory],
+        id="native_unit_check",
+        misfire_grace_time=6 * 3600,
     )
     if not settings.worker_upstream_enabled:
         log.warning("upstream jobs disabled (WORKER_UPSTREAM_ENABLED=false): heartbeat only")

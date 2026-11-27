@@ -1,5 +1,5 @@
 """Pydantic response models for /api/v1. Temperatures: °C as stored (1 decimal) + whole °F
-for display (half away from zero, §6.1). Times are ISO 8601 UTC."""
+for display (NWS rounding: .5 rounds up, FMH-1 2.6.3; §6.1). Times are ISO 8601 UTC."""
 
 from __future__ import annotations
 
@@ -56,7 +56,11 @@ class TempValueOut(BaseModel):
 
     c: float = Field(description="Degrees Celsius as reported")
     f_exact: float = Field(description="°C * 9/5 + 32, not rounded")
-    f_rounded: int = Field(description="Whole °F, rounded half away from zero")
+    f_rounded: int = Field(description="Whole °F, NWS rounding (.5 rounds up, FMH-1 2.6.3)")
+    f_possible: list[int] | None = Field(
+        description="Whole-°F readings an ASOS station (measures in °F) could have made to give "
+        "this °C: one for tenths, one or two for whole °C. None at stations measuring in °C"
+    )
     precision: Literal["tenths_c", "whole_c"] = Field(
         description="'whole_c': only good to ±0.5 °C (±0.9 °F); show the uncertainty"
     )

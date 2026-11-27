@@ -48,6 +48,8 @@ class StationEntry(BaseModel):
     dsm_source: Literal["nws_api", "iem"] | None = None
     cli_location: str | None = Field(None, pattern=r"^[A-Z0-9]{3}$")
     pfm_point: str | None = None
+    # Unit the station measures in (v2 Phase 9, Q36): ASOS = whole °F (default), KBKF = °C.
+    native_temp_unit: Literal["F", "C"] = "F"
     venues: list[VenueEntry] = Field(default_factory=list)
 
     @field_validator("tz")

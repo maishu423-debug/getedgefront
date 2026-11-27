@@ -31,6 +31,7 @@ from edgefront_core.models import DailyHighEvent, MetarReport, SourceHealth, Sta
 from edgefront_core.settings import Settings
 from edgefront_core.sources import known_sources
 from edgefront_core.units import (
+    NativeUnit,
     TempValue,
     c_to_f_display,
     compass_point,
@@ -198,7 +199,11 @@ def _rtype(t: str) -> Literal["METAR", "SPECI"]:
     return "SPECI" if t == "SPECI" else "METAR"
 
 
-def metar_brief(r: RV, now: datetime) -> s.MetarBrief:
+def _unit(st: Station) -> NativeUnit:
+    return "C" if st.native_temp_unit == "C" else "F"
+
+
+def metar_brief(r: RV, now: datetime, native: NativeUnit = "F") -> s.MetarBrief:
     return s.MetarBrief(
         report_id=r.id,
         report_type=_rtype(r.report_type),
@@ -207,7 +212,9 @@ def metar_brief(r: RV, now: datetime) -> s.MetarBrief:
         temp_c=_num(r.temp_c),
         temp_f=c_to_f_display(r.temp_c),
         temp_precision=_precision(r.temp_precision),
-        temp=_temp_out(metar_temp_value(r.temp_c, r.temp_precision, r.observed_at))
+        temp=_temp_out(
+            metar_temp_value(r.temp_c, r.temp_precision, r.observed_at, native_unit=native)
+        )
         if r.temp_c is not None
         else None,
     )
@@ -218,6 +225,7 @@ def _temp_out(t: TempValue) -> s.TempValueOut:
         c=float(t.c),
         f_exact=float(t.f_exact),
         f_rounded=t.f_rounded,
+        f_possible=list(t.f_possible) if t.f_possible is not None else None,
         precision=t.precision,
         source=t.source,
         observed_at=t.observed_at,
@@ -228,10 +236,12 @@ def _sky(r: MetarReport) -> list[s.SkyLayerOut]:
     return [s.SkyLayerOut.model_validate(layer) for layer in (r.sky or [])]
 
 
-def metar_out(r: RV, now: datetime, superseded: bool = False) -> s.MetarOut:
+def metar_out(
+    r: RV, now: datetime, superseded: bool = False, native: NativeUnit = "F"
+) -> s.MetarOut:
     m = r.row
     return s.MetarOut(
-        **metar_brief(r, now).model_dump(),
+        **metar_brief(r, now, native).model_dump(),
         raw_text=m.raw_text,
         is_correction=m.is_correction,
         superseded=superseded,
@@ -271,7 +281,13 @@ def _high_out(reports: list[RV], st: Station, now: datetime) -> s.HighSoFarOut |
         report_type=_rtype(src.report_type),
         observed_at=h.observed_at,
         temp=_temp_out(
-            metar_temp_value(h.value_c, h.precision, h.observed_at, six_hour=h.kind == "max6h")
+            metar_temp_value(
+                h.value_c,
+                h.precision,
+                h.observed_at,
+                six_hour=h.kind == "max6h",
+                native_unit=_unit(st),
+            )
         ),
     )
 
@@ -292,7 +308,13 @@ def _low_out(reports: list[RV], st: Station, now: datetime) -> s.LowSoFarOut | N
         report_type=_rtype(src.report_type),
         observed_at=lo.observed_at,
         temp=_temp_out(
-            metar_temp_value(lo.value_c, lo.precision, lo.observed_at, six_hour=lo.kind == "min6h")
+            metar_temp_value(
+                lo.value_c,
+                lo.precision,
+                lo.observed_at,
+                six_hour=lo.kind == "min6h",
+                native_unit=_unit(st),
+            )
         ),
     )
 
@@ -353,7 +375,7 @@ def board(
                 std_utc_offset_minutes=off,
                 local_time=now.astimezone(ZoneInfo(st.tz)),
                 venues=venues.get(st.id, []),
-                latest=metar_brief(latest, now) if latest else None,
+                latest=metar_brief(latest, now, _unit(st)) if latest else None,
                 high_so_far=_high_out(reps, st, now),
                 low_so_far=_low_out(reps, st, now),
                 nws_today_high_f=daily.today_high_f(daily.latest_forecast(session, st.id), st, now),
@@ -383,7 +405,7 @@ def current(session: Session, st: Station, now: datetime, settings: Settings) ->
         source=_metar_source(session),
         stale_after_minutes=settings.stale_metar_minutes,
         is_stale=status != "ok",
-        latest=metar_out(latest, now) if latest else None,
+        latest=metar_out(latest, now, native=_unit(st)) if latest else None,
         high_so_far=_high_out(reps, st, now),
         low_so_far=_low_out(reps, st, now),
         climate_day=climate_day_out(st, now),
@@ -403,7 +425,9 @@ def metars(
         status=_status(latest, now, settings.stale_metar_minutes),
         hours=hours,
         source=_metar_source(session),
-        reports=[metar_out(r, now, superseded=r.id not in eff) for r in newest_first],
+        reports=[
+            metar_out(r, now, superseded=r.id not in eff, native=_unit(st)) for r in newest_first
+        ],
     )
 
 

@@ -46,6 +46,7 @@ def test_scheduler_has_all_jobs(monkeypatch: pytest.MonkeyPatch) -> None:
             "models_text",
             "models_grib",
             "retention",
+            "native_unit_check",
         }
     finally:
         settings.get_settings.cache_clear()
@@ -85,7 +86,7 @@ def test_ci_mode_schedules_no_upstream_jobs(monkeypatch: pytest.MonkeyPatch) -> 
     db.get_engine.cache_clear()
     try:
         ids = {j.id for j in build_scheduler().get_jobs()}
-        assert ids == {"heartbeat", "retention"}
+        assert ids == {"heartbeat", "retention", "native_unit_check"}  # no upstream traffic
     finally:
         settings.get_settings.cache_clear()
         db.get_engine.cache_clear()

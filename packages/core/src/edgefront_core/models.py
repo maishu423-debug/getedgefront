@@ -87,6 +87,8 @@ class Station(Base):
     cli_location: Mapped[str | None] = mapped_column(String(8))  # CLI<LOC> product location
     dsm_source: Mapped[str | None] = mapped_column(String(8))  # nws_api | iem | None
     aliases: Mapped[Any | None] = mapped_column(JsonType)  # list[str] search terms
+    # "F" (ASOS, whole °F; METAR tenths °C are conversions) or "C" (KBKF). v2 Phase 9, Q36.
+    native_temp_unit: Mapped[str] = mapped_column(String(1), default="F", server_default="F")
     active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
     enriched_at: Mapped[datetime | None] = _ts()
     enrichment_source: Mapped[str | None] = mapped_column(Text)

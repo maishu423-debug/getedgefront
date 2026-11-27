@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { climateDayBounds, elapsedFraction, formatCountdown } from "@/lib/climate";
 import { useNow, usePolling } from "@/lib/hooks";
+import { fmtFExact, spokenTemp, type TempValue } from "@/lib/temp";
 import { formatLocalTime, formatLocalWithZone, formatZulu } from "@/lib/time";
 import type { BoardRow, StationsResponse, Venue } from "@/lib/types";
 
@@ -81,7 +83,7 @@ function GroupHeader({ rows, now }: { rows: BoardRow[]; now: number | null }) {
   );
   return (
     <tr>
-      <td colSpan={7} className="border-b border-border bg-[#F1F4F1] px-3.5 py-[9px]">
+      <td colSpan={8} className="border-b border-border bg-[#F1F4F1] px-3.5 py-[9px]">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-[13px] font-semibold">
             {first.zone_group} <span className="font-normal text-muted">· local time {local}</span>
@@ -112,42 +114,58 @@ function Row({ r }: { r: BoardRow }) {
   const href = `/station/${r.id}`;
   return (
     <tr className="hover:bg-[#F7FAF9]">
-      <td className="px-3.5 py-2.5">
+      <td className="px-2.5 py-2.5">
         <Link href={href} className="flex flex-col gap-px text-ink no-underline">
           <span className="font-mono text-sm font-semibold text-brand">{r.id}</span>
-          <span className="text-[12.5px] text-[#3A4644]">{r.name}</span>
+          <span className="block max-w-[172px] text-[12.5px] whitespace-normal text-[#3A4644]">
+            {r.name}
+          </span>
         </Link>
       </td>
-      <td className="px-3.5 py-2.5">
+      <td className="px-2.5 py-2.5">
         <VenueTags venues={r.venues} />
       </td>
-      <td className="px-3.5 py-2.5 text-right font-mono text-[15px]">
+      <td className="px-2.5 py-2.5 text-right font-mono text-[15px]">
         {r.latest?.temp_f ?? "—"}
         {r.latest?.temp_f != null ? "°" : ""}
       </td>
-      <td className="px-3.5 py-2.5 text-right">
+      <td className="px-2.5 py-2.5 text-right">
         {r.high_so_far ? (
-          <div className="flex flex-col items-end gap-px">
-            <span className="font-mono text-[15px] font-semibold text-high">
-              {r.high_so_far.value_f}°
-              {r.fresh_high ? (
+          <SoFar
+            label="High so far"
+            value={r.high_so_far.value_f}
+            temp={r.high_so_far.temp}
+            at={formatLocalTime(r.high_so_far.observed_at, r.tz)}
+            className="text-high"
+            badge={
+              r.fresh_high ? (
                 <span className="ml-1.5 rounded-[4px] bg-[#FBE9DD] px-[5px] py-px align-[2px] font-sans text-[10px] font-semibold text-[#8A3A0E]">
                   NEW
                 </span>
-              ) : null}
-            </span>
-            <span className="text-[11.5px] text-muted-2">
-              at {formatLocalTime(r.high_so_far.observed_at, r.tz)}
-            </span>
-          </div>
+              ) : null
+            }
+          />
         ) : (
           <span className="text-muted-2">—</span>
         )}
       </td>
-      <td className="px-3.5 py-2.5 text-right font-mono text-sm text-[#3A4644]">
+      <td className="px-2.5 py-2.5 text-right">
+        {r.low_so_far ? (
+          <SoFar
+            label="Low so far"
+            value={r.low_so_far.value_f}
+            temp={r.low_so_far.temp}
+            at={formatLocalTime(r.low_so_far.observed_at, r.tz)}
+            className="text-[#1F5E8C]"
+          />
+        ) : (
+          <span className="text-muted-2">—</span>
+        )}
+      </td>
+      <td className="px-2.5 py-2.5 text-right font-mono text-sm text-[#3A4644]">
         {r.nws_today_high_f != null ? `${r.nws_today_high_f}°` : "—"}
       </td>
-      <td className="px-3.5 py-2.5">
+      <td className="px-2.5 py-2.5">
         {r.latest ? (
           <div className="flex flex-col gap-px">
             <span
@@ -277,11 +295,11 @@ export function Board({ initial }: { initial: StationsResponse }) {
         <div className="relative overflow-x-auto">
           <table className="w-full border-collapse text-[13.5px] [&_td]:border-b [&_td]:border-hairline [&_td]:whitespace-nowrap">
             <caption className="sr-only">
-              Settlement stations with current temperature, high so far, NWS forecast high and last
-              METAR
+              Settlement stations with current temperature, high and low so far (rounded and
+              unrounded °F), NWS forecast high and last METAR
             </caption>
             <thead>
-              <tr className="[&_th]:border-b [&_th]:border-border [&_th]:bg-[#FAFBF9] [&_th]:px-3.5 [&_th]:py-2.5 [&_th]:text-[11px] [&_th]:font-semibold [&_th]:tracking-[.04em] [&_th]:whitespace-nowrap [&_th]:text-muted-2 [&_th]:uppercase">
+              <tr className="[&_th]:border-b [&_th]:border-border [&_th]:bg-[#FAFBF9] [&_th]:px-2.5 [&_th]:py-2.5 [&_th]:text-[11px] [&_th]:font-semibold [&_th]:tracking-[.04em] [&_th]:whitespace-nowrap [&_th]:text-muted-2 [&_th]:uppercase">
                 <th scope="col" className="text-left">
                   Station
                 </th>
@@ -295,6 +313,9 @@ export function Board({ initial }: { initial: StationsResponse }) {
                   High so far
                 </th>
                 <th scope="col" className="text-right">
+                  Low so far
+                </th>
+                <th scope="col" className="text-right !whitespace-normal">
                   NWS fcst high
                 </th>
                 <th scope="col" className="text-left">
@@ -319,10 +340,41 @@ export function Board({ initial }: { initial: StationsResponse }) {
         </div>
       </div>
       <p className="text-xs text-muted-2">
-        High so far = highest hourly METAR since local midnight (local standard time). It is not a
-        settlement value: markets settle on each venue&apos;s named source (an NWS climate report or
-        another provider), which can differ. Read the market&apos;s rules.
+        High / low so far = highest / lowest hourly METAR since local midnight (local standard
+        time); the small number is the unrounded °F. It is not a settlement value: markets settle on
+        each venue&apos;s named source (an NWS climate report or another provider), which can
+        differ. Read the market&apos;s rules.
       </p>
     </section>
+  );
+}
+
+/** A high/low-so-far cell: whole °F, then "at 2:53 PM · 62.96°" (unrounded) on the second line. */
+function SoFar({
+  label,
+  value,
+  temp,
+  at,
+  className,
+  badge = null,
+}: {
+  label: string;
+  value: number;
+  temp?: TempValue;
+  at: string;
+  className: string;
+  badge?: ReactNode;
+}) {
+  const spoken = temp ? spokenTemp(label, temp, at) : `${label} ${value} °F, at ${at}`;
+  return (
+    <div className="flex flex-col items-end gap-px" title={spoken}>
+      <span className={`font-mono text-[15px] font-semibold ${className}`}>
+        {value}°{badge}
+      </span>
+      <span className="text-[11.5px] text-muted-2">
+        at {at}
+        {temp ? <span className="font-mono"> · {fmtFExact(temp)}°</span> : null}
+      </span>
+    </div>
   );
 }
