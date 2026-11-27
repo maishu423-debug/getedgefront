@@ -22,11 +22,20 @@ export function mails(to: string, kind?: string): Mail[] {
   } catch {
     return [];
   }
-  return raw
-    .split("\n")
-    .filter(Boolean)
-    .map((l) => JSON.parse(l) as Mail)
-    .filter((m) => m.to === to && (!kind || m.kind === kind));
+  // The web server appends one JSON line per email; tests in other workers read the same file and
+  // may catch the last line half-written, so a line that doesn't parse yet is skipped (the next
+  // poll sees it whole). Matching is by exact recipient, which is unique per test and retry.
+  const out: Mail[] = [];
+  for (const line of raw.split("\n")) {
+    if (!line) continue;
+    try {
+      const m = JSON.parse(line) as Mail;
+      if (m.to === to && (!kind || m.kind === kind)) out.push(m);
+    } catch {
+      // partial line
+    }
+  }
+  return out;
 }
 
 /** Waits for an email of `kind` to `to` and returns the first http(s) link in its text. */
@@ -72,6 +81,8 @@ export async function verify(page: Page, email: string) {
 
 export async function signIn(page: Page, email: string, password = PASSWORD, next = "") {
   await page.goto(`/signin${next ? `?next=${encodeURIComponent(next)}` : ""}`);
+  // /signin sends signed-in visitors away: fail fast and clearly if a session is still alive.
+  await expect(page, "still signed in: /signin redirected away").toHaveURL(/\/signin/);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
@@ -82,9 +93,22 @@ export async function expectSignedIn(page: Page) {
 }
 
 export async function expectSignedOut(page: Page) {
+  // the visible header slot (full nav from 640 px, compact row below)
   await expect(
-    page.getByTestId("header-account").getByRole("link", { name: "Sign in" }),
+    page.getByRole("banner").getByRole("link", { name: "Sign in", exact: true }),
   ).toBeVisible();
+}
+
+/**
+ * Signs out from the header menu and waits until it has really happened. The menu awaits the
+ * sign-out request and then reloads "/"; navigating away before that aborts the request and
+ * leaves the session alive (slow CI runners hit this).
+ */
+export async function signOutFromMenu(page: Page) {
+  await page.getByRole("button", { name: /Account menu/ }).click();
+  await page.getByRole("menuitem", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expectSignedOut(page);
 }
 
 /** The form's error/notice box (Next's empty route announcer also has role=alert). */

@@ -124,14 +124,22 @@ jobs:
             sleep 2
           done
           exit 1
-      - name: Account flows (Playwright, fake Google, emails to a file)
+      - name: Account flows and layout stability (Playwright, fake Google, emails to a file)
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/pw.xml
-        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts --reporter=list,junit
+        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts e2e/layout.spec.ts --reporter=list,junit
       - name: Logs as annotations
         if: failure()
         run: |
           test -f pw.xml && python3 tools/ci_annotate.py junit pw.xml head || true
+      - name: Playwright traces and screenshots (failed or flaky tests)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-auth-${{ github.run_attempt }}
+          path: apps/web/test-results/
+          retention-days: 14
+          if-no-files-found: ignore
           python3 tools/ci_annotate.py text "api" api.log || true
           python3 tools/ci_annotate.py text "web" web.log || true
 

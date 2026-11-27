@@ -10,6 +10,7 @@ import {
   PASSWORD_2,
   setGoogleIdentity,
   signIn,
+  signOutFromMenu,
   signUp,
   uniqueEmail,
   verify,
@@ -29,7 +30,9 @@ test.describe("accounts", () => {
     await page.goto("/account");
     await expect(page.getByRole("heading", { level: 1, name: "Account" })).toBeVisible();
     await expect(page.getByText("Verified", { exact: true })).toBeVisible();
-    await expect(page.getByText("FREE", { exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByText("FREE", { exact: true }).filter({ visible: true }).first(),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Sign out", exact: true }).click();
     await expect(page).toHaveURL(/\/$/);
     await expectSignedOut(page);
@@ -50,8 +53,7 @@ test.describe("accounts", () => {
     expect(mails(email, "verify")).toHaveLength(1); // no second account, no second verification
     // the original password still works; the second one does not
     await verify(page, email);
-    await page.getByRole("button", { name: /Account menu/ }).click();
-    await page.getByRole("menuitem", { name: "Sign out" }).click();
+    await signOutFromMenu(page);
     await signIn(page, email, PASSWORD_2);
     await expect(formAlert(page)).toContainText("email or password is not right");
   });
@@ -202,8 +204,7 @@ test.describe("accounts", () => {
     await signUp(page, "Next Test", email);
     await signIn(page, email, PASSWORD, "/station/KDFW");
     await expect(page).toHaveURL(/\/station\/KDFW$/);
-    await page.getByRole("button", { name: /Account menu/ }).click();
-    await page.getByRole("menuitem", { name: "Sign out" }).click();
+    await signOutFromMenu(page);
     await signIn(page, email, PASSWORD, "//evil.example.com/steal");
     await expect(page).toHaveURL(/^http:\/\/localhost:3000\/$/);
   });
@@ -229,9 +230,7 @@ test.describe("accounts", () => {
     // from the first paint, so the header never moves anything.
     for (const signedIn of [true, false]) {
       if (!signedIn) {
-        await page.getByRole("button", { name: /Account menu/ }).click();
-        await page.getByRole("menuitem", { name: "Sign out" }).click();
-        await expectSignedOut(page);
+        await signOutFromMenu(page);
       }
       for (const p of ["/", "/pricing", "/station/KDFW"]) {
         await page.goto(p);
