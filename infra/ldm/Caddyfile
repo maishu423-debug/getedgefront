@@ -1,0 +1,58 @@
+# /etc/caddy/Caddyfile on the LDM server (v2 Phase 9). Steps: infra/ldm/README.md.
+# Public HTTPS in front of madis-api (127.0.0.1:8000). Only /health and /api/v1/hfmetar/* are
+# reachable, GET/HEAD only; everything else is 404. The Bearer token is checked by madis-api.
+{
+	# Optional: an address for Let's Encrypt expiry notices (not needed for it to work).
+	# email you@yourdomain.com
+
+	servers {
+		timeouts {
+			read_header 10s
+			read_body 10s
+			write 2m
+			idle 2m
+		}
+	}
+}
+
+ldm.getedgefront.com {
+	# Nothing legitimate sends a request body here (only GET/HEAD).
+	request_body {
+		max_size 1KB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+		-Server
+	}
+
+	# Access log (the Authorization header is logged as REDACTED by Caddy), rotated at 20 MB,
+	# 10 files kept for at most 30 days, compressed.
+	log {
+		output file /var/log/caddy/ldm-access.log {
+			roll_size 20MiB
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json
+	}
+
+	@allowed {
+		path /health /api/v1/hfmetar/*
+		method GET HEAD
+	}
+	handle @allowed {
+		reverse_proxy 127.0.0.1:8000 {
+			transport http {
+				dial_timeout 3s
+				response_header_timeout 60s
+			}
+		}
+	}
+	handle {
+		respond 404
+	}
+}
