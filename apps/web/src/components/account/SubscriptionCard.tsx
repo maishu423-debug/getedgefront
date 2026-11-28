@@ -1,3 +1,4 @@
+import { COVERAGE } from "@/lib/coverage";
 import type { ReactNode } from "react";
 
 import {
@@ -149,8 +150,7 @@ export function SubscriptionCard({
       badge: "FREE",
       badgeCls: "bg-[#EEF1EE] text-text-2",
       headline: "Free plan",
-      detail:
-        "You have hourly METARs, daily summaries, forecasts and model guidance. Premium adds 5-minute data and the live map.",
+      detail: `You have hourly METARs, daily summaries, forecasts and model guidance. Premium adds ${COVERAGE.sentence} and the live map.`,
       facts: [
         ["Plan", "Free"],
         ["Trial", billing.trialEligible ? "Available · 7 days" : "Already used"],

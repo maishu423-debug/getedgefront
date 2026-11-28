@@ -5,6 +5,7 @@ import { PageShell } from "@/components/Chrome";
 import { RelativeAge } from "@/components/RelativeAge";
 import { Skeleton } from "@/components/states";
 import { getStatus } from "@/lib/api";
+import { COVERAGE } from "@/lib/coverage";
 import { formatZulu } from "@/lib/time";
 import type { SourceStatus } from "@/lib/types";
 
@@ -65,7 +66,7 @@ const PREMIUM_SOURCES: SourceCard[] = [
   {
     title: "5-minute ASOS data (NOAA MADIS) · Premium",
     producer: "FAA ASOS stations, via the NOAA Meteorological Assimilation Data Ingest System",
-    uses: "5-minute temperature, dew point, wind, pressure and visibility for the 26 settlement stations in the feed (KNYC and KBKF are not in it; Premium shows their hourly METAR). Temperatures are whole °C, so each value can be 1–2 °F off the station's own reading: we show the possible readings next to the rounded and unrounded °F. These are not official METAR reports and have no METAR quality control; MADIS quality-control flags are kept, and readings MADIS rejected or questioned are left out of the 5-minute high and low.",
+    uses: `5-minute temperature, dew point, wind, pressure and visibility for ${COVERAGE.inFeed} of the ${COVERAGE.total} settlement stations (${COVERAGE.outside.join(" and ")} are not in the feed; Premium shows their hourly METAR). Temperatures are whole °C, so each value can be 1–2 °F off the station's own reading: we show the possible readings next to the rounded and unrounded °F. These are not official METAR reports and have no METAR quality control; MADIS quality-control flags are kept, and readings MADIS rejected or questioned are left out of the 5-minute high and low.`,
     cadence:
       "Checked every minute. A reading usually reaches us 10–20 minutes after it was observed (MADIS file production); a station counts as delayed after 30 minutes.",
     licence:

@@ -388,3 +388,14 @@ def test_scheduler_runs_hfmetar_only_when_enabled_and_safe(
     assert "hfmetar" not in ids(HF_INGEST_ENABLED="false", LDM_API_BASE_URL=BASE)
     assert "hfmetar" in ids(HF_INGEST_ENABLED="true", LDM_API_BASE_URL=BASE)
     assert "hfmetar" not in ids(HF_INGEST_ENABLED="true", LDM_API_BASE_URL="http://ldm.example.org")
+
+
+def test_registry_feed_flags_match_the_real_files() -> None:
+    """data/stations.yaml `five_minute_feed` (the source of every "N of M stations" text on the
+    site) agrees with what is actually in the real files: KNYC and KBKF are not in them."""
+    seen: set[str] = set()
+    for f in (F15, F17, F17B):
+        seen |= {r.station_id for r in parse_file(f, OURS).readings}
+    flagged = {st.id for st in load_registry() if st.five_minute_feed}
+    assert seen == flagged
+    assert OURS - flagged == {"KNYC", "KBKF"}

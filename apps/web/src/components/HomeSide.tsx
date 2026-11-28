@@ -1,3 +1,4 @@
+import { COVERAGE } from "@/lib/coverage";
 import Link from "next/link";
 
 import { formatZulu } from "@/lib/time";
@@ -96,7 +97,7 @@ export function MapTeaser() {
           Live station map
         </h2>
         <p className="text-[13px] leading-normal text-text-2">
-          Every settlement station on one map, updated from the 5-minute ASOS feed. Part of Premium.
+          Every settlement station on one map, with {COVERAGE.sentence}. Part of Premium.
         </p>
         <Link
           href="/map"

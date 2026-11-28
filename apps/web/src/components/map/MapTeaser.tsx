@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- a static SVG from public/, no optimisation needed */
+import { COVERAGE } from "@/lib/coverage";
+
 import { TrialButton } from "../billing/TrialButton";
 import { LockIcon } from "../LockIcon";
 
@@ -7,8 +9,8 @@ import { LockIcon } from "../LockIcon";
  * with no data values, three benefits and the trial button. No map library, no tiles, no data.
  */
 export const MAP_BENEFITS = [
-  "Every settlement station on one map, coloured by the current temperature or today's high or low so far.",
-  "5-minute ASOS readings, refreshed every minute, with the hourly METAR shown for comparison.",
+  `All ${COVERAGE.total} settlement stations on one map, coloured by the current temperature or today's high or low so far.`,
+  `${COVERAGE.sentence}, refreshed every minute, with the hourly METAR shown for comparison${COVERAGE.outside.length ? ` (and instead, for ${COVERAGE.outside.join(" and ")})` : ""}.`,
   "Filter by Kalshi, Polymarket or Robinhood, and open any station's full page from the map.",
 ];
 
@@ -17,9 +19,7 @@ export function MapTeaser() {
     <div className="flex flex-col gap-4" data-testid="map-teaser">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-[32px] font-bold tracking-[-0.02em]">Live station map</h1>
-        <p className="text-sm text-muted">
-          5-minute ASOS data for every settlement station · Premium
-        </p>
+        <p className="text-sm text-muted">{COVERAGE.sentence} · Premium</p>
       </div>
       <div className="flex flex-wrap items-start gap-4">
         <div className="relative min-w-0 flex-[999_1_620px] overflow-hidden rounded-[16px] border border-border bg-[#EAF1F4] p-3">

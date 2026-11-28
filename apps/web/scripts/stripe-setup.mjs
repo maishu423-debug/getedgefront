@@ -7,6 +7,8 @@
 //
 // Prints the values to put in Railway (web): STRIPE_PRICE_ID, STRIPE_PORTAL_CONFIGURATION_ID and,
 // only when the webhook endpoint is created, STRIPE_WEBHOOK_SECRET (Stripe shows it once).
+import { readFileSync } from "node:fs";
+
 import Stripe from "stripe";
 
 const API_VERSION = "2026-11-18.endive"; // same as src/lib/billing/stripe.ts
@@ -43,6 +45,12 @@ const out = [];
 // requires one on every product). Default: "General – electronically supplied services";
 // your accountant may prefer a SaaS code (txcd_10103000 personal use / txcd_10103001 business).
 const TAX_CODE = arg("tax-code") ?? "txcd_10000000";
+// Counted from the registry like the site (v2 Phase 10 fixes): Checkout shows this text.
+const reg = JSON.parse(
+  readFileSync(new URL("../src/generated/stations.json", import.meta.url), "utf8"),
+);
+const outside = reg.stations.filter((s) => s.fiveMinute === false).map((s) => s.id);
+const PRODUCT_DESCRIPTION = `5-minute ASOS data for ${reg.stations.length - outside.length} of ${reg.stations.length} settlement stations${outside.length ? ` (not ${outside.join(" or ")})` : ""} and a live map of all ${reg.stations.length}.`;
 const products = await stripe.products.list({ limit: 100, active: true });
 let product = products.data.find((p) => p.metadata?.edgefront_key === PRODUCT_KEY);
 if (product) {
@@ -51,10 +59,14 @@ if (product) {
     product = await stripe.products.update(product.id, { tax_code: TAX_CODE });
     console.log(`✓ product ${product.id} "${product.name}" exists; tax code set to ${TAX_CODE}`);
   } else console.log(`✓ product ${product.id} "${product.name}" exists (tax code ${code})`);
+  if (product.description !== PRODUCT_DESCRIPTION) {
+    product = await stripe.products.update(product.id, { description: PRODUCT_DESCRIPTION });
+    console.log(`✓ product description updated: ${PRODUCT_DESCRIPTION}`);
+  }
 } else {
   product = await stripe.products.create({
     name: "EdgeFront Premium",
-    description: "5-minute ASOS data and a live map of every settlement station.",
+    description: PRODUCT_DESCRIPTION,
     tax_code: TAX_CODE,
     metadata: { edgefront_key: PRODUCT_KEY },
   });

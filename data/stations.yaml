@@ -18,6 +18,10 @@
 #   measure in whole °F and their METAR tenths °C are conversions (2026-11-27: every T-group value
 #   of 27 stations within ±0.09 °F of a whole °F, 3,031 reports). KBKF (military) measures in °C
 #   (19 of 94). A weekly worker check warns if a station's data stop matching this.
+# - five_minute_feed: whether the station is in the NOAA MADIS 5-minute ASOS feed (Premium, v2
+#   Phase 9). Default true. false = not in the feed at all (checked on every real file, 2026-11-25
+#   to 2026-11-28): KNYC (Central Park is not an FAA ASOS) and KBKF (military). Premium shows their
+#   hourly METAR; every "5-minute data for N of M stations" text on the site is counted from this.
 # - Seed semantics: a null dsm_location/pfm_point never overwrites a stored value; venues
 #   below are the full truth for each station.
 
@@ -32,6 +36,7 @@
   dsm_source: nws_api
   cli_location: NYC
   pfm_point: "Central Park-New York NY"
+  five_minute_feed: false
   venues:
     - {venue: kalshi, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
 
@@ -353,6 +358,7 @@
   cli_location: null
   pfm_point: "Buckley AFB-Arapahoe CO"
   native_temp_unit: C
+  five_minute_feed: false
   venues:
     - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
 

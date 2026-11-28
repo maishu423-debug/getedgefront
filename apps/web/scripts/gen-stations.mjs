@@ -15,7 +15,9 @@ for (const block of yaml.split(/^(?=- id: )/m)) {
   const id = /^- id: (K[A-Z0-9]{3})\s*$/m.exec(block)?.[1];
   if (!id) continue;
   const name = /^ {2}name: "(.*)"\s*$/m.exec(block)?.[1]?.replace(/\\"/g, '"');
-  stations.push({ id, name: name ?? id });
+  // In the 5-minute feed unless the registry says `five_minute_feed: false` (v2 Phase 10 fixes).
+  const fiveMinute = !/^ {2}five_minute_feed: false\s*$/m.test(block);
+  stations.push({ id, name: name ?? id, fiveMinute });
 }
 if (stations.length === 0) throw new Error(`no stations found in ${src}`);
 mkdirSync(dirname(out), { recursive: true });
