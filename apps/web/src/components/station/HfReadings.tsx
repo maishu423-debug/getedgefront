@@ -42,13 +42,11 @@ export function HfReadings({ stationId, tz }: { stationId: string; tz: string })
     `/api/premium/stations/${stationId}/hf?hours=24`,
     premium && inFeed,
   );
-  const [view, setView] = useState<"raw" | "dec">("dec");
   const [range, setRange] = useState<Range>(2);
   const now = useNow(30_000);
 
   const readings = useMemo(() => hf.data?.readings ?? [], [hf.data]);
   const latest = readings.at(-1) ?? null;
-  const hasRaw = readings.some((r) => r.raw_message);
   const staleAfter = hf.data?.stale_after_minutes ?? 30;
   const age = latest && now !== null ? minutesSince(latest.observed_at, now) : null;
   const delayed = age !== null && age > staleAfter;
@@ -85,16 +83,6 @@ export function HfReadings({ stationId, tz }: { stationId: string; tz: string })
               Latest {formatZulu(latest.observed_at)} · received {formatZulu(latest.ingested_at)}
               {delayed ? " · delayed" : ""}
             </span>
-            {hasRaw ? (
-              <div role="group" aria-label="5-minute view" className="flex rounded-[9px] bg-[#E7EAE6] p-[3px]">
-                {([["raw", "Raw"], ["dec", "Decoded"]] as const).map(([k, t]) => (
-                  <button key={k} type="button" aria-pressed={view === k} onClick={() => setView(k)}
-                    className={`min-h-10 cursor-pointer rounded-[7px] px-3 text-[13px] font-medium ${view === k ? "bg-surface text-ink shadow-[0_1px_2px_rgba(16,26,28,.14)]" : "text-muted hover:text-ink"}`}>
-                    {t}
-                  </button>
-                ))}
-              </div>
-            ) : null}
           </div>
         ) : null}
       </div>
@@ -122,15 +110,12 @@ export function HfReadings({ stationId, tz }: { stationId: string; tz: string })
           <NoData what="5-minute readings">No 5-minute readings in the last 24 hours.</NoData>
         </div>
       ) : (
-        <Table readings={readings} range={range} view={view} tz={tz} />
+        <Table readings={readings} range={range} tz={tz} />
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#F7F8F6] px-5 py-3">
         <span className="text-xs text-muted-2">
           {HF_TABLE_FOOTER}
-          {showTable && hasRaw && view === "raw"
-            ? " Raw = the record exactly as transmitted to MADIS (comma-separated fields, not a METAR)."
-            : ""}
           {showTable && hf.failed ? " · Connection lost · retrying" : ""}
         </span>
         {showTable && readings.length ? (
@@ -168,10 +153,9 @@ function Locked() {
   );
 }
 
-function Table({ readings, range, view, tz }: {
+function Table({ readings, range, tz }: {
   readings: HfReading[];
   range: 2 | 6 | 24;
-  view: "raw" | "dec";
   tz: string;
 }) {
   const items = useMemo(() => tableItems(readings, range, tz), [readings, range, tz]);
@@ -192,7 +176,7 @@ function Table({ readings, range, view, tz }: {
     seen.current = keys;
   }, [readings]);
 
-  const cols = view === "raw" ? 2 : 10;
+  const cols = 10;
   return (
     <div
       className="relative max-h-[70vh] overflow-auto [overflow-anchor:auto] focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:outline-none"
@@ -206,12 +190,6 @@ function Table({ readings, range, view, tz }: {
           marked
         </caption>
         <thead>
-          {view === "raw" ? (
-            <tr>
-              <th scope="col" className="left-0 z-[3] w-[84px]">Time (UTC)</th>
-              <th scope="col">Record as transmitted</th>
-            </tr>
-          ) : (
             <tr>
               <th scope="col" className="left-0 z-[3] w-[84px]">Time (UTC)</th>
               <th scope="col">Local</th>
@@ -224,7 +202,6 @@ function Table({ readings, range, view, tz }: {
               <th scope="col">Dew °F</th>
               <th scope="col">Altimeter</th>
             </tr>
-          )}
         </thead>
         <tbody>
           {items.map((it) =>
@@ -239,7 +216,7 @@ function Table({ readings, range, view, tz }: {
                 <td colSpan={cols} className="!py-1.5 text-[12px] text-muted-2 italic">{it.label}</td>
               </tr>
             ) : (
-              <Row key={it.key} r={it.r} view={view} tz={tz} fresh={fresh.has(it.r.observed_at)} />
+              <Row key={it.key} r={it.r} tz={tz} fresh={fresh.has(it.r.observed_at)} />
             ),
           )}
         </tbody>
@@ -248,9 +225,8 @@ function Table({ readings, range, view, tz }: {
   );
 } // prettier-ignore
 
-const Row = memo(function Row({ r, view, tz, fresh }: {
+const Row = memo(function Row({ r, tz, fresh }: {
   r: HfReading;
-  view: "raw" | "dec";
   tz: string;
   fresh: boolean;
 }) {
@@ -277,14 +253,6 @@ const Row = memo(function Row({ r, view, tz, fresh }: {
     </td>
   );
   const rowCls = `bg-surface transition-colors duration-700 ${fresh ? "motion-safe:bg-[#FFF6D8]" : ""}`;
-  if (view === "raw") {
-    return (
-      <tr className={rowCls} data-testid="hf-row">
-        {time}
-        <td className="font-mono !whitespace-normal [overflow-wrap:anywhere]">{r.raw_message ?? "—"}</td>
-      </tr>
-    );
-  }
   return (
     <tr className={rowCls} data-testid="hf-row">
       {time}

@@ -18,11 +18,7 @@ const ROWS: [string, string, string][] = [
   ["Hourly METAR + SPECI (raw and decoded)", "yes", "yes"],
   ["NWS Daily Climate Report (CLI) and ASOS Daily Summary (DSM)", "yes", "yes"],
   ["NWS forecast (today and hourly)", "yes", "yes"],
-  [
-    "Model guidance chart (GFS, IFS, AIFS, NBM, GFS-MOS, LAMP, PFM)",
-    "Coming in a later update",
-    "Coming in a later update",
-  ],
+  ["Model guidance chart (GFS, IFS, AIFS, NBM, GFS-MOS, LAMP, PFM)", "yes", "yes"],
   [
     "Current temperature, high so far and observed chart",
     "From hourly METARs",

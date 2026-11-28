@@ -363,7 +363,7 @@ test.describe("live map", () => {
 });
 
 test.describe("5-minute readings table", () => {
-  test("Premium: rows newest first, hour dividers, QC chip, conversion tooltip, Raw, ranges", async ({ page }, info) => {
+  test("Premium: rows newest first, hour dividers, QC chip, conversion tooltip, ranges, no Raw view", async ({ page }, info) => {
     await userIn(page, info, "trialing");
     await page.goto("/station/KDFW");
     const sec = page.getByTestId("hf-readings");
@@ -384,10 +384,7 @@ test.describe("5-minute readings table", () => {
     }
     await sec.getByRole("button", { name: "Show 6 hours" }).click();
     await expect.poll(() => rows.count()).toBeGreaterThan(60);
-    await sec.getByRole("button", { name: "Raw", exact: true }).click();
-    await expect(rows.first()).toContainText("E2E-TEST,KDFW,");
-    await expect(sec).toContainText("Raw = the record exactly as transmitted to MADIS");
-    await sec.getByRole("button", { name: "Decoded", exact: true }).click();
+    await expect(sec.getByRole("button", { name: "Raw", exact: true })).toHaveCount(0); // owner: no Raw view
     await axe(page, "5-minute table");
   }); // prettier-ignore
 

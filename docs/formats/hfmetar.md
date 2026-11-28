@@ -44,7 +44,7 @@ METAR observations" and has "no metar quality control" (`madis_metar.shtml`).
 | `visibility` (float32) | meter | statute miles, 1/16 steps (10, 9, 4 …) | `vis_mi` |
 | `precipAccum` (float32) | mm | 0.01 in (0.254 mm steps) | `precip_in` |
 | `<var>DD`, `<var>QCA`, `<var>QCR` | char, int | see QC | `qc` (jsonb, as provided) |
-| `rawMessage` (char) | — | the record **as transmitted to MADIS**: a comma-separated LDAD mesonet record (e.g. `KDFW,1,26/11/27 17:00:00,0,0,1,12500,-999,-999,CLR, , ,10, ,0,16,-1,180,11,…,30.11,…`), **not a METAR**; present on every record of our stations | `raw_message` (v2 Phase 10b; shown as-is in the "Raw" view) |
+| `rawMessage` (char) | — | the record **as transmitted to MADIS**: a comma-separated LDAD mesonet record (e.g. `KDFW,1,26/11/27 17:00:00,0,0,1,12500,-999,-999,CLR, , ,10, ,0,16,-1,180,11,…,30.11,…`), **not a METAR**; present on every record of our stations | `raw_message` (v2 Phase 10b; stored and in the internal API, not shown: the owner dropped the Raw view) |
 | `skyCvr` (char, up to 3 layers) + `skyCovLayerBase` (float, m) | metres of a value reported in hundreds of feet | cover CLR/FEW/SCT/BKN/OVC; bases snap to whole 100 ft (CLR carries the 12,500 ft sensor limit, stored without a base); 255 of 298 records have a layer | `sky` jsonb `[{"cover","base_ft"}]` |
 | `presWx` (char) | — | present weather as reported (rare: 2 of 298 records, `-RA`) | `pres_wx` |
 
