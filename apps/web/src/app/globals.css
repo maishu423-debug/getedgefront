@@ -120,3 +120,85 @@
 .ef-stale * {
   color: #5e6866 !important;
 }
+
+/* v2 Part 2: the legal pages (rendered from content/legal). Plain, readable, 16 px body. */
+.legal {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-text-2);
+}
+.legal h2 {
+  margin: 2rem 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-ink);
+  scroll-margin-top: 1rem;
+}
+.legal h3 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-ink);
+  scroll-margin-top: 1rem;
+}
+.legal p,
+.legal ul,
+.legal ol {
+  margin: 0 0 1rem;
+}
+.legal ul,
+.legal ol {
+  padding-left: 1.4rem;
+}
+.legal ul {
+  list-style: disc;
+}
+.legal ol {
+  list-style: decimal;
+}
+.legal li {
+  margin: 0.3rem 0;
+}
+.legal strong {
+  color: var(--color-ink);
+}
+.legal code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+.legal .legal-anchor {
+  margin-right: 0.5rem;
+  color: var(--color-muted-2);
+  text-decoration: none;
+}
+.legal .legal-anchor:hover,
+.legal .legal-anchor:focus-visible {
+  color: var(--color-brand);
+}
+.legal .legal-table {
+  overflow-x: auto;
+  margin: 0 0 1rem;
+}
+.legal table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.legal th,
+.legal td {
+  border-bottom: 1px solid var(--color-hairline);
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.legal th {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.legal .legal-todo {
+  background: #fff1c2;
+  color: #6b4600;
+  padding: 0 0.2em;
+  border-radius: 3px;
+}

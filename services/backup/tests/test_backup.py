@@ -35,6 +35,20 @@ def test_pg_url(given: str, expected: str) -> None:
     assert backup.pg_url(given) == expected
 
 
+@pytest.mark.parametrize(
+    ("endpoint", "region", "expected"),
+    [
+        ("https://s3.us-east-1.amazonaws.com", "auto", "us-east-1"),  # AWS (owner's choice)
+        ("https://s3-us-east-2.amazonaws.com/", "auto", "us-east-2"),
+        ("https://s3.us-east-1.amazonaws.com", "us-east-1", "us-east-1"),
+        ("https://abc123.r2.cloudflarestorage.com", "auto", "auto"),  # R2 signs with "auto"
+        ("https://s3.us-west-004.backblazeb2.com", "us-west-004", "us-west-004"),
+    ],
+)
+def test_s3_region(endpoint: str, region: str, expected: str) -> None:
+    assert backup.s3_region(endpoint, region) == expected
+
+
 class FakeS3:
     def __init__(self, keys: list[str]) -> None:
         self.keys = set(keys)

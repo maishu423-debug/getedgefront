@@ -60,6 +60,14 @@ export async function POST(req: Request) {
         ),
       );
     },
+    onCancellationScheduled: async (userId, _sub, until) => {
+      const ctx = await getAuth().$context;
+      const user = await ctx.internalAdapter.findUserById(userId);
+      if (!user) return;
+      await sendEmail(
+        T.subscriptionCancelled(user.email, formatDay(until, "UTC"), `${siteUrl()}/account`),
+      );
+    },
   });
 
   if (outcome.result === "error") {

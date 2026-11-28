@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 
-import { DraftPage } from "@/components/DraftPage";
+import { LegalPage } from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Privacy (draft)",
-  robots: { index: false },
+  title: "Privacy Policy",
+  description: "How EdgeFront collects, uses and shares personal information.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
-  return <DraftPage title="Privacy" />;
+  return <LegalPage doc="privacy" />;
 }

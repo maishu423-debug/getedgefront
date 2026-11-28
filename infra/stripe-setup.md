@@ -115,7 +115,7 @@ Make sure the Dashboard shows **Test mode** (toggle at the top) for every step.
      `--tax-code` to change) and a monthly price of **$20.00 USD** (lookup key
      `edgefront_premium_monthly_usd`, tax exclusive: tax is added on top).
    - **Customer Portal** configuration: update payment method, invoice history, cancel at period
-     end (with a reason), **no** plan switching or quantity changes, no email editing; returns to
+     end (no cancellation-reason question), **no** plan switching or quantity changes, no email editing; returns to
      `/account`.
    - **Webhook endpoint** on the URL above with exactly these events:
      `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`,

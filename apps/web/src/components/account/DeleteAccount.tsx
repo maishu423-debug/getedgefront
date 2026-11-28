@@ -78,6 +78,11 @@ export function DeleteAccount({ hasPassword, fresh }: { hasPassword: boolean; fr
           <p className="text-sm font-semibold" role="note">
             This can&apos;t be undone. Your account, profile and sign-in methods will be deleted.
           </p>
+          <p className="text-sm text-ink" data-testid="delete-subscription-warning">
+            Deleting your account immediately cancels any active subscription. You lose Premium
+            right away and unused time isn&apos;t refunded. To keep Premium until the end of your
+            paid period, cancel under Account → Manage billing first and delete your account later.
+          </p>
           {error ? <FormMessage tone="error">{error}</FormMessage> : null}
           {needPassword ? (
             <PasswordField

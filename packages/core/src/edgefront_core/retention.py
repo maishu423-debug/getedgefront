@@ -4,6 +4,8 @@
 - nws_forecasts: latest 3 per station (already enforced by every forecast ingest; checked here)
 - model_runs / model_run_stations / model_values: latest 4 runs per model (per office for PFM)
 - hf_observations (5-minute data, v2 Phase 9): 7 days; hf_files (processed-file log): 4 days
+- accounts (Better Auth tables, Privacy Policy §5): rate-limit rows whose last request is more than
+  1 day old, and sessions that expired more than 7 days ago
 A warning is logged when the database is larger than `DB_SIZE_WARN_BYTES` (default 3 GB of the
 5 GB Railway volume).
 """
@@ -12,11 +14,12 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from sqlalchemy import Delete, delete, func, select, text, update
+from sqlalchemy import Delete, column, delete, func, select, table, text, update
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.sql.expression import TableClause
 
 from edgefront_core.db import session_scope
 from edgefront_core.model_catalog import MODELS
@@ -45,6 +48,8 @@ KEEP_DAYS = 400
 HF_KEEP_DAYS = 7
 HF_FILES_KEEP_DAYS = 4  # LDM keeps far less; only the change detection needs these rows
 DEFAULT_WARN_BYTES = 3 * 1024**3
+RATE_LIMIT_KEEP = timedelta(days=1)  # Privacy Policy: "Rate-limit records: up to 1 day"
+EXPIRED_SESSION_KEEP = timedelta(days=7)
 
 COUNTED = (
     Station, StationVenue, MetarReport, DailyHighEvent, CliProduct, DsmProduct, NwsForecast,
@@ -73,6 +78,33 @@ def database_bytes(s: Session) -> int | None:
         db = bind.engine.url.database
         return Path(db).stat().st_size if db and Path(db).exists() else None
     return None
+
+
+def auth_table(s: Session, name: str, *cols: str) -> TableClause:
+    """A Better Auth table (migration 0007): schema `auth` on Postgres, main database on SQLite."""
+    schema = "auth" if s.get_bind().dialect.name == "postgresql" else None
+    return table(name, *(column(c) for c in cols), schema=schema)
+
+
+def prune_auth(s: Session, now: datetime) -> dict[str, int]:
+    """Old rate-limit rows and long-expired sessions. `rateLimit.lastRequest` is epoch milliseconds
+    on both databases; on SQLite Better Auth writes dates as ISO text ("...T07:06:10.916Z")."""
+    rate_limit = auth_table(s, "rateLimit", "lastRequest")
+    session = auth_table(s, "session", "expiresAt")
+    expired: object = now - EXPIRED_SESSION_KEEP
+    if s.get_bind().dialect.name != "postgresql":
+        expired = iso_ms(now - EXPIRED_SESSION_KEEP)
+    rl_cutoff = int((now - RATE_LIMIT_KEEP).timestamp() * 1000)
+    return {
+        "auth_rate_limits": _rows(
+            s, delete(rate_limit).where(rate_limit.c.lastRequest < rl_cutoff)
+        ),
+        "auth_expired_sessions": _rows(s, delete(session).where(session.c.expiresAt < expired)),
+    }
+
+
+def iso_ms(d: datetime) -> str:
+    return d.astimezone(UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 def run_retention(
@@ -125,6 +157,7 @@ def run_retention(
                 s,
                 delete(HfFile).where(HfFile.modified_at < now - timedelta(days=HF_FILES_KEEP_DAYS)),
             )
+            out.deleted.update(prune_auth(s, now))
         with session_scope(factory) as s:
             for model in COUNTED:
                 out.rows[model.__tablename__] = int(

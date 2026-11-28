@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 
-import { DraftPage } from "@/components/DraftPage";
+import { LegalPage } from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Terms and data licences (draft)",
-  robots: { index: false },
+  title: "Terms of Service",
+  description:
+    "EdgeFront Terms of Service: the Service, Premium subscription, free trial and automatic renewal.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {
-  return <DraftPage title="Terms and data licences" />;
+  return <LegalPage doc="terms" />;
 }

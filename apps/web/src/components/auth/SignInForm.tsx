@@ -236,8 +236,8 @@ export function SignInForm({
         </form>
         {up ? (
           <p className="text-[12.5px] leading-relaxed text-muted-2">
-            By creating an account you agree to the <Link href="/terms">Terms</Link> and{" "}
-            <Link href="/privacy">Privacy Policy</Link>. We&apos;ll send a link to confirm your
+            By creating an account you agree to the <Link href="/terms">Terms</Link> and acknowledge
+            the <Link href="/privacy">Privacy Policy</Link>. We&apos;ll send a link to confirm your
             email.
           </p>
         ) : null}

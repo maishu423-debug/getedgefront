@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 
+import { scheduledEnd } from "./entitlement";
 import type { BillingStore } from "./store";
 import { snapshotFromStripe, subscriptionIdOf } from "./stripe-mapping";
 
@@ -18,6 +19,12 @@ export interface WebhookDeps {
   fetchSubscription: (id: string) => Promise<Stripe.Subscription>;
   /** Optional side effects, e.g. our own trial reminder email. */
   onTrialWillEnd?: (userId: string, sub: Stripe.Subscription) => Promise<void>;
+  /** The subscription was just set to cancel (it wasn't in our mirror); Premium runs `until`. */
+  onCancellationScheduled?: (
+    userId: string,
+    sub: Stripe.Subscription,
+    until: Date,
+  ) => Promise<void>;
 }
 
 export type WebhookOutcome =
@@ -60,6 +67,17 @@ async function mirror(event: Stripe.Event, deps: WebhookDeps): Promise<WebhookOu
   }
   if (!userId) return { result: "no_user" };
 
+  // Cancellation email: compared with our stored copy, so a repeated or late event sends nothing.
+  // Sent before the new state is saved: if sending fails, the event fails and Stripe's retry
+  // sends it again (at least once, never silently skipped).
+  const until = stillRunning(snap.status) ? scheduledEnd(snap) : null;
+  if (until && deps.onCancellationScheduled) {
+    const prev = (await deps.store.subscriptionsOf(userId)).find((p) => p.id === snap.id);
+    if (!prev || !stillRunning(prev.status) || !scheduledEnd(prev)) {
+      await deps.onCancellationScheduled(userId, sub, until);
+    }
+  }
+
   await deps.store.saveSubscription(userId, snap.customerId, snap, event.id);
   if (snap.trialEnd) await deps.store.markTrialUsed(userId, new Date(event.created * 1000));
   if (event.type === "customer.subscription.trial_will_end" && snap.status === "trialing") {
@@ -67,3 +85,6 @@ async function mirror(event: Stripe.Event, deps: WebhookDeps): Promise<WebhookOu
   }
   return { result: "mirrored", userId, status: snap.status };
 }
+
+/** Statuses in which a scheduled cancellation still lies ahead (Premium continues until then). */
+const stillRunning = (status: string) => status === "active" || status === "trialing";

@@ -441,6 +441,81 @@ describe("webhook handling", () => {
     });
     expect(sent).toEqual(["u1"]);
   });
+
+  it("cancellation email: once when the subscription is newly set to cancel, with the end date", async () => {
+    const m = memoryStore();
+    m.customers.set("u1", { stripeCustomerId: "cus_1", trialUsedAt: null });
+    let current = stripeSub({ status: "active", trial_end: null });
+    const sent: { u: string; until: Date }[] = [];
+    const deps = {
+      store: m.store,
+      fetchSubscription: async () => current,
+      onCancellationScheduled: async (u: string, _s: Stripe.Subscription, until: Date) =>
+        void sent.push({ u, until }),
+    };
+    const updated = () => event("customer.subscription.updated", { id: "sub_1" });
+    await handleEvent(updated(), deps); // renewing: nothing
+    expect(sent).toEqual([]);
+    current = stripeSub({ status: "active", trial_end: null, cancel_at_period_end: true });
+    await handleEvent(updated(), deps);
+    expect(sent).toEqual([{ u: "u1", until: day(7) }]);
+    await handleEvent(updated(), deps); // the same state again (another event, a retry): no repeat
+    await handleEvent(event("invoice.paid", { parent: { subscription_details: { subscription: "sub_1" } } }), deps);
+    expect(sent).toHaveLength(1);
+    // resumed, then cancelled again: a new email
+    current = stripeSub({ status: "active", trial_end: null });
+    await handleEvent(updated(), deps);
+    current = stripeSub({ status: "active", trial_end: null, cancel_at: unix(day(5)) });
+    await handleEvent(updated(), deps);
+    expect(sent).toHaveLength(2);
+    expect(sent[1]!.until).toEqual(day(5));
+    // the period then ends (subscription deleted): no email for that
+    current = stripeSub({ status: "canceled", ended_at: unix(day(5)), trial_end: null });
+    await handleEvent(event("customer.subscription.deleted", { id: "sub_1" }), deps);
+    expect(sent).toHaveLength(2);
+  }); // prettier-ignore
+
+  it("cancellation during the trial: Premium until the trial ends; ended at once: no email", async () => {
+    const m = memoryStore();
+    m.customers.set("u1", { stripeCustomerId: "cus_1", trialUsedAt: null });
+    const sent: Date[] = [];
+    const on = async (_u: string, _s: Stripe.Subscription, until: Date) => void sent.push(until);
+    await handleEvent(event("customer.subscription.updated", { id: "sub_1" }), {
+      store: m.store,
+      fetchSubscription: async () => stripeSub({ cancel_at_period_end: true }),
+      onCancellationScheduled: on,
+    });
+    expect(sent).toEqual([day(7)]);
+    const m2 = memoryStore();
+    m2.customers.set("u1", { stripeCustomerId: "cus_1", trialUsedAt: null });
+    await handleEvent(event("customer.subscription.deleted", { id: "sub_1" }), {
+      store: m2.store,
+      fetchSubscription: async () => stripeSub({ status: "canceled", ended_at: unix(NOW) }),
+      onCancellationScheduled: on,
+    });
+    expect(sent).toHaveLength(1);
+  });
+
+  it("cancellation email failed to send: the event fails, and Stripe's retry sends it", async () => {
+    const m = memoryStore();
+    m.customers.set("u1", { stripeCustomerId: "cus_1", trialUsedAt: null });
+    let fail = true;
+    const sent: string[] = [];
+    const deps = {
+      store: m.store,
+      fetchSubscription: async () => stripeSub({ status: "active", trial_end: null, cancel_at_period_end: true }),
+      onCancellationScheduled: async (u: string) => {
+        if (fail) throw new Error("email send failed (503)");
+        sent.push(u);
+      },
+    };
+    const e = event("customer.subscription.updated", { id: "sub_1" }, "evt_cancel");
+    expect(await handleEvent(e, deps)).toEqual({ result: "error", message: "email send failed (503)" });
+    expect(m.subs.has("sub_1")).toBe(false); // not saved, so the retry still sees the change
+    fail = false;
+    expect(await handleEvent(e, deps)).toMatchObject({ result: "mirrored" });
+    expect(sent).toEqual(["u1"]);
+  }); // prettier-ignore
 });
 
 describe("test-mode allowlist (BILLING_TEST_ALLOWLIST)", () => {

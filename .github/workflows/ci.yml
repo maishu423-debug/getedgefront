@@ -50,8 +50,20 @@ jobs:
         if: failure()
         run: test -f pytest.xml && python tools/ci_annotate.py junit pytest.xml || true
 
+  legal:
+    # The legal pages may not be published with an owner placeholder left ([OWNER: …] details,
+    # [VERIFY: …] open facts): this job fails until every one is filled in (v2 Part 2). The
+    # production image build (docker job, Railway) fails for the same reason.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No [OWNER:] or [VERIFY:] left in content/legal
+        run: node apps/web/scripts/gen-legal.mjs
+
   web:
     runs-on: ubuntu-latest
+    env:
+      ALLOW_LEGAL_PLACEHOLDERS: "1" # tests only; the legal and docker jobs enforce the check
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -104,6 +116,7 @@ jobs:
       BILLING_TEST_ALLOWLIST: "@example.org" # test accounts only; @example.net checks the gate
       # v2 Phase 10: web → API Premium routes (a CI-only placeholder, the same on both sides).
       INTERNAL_API_TOKEN: ci-only-internal-token-not-used-anywhere-else
+      ALLOW_LEGAL_PLACEHOLDERS: "1" # tests only; the legal and docker jobs enforce the check
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -140,7 +153,7 @@ jobs:
       - name: Accounts, billing, layout and Premium (Playwright, fake Google + fake Stripe, emails to a file)
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/pw.xml
-        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts e2e/billing.spec.ts e2e/layout.spec.ts e2e/premium.spec.ts --reporter=list,junit
+        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts e2e/billing.spec.ts e2e/layout.spec.ts e2e/premium.spec.ts e2e/legal.spec.ts --reporter=list,junit
       - name: Logs as annotations
         if: failure()
         run: |

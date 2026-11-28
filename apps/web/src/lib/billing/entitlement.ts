@@ -39,7 +39,7 @@ export interface Entitlement {
 const FREE: Entitlement = { tier: "free", state: "free", subscription: null, premiumUntil: null };
 
 /** When a subscription that is set to stop will stop, or null if it renews. */
-function scheduledEnd(s: SubscriptionSnapshot): Date | null {
+export function scheduledEnd(s: SubscriptionSnapshot): Date | null {
   if (s.cancelAtPeriodEnd) return s.currentPeriodEnd ?? s.cancelAt;
   return s.cancelAt;
 }
