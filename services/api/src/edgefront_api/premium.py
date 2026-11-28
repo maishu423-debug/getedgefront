@@ -250,6 +250,8 @@ def hf_map(session: SessionDep, now: NowDep, cfg: CfgDep) -> s.MapResponse:
     for rv in services._reports(session, ids, now - timedelta(hours=30)):
         metar[rv.row.station_id].append(rv)
     feed = _in_feed(session, ids)
+    venues = services._venues_by_station(session)
+    order = {"kalshi": 0, "polymarket": 1, "robinhood": 2}
     out: list[s.MapStationOut] = []
     for st in stations:
         rows = hf.get(st.id, [])
@@ -261,8 +263,10 @@ def hf_map(session: SessionDep, now: NowDep, cfg: CfgDep) -> s.MapResponse:
                 name=st.name,
                 city=st.city,
                 state=st.state,
+                tz=st.tz,
                 lat=st.lat,
                 lon=st.lon,
+                venues=sorted({v.venue for v in venues.get(st.id, [])}, key=lambda v: order[v]),
                 status=_status(latest, now, cfg.hf_station_stale_minutes),
                 in_feed=st.id in feed,
                 hf_latest=reading_out(latest, st, now) if latest else None,

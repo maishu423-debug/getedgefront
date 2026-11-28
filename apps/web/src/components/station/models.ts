@@ -1,5 +1,9 @@
 /** Pure helpers for the model guidance section: URL state, series mapping, labels, summary. */
 
+import type { HfReading, HfSeriesResponse } from "@/lib/premium/types";
+import { cToFExact } from "@/lib/temp";
+
+import { rhFrom } from "./observedHf";
 import { formatLocalTime, formatZulu } from "@/lib/time";
 import type {
   ModelPoint,
@@ -115,9 +119,53 @@ export function toSeriesData(
   return out;
 }
 
-/** Observed METAR line: breaks across gaps longer than 90 min (the observed-chart rule). */
-export function observedData(points: ModelPoint[]): [number, number | null][] {
-  return toSeriesData(points, [0.75]); // 2 × 0.75 h = 90 min
+/** Observed line: METAR breaks across gaps longer than 90 min (the observed-chart rule), the
+ * 5-minute line across gaps longer than 10 min (2 × its cadence). */
+export function observedData(points: ModelPoint[], fiveMin = false): [number, number | null][] {
+  return toSeriesData(points, [fiveMin ? 5 / 60 : 0.75]);
+}
+
+export function observedName(data: Pick<ModelsResponse, "observed">): string {
+  return data.observed.kind === "5min" ? "Observed (5-min)" : "Observed (METAR)";
+}
+
+/**
+ * Premium (v2 Phase 10 B4): the observed overlay from the 5-minute readings instead of the
+ * hourly METARs, for the variables the 5-minute feed has (temperature °F unrounded, dew point,
+ * wind, computed humidity). Sky cover isn't in the feed, so the cloud view keeps METAR.
+ * QC-failed temperatures are left out, as in the 5-minute high/low.
+ */
+export function withHfObserved(data: ModelsResponse, hf: HfSeriesResponse | null): ModelsResponse {
+  if (!hf || data.variable === "cloud") return data;
+  const start = Date.parse(data.window.start);
+  const end = Math.min(Date.parse(data.window.end), Date.parse(data.now));
+  const value = (r: HfReading): number | null => {
+    switch (data.variable) {
+      case "temp":
+        return r.temp && !r.qc_failed ? r.temp.f_exact : null;
+      case "dewpt":
+        return r.dewpt_c !== null ? cToFExact(r.dewpt_c) : null;
+      case "wind":
+        return r.wind_kt;
+      case "rh":
+        return rhFrom(r.temp_c, r.dewpt_c);
+      default:
+        return null;
+    }
+  };
+  const points: ModelPoint[] = hf.readings
+    .filter((r) => {
+      const t = Date.parse(r.observed_at);
+      return t >= start && t <= end;
+    })
+    .map((r) => ({
+      valid_time: r.observed_at,
+      value: value(r),
+      category: null,
+      is_computed: data.variable === "rh",
+    }))
+    .filter((p) => p.value !== null);
+  return { ...data, observed: { ...data.observed, points, kind: "5min" } };
 }
 
 export function unitLabel(unit: ModelsResponse["unit"]): string {
@@ -239,7 +287,7 @@ export function summarize(data: ModelsResponse, visible: Set<string>, tz: string
   }
   const obs = range(data.observed.points, data.unit);
   const obsText = obs
-    ? `observed so far ${obs} (METAR, last ${formatZulu(data.observed.points.at(-1)!.valid_time)} / ${formatLocalTime(data.observed.points.at(-1)!.valid_time, tz)})`
+    ? `observed so far ${obs} (${data.observed.kind === "5min" ? "5-minute" : "METAR"}, last ${formatZulu(data.observed.points.at(-1)!.valid_time)} / ${formatLocalTime(data.observed.points.at(-1)!.valid_time, tz)})`
     : "no observations in this window yet";
   const off = data.models.filter((m) => !m.available).map((m) => `${m.label} (${m.reason})`);
   return `${head}: ${parts.join("; ") || "no model shown"}; ${obsText}.${off.length ? ` Not shown: ${off.join("; ")}.` : ""}`;

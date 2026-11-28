@@ -36,7 +36,9 @@ export function Logo() {
 const navLink =
   "inline-flex min-h-10 items-center rounded-[8px] px-3 text-sm text-muted no-underline hover:text-ink";
 
-export function Header({ active }: { active?: "stations" | "pricing" | "sources" }) {
+export type NavKey = "stations" | "map" | "pricing" | "sources";
+
+export function Header({ active }: { active?: NavKey }) {
   const cls = (k: string) => `${navLink} ${active === k ? "font-semibold text-ink" : ""}`;
   return (
     <header className="relative border-b border-border bg-surface">
@@ -51,7 +53,11 @@ export function Header({ active }: { active?: "stations" | "pricing" | "sources"
           >
             Stations
           </Link>
-          <Link href="/pricing" className={`${navLink} gap-1.5`}>
+          <Link
+            href="/map"
+            className={`${cls("map")} gap-1.5`}
+            aria-current={active === "map" ? "page" : undefined}
+          >
             Map
             <ProPill />
           </Link>
@@ -136,7 +142,7 @@ export function PageShell({
   ecmwf,
 }: {
   children: React.ReactNode;
-  active?: "stations" | "pricing" | "sources";
+  active?: NavKey;
   iem?: boolean;
   /** Pages that show IFS/AIFS values carry the CC BY 4.0 attribution. */
   ecmwf?: boolean;

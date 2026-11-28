@@ -3,12 +3,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { PageShell } from "@/components/Chrome";
-import { CurrentCards } from "@/components/station/CurrentCards";
 import { DailySummaries } from "@/components/station/DailySummaries";
 import { ForecastCard } from "@/components/station/ForecastCard";
 import { MetarReports } from "@/components/station/MetarReports";
 import { ModelGuidance } from "@/components/station/ModelGuidance";
 import { ObservedChart } from "@/components/station/ObservedChart";
+import { StationNow } from "@/components/station/StationNow";
 import { StationSearch } from "@/components/StationSearch";
 import { NoData, Skeleton, UpstreamDown } from "@/components/states";
 import {
@@ -188,7 +188,7 @@ async function StationContent({ params }: { params: PageProps<"/station/[id]">["
         >
           <Title st={st} />
           {cur.ok ? (
-            <CurrentCards initial={cur.data} tz={st.tz} />
+            <StationNow initial={cur.data} tz={st.tz} />
           ) : (
             <UpstreamDown what="The EdgeFront API" />
           )}

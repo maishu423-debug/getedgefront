@@ -613,8 +613,12 @@ class MapStationOut(BaseModel):
     name: str
     city: str
     state: str
+    tz: str
     lat: float | None
     lon: float | None
+    venues: list[Literal["kalshi", "polymarket", "robinhood"]] = Field(
+        description="Venues that use this station (registry), in a fixed order"
+    )
     status: DataStatus
     in_feed: bool
     hf_latest: HfReadingOut | None

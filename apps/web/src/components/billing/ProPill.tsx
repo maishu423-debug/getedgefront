@@ -7,7 +7,7 @@ import { LockIcon } from "../LockIcon";
 /**
  * The PRO pill on "Map" (v2 Phase 8 B5): shown to everyone except Premium members. It keeps its
  * space while the session loads and for Premium (invisible, not removed), so the header never
- * shifts. The map itself stays a teaser until Phase 10.
+ * shifts. /map shows free visitors the teaser (v2 Phase 10).
  */
 export function ProPill() {
   const { isPending, billing } = useBilling();

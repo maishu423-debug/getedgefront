@@ -23,6 +23,8 @@ interface SourceCard {
   licence: string;
   keys: string[];
   url: string;
+  /** shown instead of the live source status (sources not on the public status strip) */
+  statusNote?: string;
 }
 
 const SOURCES: SourceCard[] = [
@@ -55,6 +57,35 @@ const SOURCES: SourceCard[] = [
       "Described by IEM as public domain, usable for any lawful purpose, no warranty. Attribution: DSM via Iowa Environmental Mesonet, Iowa State University.",
     keys: ["dsm_iem"],
     url: "https://mesonet.agron.iastate.edu/",
+  },
+];
+
+/** Premium (v2 Phases 9–10): the 5-minute data and the live map's basemap. */
+const PREMIUM_SOURCES: SourceCard[] = [
+  {
+    title: "5-minute ASOS data (NOAA MADIS) · Premium",
+    producer: "FAA ASOS stations, via the NOAA Meteorological Assimilation Data Ingest System",
+    uses: "5-minute temperature, dew point, wind, pressure and visibility for the 26 settlement stations in the feed (KNYC and KBKF are not in it; Premium shows their hourly METAR). Temperatures are whole °C, so each value can be 1–2 °F off the station's own reading: we show the possible readings next to the rounded and unrounded °F. These are not official METAR reports and have no METAR quality control; MADIS quality-control flags are kept, and readings MADIS rejected or questioned are left out of the 5-minute high and low.",
+    cadence:
+      "Checked every minute. A reading usually reaches us 10–20 minutes after it was observed (MADIS file production); a station counts as delayed after 30 minutes.",
+    licence:
+      "Public data (MADIS distribution category 3, no restrictions). Attribution: 5-minute ASOS observations from the NOAA Meteorological Assimilation Data Ingest System (MADIS), provided by the FAA. Data as received; not official METAR observations.",
+    keys: [],
+    statusNote:
+      "Shown on the status page as its own block (latest file, reading delay, stations reporting).",
+    url: "https://madis.ncep.noaa.gov/madis_OMO.shtml",
+  },
+  {
+    title: "Live map basemap · Premium",
+    producer: "OpenFreeMap, OpenMapTiles and OpenStreetMap contributors; U.S. Census Bureau",
+    uses: "The street map under the station markers on /map (OpenFreeMap's public instance, Positron style). If it can't be reached, the map switches to a simple outline of the contiguous U.S. drawn from the Census Bureau's cartographic boundary files, served by EdgeFront itself.",
+    cadence: "Map tiles load in your browser while you use the map (Premium members only).",
+    licence:
+      "Map data © OpenStreetMap contributors, available under the Open Database License (ODbL). Tile schema and design © OpenMapTiles (CC BY 4.0). Served by OpenFreeMap (no warranty or uptime guarantee). The credits are always shown on the map. Outline: U.S. Census Bureau cartographic boundaries (2017), public domain.",
+    keys: [],
+    statusNote:
+      "Not monitored: if the street map fails, the map falls back to the outline automatically.",
+    url: "https://openfreemap.org/",
   },
 ];
 
@@ -191,7 +222,7 @@ export default function SourcesPage() {
           <h2 id="h-src" className="sr-only">
             Data sources
           </h2>
-          {[...SOURCES, ...MODEL_SOURCES].map((s) => (
+          {[...SOURCES, ...PREMIUM_SOURCES, ...MODEL_SOURCES].map((s) => (
             <article
               key={s.title}
               className="flex flex-col gap-3 rounded-[14px] border border-border bg-surface p-5"
@@ -209,9 +240,13 @@ export default function SourcesPage() {
                 <dd className="text-text-2">{s.licence}</dd>
                 <dt className="font-semibold text-muted">Live status</dt>
                 <dd>
-                  <Suspense fallback={<Skeleton className="h-5 w-64" label="Loading status" />}>
-                    <LiveHealth keys={s.keys} />
-                  </Suspense>
+                  {s.statusNote ? (
+                    <span className="text-[13px] text-text-2">{s.statusNote}</span>
+                  ) : (
+                    <Suspense fallback={<Skeleton className="h-5 w-64" label="Loading status" />}>
+                      <LiveHealth keys={s.keys} />
+                    </Suspense>
+                  )}
                 </dd>
               </dl>
               <a href={s.url} className="self-start text-sm">

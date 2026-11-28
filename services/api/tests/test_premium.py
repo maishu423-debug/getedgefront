@@ -171,6 +171,8 @@ def test_map_covers_every_station(loaded: Engine) -> None:
     assert by["KSEA"]["status"] == "stale"
     assert (by["KNYC"]["status"], by["KNYC"]["in_feed"]) == ("no_data", False)
     assert "lat" in by["KDFW"]  # filled by station enrichment, not by the seed
+    assert by["KDFW"]["tz"] == "America/Chicago"
+    assert by["KATL"]["venues"] == ["kalshi", "polymarket", "robinhood"]
 
 
 def test_status_hfmetar_block_and_public_strip_unchanged(loaded: Engine) -> None:

@@ -50,3 +50,50 @@ stations. If MADIS ever adds a restricted provider to this feed, the ingest must
 
 **Caveat:** the MADIS pages are old (2017–2021). This is a reading of the pages, not legal advice;
 re-check before Phase 11 launch.
+
+## map
+
+**What:** the basemap of the Premium live station map (`/map`, v2 Phase 10, owner decision Q32):
+OpenFreeMap's public instance, style `positron` (`NEXT_PUBLIC_MAP_STYLE_URL`), drawn by MapLibre GL
+JS 6.18.0 (BSD-3-Clause). Loaded only in Premium members' browsers; free visitors see a static
+outline with no data.
+
+**Checked:** 2026-11-28.
+
+**OpenFreeMap** (<https://openfreemap.org/>, Terms <https://openfreemap.org/tos/>, "Last Updated:
+November 24, 2026"):
+
+- Commercial use: "Is commercial usage allowed?" "Yes." "Using our public instance is completely
+  free: there are no limits on the number of map views or requests. There's no registration, no
+  user database, no API keys, and no cookies."
+- Attribution: "Attribution is required. If you are using MapLibre, they are automatically added,
+  you have nothing to do." The style's tile source carries it: "OpenFreeMap © OpenMapTiles Data
+  from OpenStreetMap", each linked. EdgeFront keeps MapLibre's attribution control on (compact,
+  opened by tap or keyboard, on phones).
+- No SLA: "At the moment, I don't offer SLA guarantees or personalized support." ToS: provided
+  "AS-IS", "may discontinue it at any time without notice". Hence the bundled outline backup.
+- Not allowed: "Collect data from the service in automated ways" (except bounded offline
+  downloads). EdgeFront only loads tiles in viewers' browsers.
+- Hosts used (all on `tiles.openfreemap.org`: style, vector tiles, Natural Earth raster, glyphs,
+  sprites), allowed in the CSP's `connect-src`/`img-src`.
+
+**OpenStreetMap** (<https://www.openstreetmap.org/copyright>): "OpenStreetMap is open data,
+licensed under the Open Data Commons Open Database License (ODbL) by the OpenStreetMap
+Foundation (OSMF)." Credit OpenStreetMap and make clear the data is under the ODbL: done by the
+map's attribution link to the copyright page.
+
+**OpenMapTiles** (<https://github.com/openmaptiles/openmaptiles/blob/master/LICENSE.md>): code
+BSD 3-Clause, design CC-BY 4.0; "Products or services using maps derived from OpenMapTiles schema
+need to visibly credit "OpenMapTiles.org" or reference "OpenMapTiles" with a link". Done by the
+"© OpenMapTiles" link in the map attribution.
+
+**Backup outline** (`apps/web/public/map/us-outline.json`, 255 KB; `us-outline.svg` for the
+teaser): built by `apps/web/scripts/build-outline.mjs` from us-atlas 3.0.1 `states-10m.json`
+(npm, ISC), which packages the U.S. Census Bureau's cartographic boundary files, 2017 edition
+(<https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html>).
+U.S. government work, public domain. Lower 48 + DC only, coordinates rounded to 0.01°. Credit
+shown when the outline is in use: "Outline: U.S. Census Bureau cartographic boundaries (public
+domain)".
+
+**Upgrade path** if OpenFreeMap becomes unreliable: a self-hosted Protomaps file on S3 (Q32).
+

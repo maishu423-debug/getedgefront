@@ -108,7 +108,9 @@ test.describe("billing", () => {
     ).toBeVisible();
     await page.goto("/");
     await expect(
-      page.getByRole("alert").filter({ hasText: "Your last payment failed" }),
+      page
+        .getByRole("alert")
+        .filter({ hasText: "Payment failed. Update your card to keep Premium." }),
     ).toBeVisible();
     await request.post(`${FAKE_STRIPE}/__subscriptions/${sub.id}/recover`);
     await expectBillingState(page, "active");
