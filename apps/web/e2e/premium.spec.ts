@@ -263,11 +263,12 @@ test.describe("live map", () => {
     await expect(page.getByText("Outline: U.S. Census Bureau cartographic boundaries (public domain)")).toBeAttached();
     // stale and no-5-minute markers
     await expect(page.getByTestId("marker-KSEA")).toHaveAttribute("data-kind", "stale");
-    await expect(page.getByTestId("marker-KSEA")).toHaveAttribute("aria-label", /\(delayed\)$/);
+    await expect(page.getByTestId("marker-KSEA")).toHaveAttribute("aria-label", /^\d+: KSEA, .+\(delayed\)$/);
+    await expect(page.getByTestId("marker-KNYC")).toHaveAttribute("aria-label", /^\d+ METAR: KNYC, /);
     await expect(page.getByTestId("marker-KNYC")).toHaveAttribute("data-kind", "metar");
     // list → panel and marker in sync
-    const row = page.getByTestId("map-list").getByRole("button", { name: /^KDFW, / });
-    await expect(row).toHaveAttribute("aria-label", /^KDFW, .+, now \d+ °F \(\d+\.\d °F unrounded\) at .+, (Kalshi|Polymarket|Robinhood)/);
+    const row = page.getByTestId("row-KDFW");
+    await expect(row).toHaveAccessibleDescription(/^KDFW, .+, now \d+ °F \(\d+\.\d °F unrounded\) at .+, (Kalshi|Polymarket|Robinhood)/);
     await row.click();
     await expect(page.getByTestId("map-panel")).toContainText("KDFW");
     await expect(page.getByTestId("map-panel")).toContainText(/°F unrounded · \d+ °C · reading/);
@@ -277,7 +278,7 @@ test.describe("live map", () => {
     await page.getByRole("group", { name: "Show" }).getByRole("button", { name: "High so far" }).click();
     await expect(page.getByRole("heading", { name: /Highest so far/ })).toBeVisible();
     await page.getByRole("group", { name: "Venue" }).getByRole("button", { name: "Kalshi" }).click();
-    await expect(page.getByTestId("map-list").getByRole("button", { name: /^KLGA, / })).toHaveCount(0);
+    await expect(page.getByTestId("row-KLGA")).toHaveCount(0);
     await axe(page, "map premium");
   }); // prettier-ignore
 
@@ -316,7 +317,7 @@ test.describe("live map", () => {
     await cluster.click();
     await expect.poll(async () => (await page.locator("[data-testid^=marker-]:visible").count()), { timeout: 5_000 }).toBeGreaterThan(1);
     expect(await page.getByTestId("map-cluster").count()).toBeLessThanOrEqual(before + 2);
-    await page.getByTestId("map-list").getByRole("button", { name: /^KATL, / }).click();
+    await page.getByTestId("row-KATL").click();
     await expect(page.getByTestId("map-panel")).toContainText("KATL");
   }); // prettier-ignore
 });

@@ -393,10 +393,14 @@ export function LiveMap() {
                   <button
                     type="button"
                     aria-pressed={on}
-                    aria-label={accessibleLabel(st, metric)}
+                    aria-describedby={`row-desc-${st.station_id}`}
+                    data-testid={`row-${st.station_id}`}
                     onClick={() => select(on ? null : st.station_id)}
                     className={`flex w-full cursor-pointer items-center gap-2.5 border-b border-hairline px-4 py-2.5 text-left focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:outline-none focus-visible:ring-inset ${on ? "bg-[#E6F2F1]" : "bg-surface hover:bg-[#F7FAF9]"}`}
                   >
+                    <span id={`row-desc-${st.station_id}`} className="sr-only">
+                      {accessibleLabel(st, metric)}
+                    </span>
                     <span className="w-12 font-mono text-[13px] font-semibold">{st.station_id}</span>
                     <span className="min-w-0 flex-1 truncate text-[12.5px] text-[#3A4644]">{st.name}</span>
                     {v.source === "metar" ? <span className="rounded-[4px] bg-[#EEF1EE] px-1 text-[9.5px] font-semibold text-text-2">METAR</span> : null}
@@ -442,7 +446,8 @@ function MarkerButton({ st, metric, on, refFn, onClick }: {
   const color = v.temp ? binFor(v.temp.f_rounded).color : "#56625F";
   const hollow = v.source === "metar";
   const bg = hollow ? "#FFFFFF" : v.stale ? STALE_COLOR : color;
-  const label = accessibleLabel(st, metric) + (v.stale ? " (delayed)" : "");
+  const shown = `${v.temp ? v.temp.f_rounded : "—"}${hollow ? " METAR" : ""}`;
+  const label = `${shown}: ${accessibleLabel(st, metric)}${v.stale ? " (delayed)" : ""}`;
   return (
     <button
       ref={refFn}
@@ -463,6 +468,7 @@ function MarkerButton({ st, metric, on, refFn, onClick }: {
       }}
     >
       {v.temp ? v.temp.f_rounded : "—"}
+      {hollow ? " " : null}
       {hollow ? <span className="rounded-[3px] bg-[#EEF1EE] px-[3px] font-sans text-[8.5px] font-semibold text-[#2A3533]">METAR</span> : null}
     </button>
   );

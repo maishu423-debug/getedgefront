@@ -29,7 +29,7 @@ export interface Layout {
 
 export const MARKER_H = 26;
 export const MAX_SPREAD = 4;
-const GAP = 6;
+const GAP = 10; // keeps 24 px targets apart (WCAG 2.5.8)
 
 function overlaps(a: Px, b: Px): boolean {
   const wa = a.w ?? 34;
