@@ -10,6 +10,8 @@ export interface PremiumPrice {
   unitAmount: number; // smallest currency unit (cents)
   currency: string; // "usd"
   interval: string; // "month"
+  /** Stripe tax_behavior: "exclusive" = tax added on top (our setting), "inclusive", "unspecified" */
+  taxBehavior: string | null;
 }
 
 const TTL_MS = 10 * 60 * 1000;
@@ -33,6 +35,7 @@ export async function premiumPrice(nowMs = Date.now()): Promise<PremiumPrice | n
           unitAmount: p.unit_amount,
           currency: p.currency,
           interval: p.recurring.interval,
+          taxBehavior: p.tax_behavior ?? null,
         };
       }
     }

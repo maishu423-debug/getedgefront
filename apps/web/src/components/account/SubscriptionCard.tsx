@@ -1,3 +1,4 @@
+import { AgreeLine, CheckoutDisclosure } from "@/components/billing/CheckoutDisclosure";
 import { COVERAGE } from "@/lib/coverage";
 import type { ReactNode } from "react";
 
@@ -64,9 +65,12 @@ export function SubscriptionCard({
       headline: "Premium · free trial",
       detail: (
         <>
-          Your trial ends on {day(s?.trialEnd)}.{" "}
-          {card ? `Your card ending ${card.last4}` : "Your card"} will be charged
-          {charge ? ` ${charge}` : ""} then, unless you cancel before.
+          Trial ends {day(s?.trialEnd)}. You&apos;ll be charged{" "}
+          {price
+            ? `${formatMoney(price.unitAmount, price.currency, true)}${price.taxBehavior === "inclusive" ? "" : " + tax"}`
+            : "the Premium price"}{" "}
+          on {day(s?.trialEnd)} unless you cancel.
+          {card ? ` (Card ending ${card.last4}.)` : ""}
         </>
       ),
       facts: [
@@ -164,15 +168,20 @@ export function SubscriptionCard({
       ) : !emailVerified ? (
         <VerifyEmailPrompt email={email} next="/account" />
       ) : (
-        <CheckoutButton label={label} />
+        <div className="flex flex-col items-start gap-2.5">
+          <CheckoutDisclosure
+            price={price ? { ...price, taxBehavior: price.taxBehavior ?? null } : null}
+            trial={billing.trialEligible}
+          />
+          {price ? <CheckoutButton label={label} /> : null}
+          {price ? <AgreeLine trial={billing.trialEligible} /> : null}
+        </div>
       ),
       note: !billing.checkoutAllowed
         ? undefined
         : billing.trialEligible
           ? "Card required for the trial. Cancel before it ends and you won't be charged."
-          : amount
-            ? `${amount} a month plus any applicable tax, starting today. Cancel anytime.`
-            : undefined,
+          : undefined,
     };
   }
 

@@ -19,7 +19,7 @@ const id = (p) => `${p}_${randomBytes(8).toString("hex")}`;
 const now = () => Math.floor(Date.now() / 1000);
 
 const prices = new Map([
-  ["price_e2e_premium", { id: "price_e2e_premium", object: "price", active: true, unit_amount: 2000, currency: "usd", recurring: { interval: "month", interval_count: 1 }, product: "prod_e2e" }],
+  ["price_e2e_premium", { id: "price_e2e_premium", object: "price", active: true, unit_amount: 2000, currency: "usd", tax_behavior: "exclusive", recurring: { interval: "month", interval_count: 1 }, product: "prod_e2e" }],
 ]); // prettier-ignore
 const customers = new Map(); // id -> customer
 const sessions = new Map(); // id -> { params, customer, ... }

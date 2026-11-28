@@ -123,10 +123,13 @@ export function Footer({ ecmwf = false, iem = false }: { ecmwf?: boolean; iem?: 
         <div className="flex flex-col gap-1.5">
           <span className="font-semibold text-white">About</span>
           <Link href="/terms" className="text-[#C9D1CE] underline hover:text-white">
-            Terms and data licences
+            Terms of Service
           </Link>
           <Link href="/privacy" className="text-[#C9D1CE] underline hover:text-white">
-            Privacy
+            Privacy Policy
+          </Link>
+          <Link href="/refund" className="text-[#C9D1CE] underline hover:text-white">
+            Refund &amp; Cancellation Policy
           </Link>
           <span className="text-xs">Data is provided as received. You decide how to use it.</span>
         </div>

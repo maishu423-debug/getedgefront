@@ -57,7 +57,8 @@ test.describe("billing", () => {
     const card = page.locator("[data-billing-state]");
     await expect(card.getByText("FREE TRIAL", { exact: true })).toBeVisible();
     await expect(card).toContainText("Premium · free trial");
-    await expect(card).toContainText("Your card ending 4242 will be charged $20.00");
+    await expect(card).toContainText(/Trial ends \w{3} \d+, \d{4}\. You'll be charged \$20 \+ tax on \w{3} \d+, \d{4} unless you cancel\./);
+    await expect(card).toContainText("(Card ending 4242.)");
     await expect(card).toContainText("Premium · $20 / month");
     await expect(card).toContainText("Visa •••• 4242");
     if (!isPhone(page)) {
