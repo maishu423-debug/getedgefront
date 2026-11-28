@@ -102,6 +102,8 @@ jobs:
       STRIPE_PRICE_ID: price_e2e_premium
       STRIPE_WEBHOOK_SECRET: whsec_e2e_secret
       BILLING_TEST_ALLOWLIST: "@example.org" # test accounts only; @example.net checks the gate
+      # v2 Phase 10: web → API Premium routes (a CI-only placeholder, the same on both sides).
+      INTERNAL_API_TOKEN: ci-only-internal-token-not-used-anywhere-else
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -116,6 +118,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Migrate and seed (the api pre-deploy step)
         run: uv run python -m edgefront_core.deploy_db
+      - name: Test data for the Premium e2e (METARs and 5-minute readings ending now)
+        run: uv run python -m edgefront_core.e2e_seed --yes-this-is-a-test-database
       - name: Better Auth sees no schema drift
         run: node apps/web/scripts/auth-schema-check.mjs
       - name: Billing tables match the web app
@@ -133,10 +137,10 @@ jobs:
             sleep 2
           done
           exit 1
-      - name: Accounts, billing and layout (Playwright, fake Google + fake Stripe, emails to a file)
+      - name: Accounts, billing, layout and Premium (Playwright, fake Google + fake Stripe, emails to a file)
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/pw.xml
-        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts e2e/billing.spec.ts e2e/layout.spec.ts --reporter=list,junit
+        run: pnpm --filter @edgefront/web exec playwright test e2e/auth.spec.ts e2e/billing.spec.ts e2e/layout.spec.ts e2e/premium.spec.ts --reporter=list,junit
       - name: Logs as annotations
         if: failure()
         run: |

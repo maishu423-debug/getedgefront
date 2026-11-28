@@ -7,11 +7,12 @@ import { reloadTo } from "@/lib/auth/client";
 /**
  * After Stripe Checkout (v2 Phase 8 B3): the return to /account?checkout=success grants
  * nothing by itself. This polls our own /api/me until the webhook-mirrored subscription makes
- * the account Premium, then reloads; after 30 s it says what's going on instead.
+ * the account Premium (checked every 3 s), then reloads; after 60 s it says what's going on
+ * instead (v2 Phase 10 B1). Premium is never granted from the success URL alone.
  */
 export function Activation({
-  timeoutMs = 30_000,
-  everyMs = 2_000,
+  timeoutMs = 60_000,
+  everyMs = 3_000,
 }: {
   timeoutMs?: number;
   everyMs?: number;
@@ -49,10 +50,7 @@ export function Activation({
       className="flex items-start gap-3 rounded-[12px] border border-[#BFE0DD] bg-[#E6F2F1] px-4 py-3.5 text-sm text-[#064F4B]"
     >
       {timedOut ? (
-        <span>
-          Stripe hasn&apos;t confirmed your subscription to us yet. It usually takes a few seconds;
-          refresh this page in a minute. Don&apos;t start a new checkout in the meantime.
-        </span>
+        <span>This is taking longer than usual. Refresh in a minute, or contact support.</span>
       ) : (
         <>
           <span

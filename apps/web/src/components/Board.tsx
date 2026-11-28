@@ -6,6 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { climateDayBounds, elapsedFraction, formatCountdown } from "@/lib/climate";
 import { useNow, usePolling } from "@/lib/hooks";
+import { usePremiumData, usePremiumTier } from "@/lib/premium/client";
+import type { MapResponse, MapStation } from "@/lib/premium/types";
 import { fmtFExact, spokenTemp, type TempValue } from "@/lib/temp";
 import { formatLocalTime, formatLocalWithZone, formatZulu } from "@/lib/time";
 import type { BoardRow, StationsResponse, Venue } from "@/lib/types";
@@ -110,8 +112,26 @@ function GroupHeader({ rows, now }: { rows: BoardRow[]; now: number | null }) {
   );
 }
 
-function Row({ r }: { r: BoardRow }) {
+/** The small marker on Premium 5-minute values (B6). */
+function FiveMin() {
+  return (
+    <span className="ml-1 rounded-[4px] bg-[#E6F2F1] px-1 py-px align-[2px] font-sans text-[9.5px] font-semibold tracking-[.04em] text-[#064F4B]">
+      5-MIN
+    </span>
+  );
+}
+
+/** Fresh 5-minute values for a row, else null (no data, delayed: the row keeps METAR). */
+function fiveMinFor(hf: MapStation | undefined): MapStation | null {
+  return hf && hf.in_feed && hf.status === "ok" && hf.hf_latest?.temp ? hf : null;
+}
+
+function Row({ r, hf }: { r: BoardRow; hf?: MapStation }) {
   const href = `/station/${r.id}`;
+  const five = fiveMinFor(hf);
+  const metarNow = r.latest?.temp
+    ? `Hourly METAR ${formatZulu(r.latest.observed_at)}: ${r.latest.temp.f_rounded}° (${fmtFExact(r.latest.temp)} °F)`
+    : "No hourly METAR";
   return (
     <tr className="hover:bg-[#F7FAF9]">
       <td className="px-2.5 py-2.5">
@@ -126,11 +146,37 @@ function Row({ r }: { r: BoardRow }) {
         <VenueTags venues={r.venues} />
       </td>
       <td className="px-2.5 py-2.5 text-right font-mono text-[15px]">
-        {r.latest?.temp_f ?? "—"}
-        {r.latest?.temp_f != null ? "°" : ""}
+        {five ? (
+          <span
+            title={`${spokenTemp("Now, 5-minute", five.hf_latest!.temp!, formatLocalTime(five.hf_latest!.observed_at, r.tz))}. ${metarNow}`}
+            data-testid="board-5min"
+          >
+            {five.hf_latest!.temp!.f_rounded}°
+            <FiveMin />
+          </span>
+        ) : (
+          <>
+            {r.latest?.temp_f ?? "—"}
+            {r.latest?.temp_f != null ? "°" : ""}
+          </>
+        )}
       </td>
       <td className="px-2.5 py-2.5 text-right">
-        {r.high_so_far ? (
+        {five?.hf_so_far.high ? (
+          <SoFar
+            label="High so far, 5-minute"
+            value={five.hf_so_far.high.temp.f_rounded}
+            temp={five.hf_so_far.high.temp}
+            at={formatLocalTime(five.hf_so_far.high.observed_at, r.tz)}
+            className="text-high"
+            badge={<FiveMin />}
+            note={
+              r.high_so_far?.temp
+                ? `Highest hourly METAR: ${r.high_so_far.temp.f_rounded}° (${fmtFExact(r.high_so_far.temp)} °F)`
+                : "No hourly METAR high yet"
+            }
+          />
+        ) : r.high_so_far ? (
           <SoFar
             label="High so far"
             value={r.high_so_far.value_f}
@@ -150,7 +196,21 @@ function Row({ r }: { r: BoardRow }) {
         )}
       </td>
       <td className="px-2.5 py-2.5 text-right">
-        {r.low_so_far ? (
+        {five?.hf_so_far.low ? (
+          <SoFar
+            label="Low so far, 5-minute"
+            value={five.hf_so_far.low.temp.f_rounded}
+            temp={five.hf_so_far.low.temp}
+            at={formatLocalTime(five.hf_so_far.low.observed_at, r.tz)}
+            className="text-[#1F5E8C]"
+            badge={<FiveMin />}
+            note={
+              r.low_so_far?.temp
+                ? `Lowest hourly METAR: ${r.low_so_far.temp.f_rounded}° (${fmtFExact(r.low_so_far.temp)} °F)`
+                : "No hourly METAR low yet"
+            }
+          />
+        ) : r.low_so_far ? (
           <SoFar
             label="Low so far"
             value={r.low_so_far.value_f}
@@ -216,6 +276,10 @@ export function Board({ initial }: { initial: StationsResponse }) {
   const params = useSearchParams();
   const now = useNow(30_000);
   const { data, failed } = usePolling<StationsResponse>("/api/stations", initial);
+  const { premium } = usePremiumTier();
+  const pm = usePremiumData<MapResponse>("/api/premium/map", premium);
+  const hfBy = new Map((pm.data?.stations ?? []).map((x) => [x.station_id, x]));
+  const anyFive = premium && [...hfBy.values()].some((x) => fiveMinFor(x));
 
   const venueParam = params.get("venue");
   const venue: Venue | "all" = (VENUES as string[]).includes(venueParam ?? "")
@@ -249,7 +313,11 @@ export function Board({ initial }: { initial: StationsResponse }) {
             Settlement stations
           </h2>
           <span className="text-[13px] text-muted-2">
-            {rows.length} stations · current values from the latest hourly METAR
+            {rows.length} stations ·{" "}
+            {anyFive
+              ? "5-minute ASOS values (5-MIN) where available, else the latest hourly METAR"
+              : "current values from the latest hourly METAR"}
+            {premium && pm.failed ? " · 5-minute data: connection lost, retrying" : ""}
           </span>
         </div>
         <div className="flex flex-wrap gap-2.5">
@@ -292,7 +360,12 @@ export function Board({ initial }: { initial: StationsResponse }) {
         </p>
       ) : null}
       <div className="overflow-hidden rounded-[14px] border border-border bg-surface">
-        <div className="relative overflow-x-auto">
+        <div
+          className="relative overflow-x-auto focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:outline-none"
+          tabIndex={0}
+          role="region"
+          aria-label="Settlement stations table"
+        >
           <table className="w-full border-collapse text-[13.5px] [&_td]:border-b [&_td]:border-hairline [&_td]:whitespace-nowrap">
             <caption className="sr-only">
               Settlement stations with current temperature, high and low so far (rounded and
@@ -331,7 +404,7 @@ export function Board({ initial }: { initial: StationsResponse }) {
                 <tbody key={sort === "az" ? "az" : g[0]!.std_utc_offset_minutes}>
                   {sort === "tz" ? <GroupHeader rows={g} now={now} /> : null}
                   {g.map((r) => (
-                    <Row key={r.id} r={r} />
+                    <Row key={r.id} r={r} hf={hfBy.get(r.id)} />
                   ))}
                 </tbody>
               ) : null,
@@ -340,10 +413,10 @@ export function Board({ initial }: { initial: StationsResponse }) {
         </div>
       </div>
       <p className="text-xs text-muted-2">
-        High / low so far = highest / lowest hourly METAR since local midnight (local standard
-        time); the small number is the unrounded °F. It is not a settlement value: markets settle on
-        each venue&apos;s named source (an NWS climate report or another provider), which can
-        differ. Read the market&apos;s rules.
+        High / low so far = highest / lowest hourly METAR since local midnight (local standard time)
+        {anyFive ? ", or of the 5-minute readings where marked 5-MIN" : ""}; the small number is the
+        unrounded °F. It is not a settlement value: markets settle on each venue&apos;s named source
+        (an NWS climate report or another provider), which can differ. Read the market&apos;s rules.
       </p>
     </section>
   );
@@ -357,6 +430,7 @@ function SoFar({
   at,
   className,
   badge = null,
+  note = "",
 }: {
   label: string;
   value: number;
@@ -364,10 +438,12 @@ function SoFar({
   at: string;
   className: string;
   badge?: ReactNode;
+  /** extra tooltip text, e.g. the METAR value next to a 5-minute one */
+  note?: string;
 }) {
   const spoken = temp ? spokenTemp(label, temp, at) : `${label} ${value} °F, at ${at}`;
   return (
-    <div className="flex flex-col items-end gap-px" title={spoken}>
+    <div className="flex flex-col items-end gap-px" title={note ? `${spoken}. ${note}` : spoken}>
       <span className={`font-mono text-[15px] font-semibold ${className}`}>
         {value}°{badge}
       </span>

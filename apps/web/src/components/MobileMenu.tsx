@@ -7,7 +7,7 @@ import { authClient, reloadTo } from "@/lib/auth/client";
 
 import { ProPill } from "./billing/ProPill";
 
-type Active = "stations" | "pricing" | "sources" | undefined;
+type Active = "stations" | "map" | "pricing" | "sources" | undefined;
 
 const item =
   "flex min-h-12 items-center gap-2 rounded-[8px] px-3 text-base text-ink no-underline hover:bg-[#F2F4F1] hover:text-ink";
@@ -87,7 +87,7 @@ export function MobileMenu({ active }: { active: Active }) {
           <Link href="/" className={item} aria-current={current("stations")} onClick={close}>
             Stations
           </Link>
-          <Link href="/pricing" className={item} onClick={close}>
+          <Link href="/map" className={item} aria-current={current("map")} onClick={close}>
             Map
             <ProPill />
           </Link>

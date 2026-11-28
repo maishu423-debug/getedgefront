@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useNearViewport, useNow } from "@/lib/hooks";
+import { usePremiumData, usePremiumTier } from "@/lib/premium/client";
+import type { HfSeriesResponse } from "@/lib/premium/types";
 import { formatLocalTime, formatZulu } from "@/lib/time";
 import type { ModelSeries, ModelsResponse } from "@/lib/types";
 
@@ -16,10 +18,12 @@ import {
   OBSERVED_COLOR,
   type ModelUiState,
   observedData,
+  observedName,
   readState,
   runLine,
   SPANS,
   summarize,
+  withHfObserved,
   toSeriesData,
   tooltipLines,
   unitLabel,
@@ -209,7 +213,15 @@ export function ModelGuidance({
     );
   };
 
-  const data = load.status === "ok" ? load.data : null;
+  const { premium } = usePremiumTier();
+  const hf = usePremiumData<HfSeriesResponse>(
+    `/api/premium/stations/${stationId}/hf?hours=24`,
+    premium,
+  );
+  const data = useMemo(() => {
+    const d = load.status === "ok" ? load.data : null;
+    return d && premium ? withHfObserved(d, hf.data) : d;
+  }, [load, premium, hf.data]);
   const hidden = useMemo(() => new Set(ui.hidden), [ui.hidden]);
   const visible = useMemo(
     () =>
@@ -238,7 +250,8 @@ export function ModelGuidance({
         </div>
         <span className="text-[12.5px] text-muted-2">
           Third-party forecast models at the station&apos;s grid point or forecast point, with the
-          observed METAR line on top so you can compare. Not EdgeFront forecasts.
+          observed {data?.observed.kind === "5min" ? "5-minute" : "METAR"} line on top so you can
+          compare. Not EdgeFront forecasts.
         </span>
       </div>
 
@@ -258,6 +271,19 @@ export function ModelGuidance({
         <span className="inline-flex min-h-10 items-center rounded-[8px] border border-border bg-[#F7F8F6] px-3 text-[13px] font-medium text-text-2">
           Latest run per model
         </span>
+        {data ? (
+          <span
+            data-testid="observed-legend"
+            className="inline-flex min-h-10 items-center gap-2 text-[13px] text-text-2"
+          >
+            <span
+              aria-hidden
+              className="h-[3px] w-4 rounded"
+              style={{ background: OBSERVED_COLOR }}
+            />
+            {observedName(data)}
+          </span>
+        ) : null}
       </div>
 
       {data ? (
@@ -491,8 +517,8 @@ export function buildModelOption(data: ModelsResponse, visible: Set<string>, tz:
   if (data.observed.points.length) {
     series.push({
       type: "line",
-      name: "Observed (METAR)",
-      data: observedData(data.observed.points).map(([t, v]) => ({
+      name: observedName(data),
+      data: observedData(data.observed.points, data.observed.kind === "5min").map(([t, v]) => ({
         value: [t, v],
         p:
           v === null
@@ -553,14 +579,17 @@ export function buildModelOption(data: ModelsResponse, visible: Set<string>, tz:
       }) => {
         const p = prm.data?.p;
         if (!p) return "";
-        if (prm.seriesName === "Observed (METAR)") {
+        if (prm.seriesName.startsWith("Observed")) {
           const cat = p.category ? ` ${p.category} (${CATEGORY_LABEL[p.category] ?? ""})` : "";
+          const fiveMin = data.observed.kind === "5min";
           return [
-            "<b>Observed (METAR)</b>",
+            `<b>${prm.seriesName}</b>`,
             `${formatZulu(p.valid_time)} (${formatLocalTime(p.valid_time, tz)})`,
             p.category
               ? `Sky${cat}`
-              : `${Math.round(p.value ?? 0)} ${unit}${p.is_computed ? " (computed)" : ""}`,
+              : fiveMin && data.unit === "degF"
+                ? `${(p.value ?? 0).toFixed(1)} ${unit} unrounded${p.is_computed ? " (computed)" : ""}`
+                : `${Math.round(p.value ?? 0)} ${unit}${p.is_computed ? " (computed)" : ""}`,
           ].join("<br/>");
         }
         const m = byName.get(prm.seriesName);

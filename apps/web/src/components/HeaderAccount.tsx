@@ -114,7 +114,7 @@ function SignedIn({ name, compact }: { name: string; compact: boolean }) {
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={`Account menu for ${name}`}
+        aria-label={`${initials(name)}: Account menu for ${name}`}
         onClick={() => setOpen((o) => !o)}
         className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full bg-ink text-sm font-semibold text-white focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:outline-none"
       >

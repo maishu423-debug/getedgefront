@@ -405,6 +405,7 @@ export interface ModelsResponse {
     climate_date: string;
     basis: "LST" | "LOCAL";
   };
-  observed: { source: SourceRef; points: ModelPoint[] };
+  /** `kind` "5min": replaced in the browser by the Premium 5-minute line (v2 Phase 10 B4). */
+  observed: { source: SourceRef; points: ModelPoint[]; kind?: "metar" | "5min" };
   models: ModelSeries[];
 }

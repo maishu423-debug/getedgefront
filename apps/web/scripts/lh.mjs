@@ -1,14 +1,20 @@
 // Lighthouse (mobile by default) N runs per URL; prints the median and the LCP breakdown.
 //   node scripts/lh.mjs <outDir> <runs> <url> [url ...]   (env LH_PRESET=desktop for desktop)
+//   LH_COOKIE="name=value; ..." audits as a signed-in user (local test accounts only).
 // Uses Playwright's Chromium (CHROME_PATH) so no separate Chrome install is needed.
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 import { chromium } from "@playwright/test";
 
 const [outDir, runsArg, ...urls] = process.argv.slice(2);
 const runs = Number(runsArg ?? 3);
 const preset = process.env.LH_PRESET === "desktop" ? ["--preset=desktop"] : [];
+// headers go through a file: JSON on the command line doesn't survive the Windows shell
+const headersFile = `${outDir}/lh-headers.json`;
+if (process.env.LH_COOKIE)
+  writeFileSync(headersFile, JSON.stringify({ Cookie: process.env.LH_COOKIE }));
+const cookie = process.env.LH_COOKIE ? [`--extra-headers=${headersFile}`] : [];
 const env = { ...process.env, CHROME_PATH: chromium.executablePath() };
 const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
 
@@ -18,7 +24,7 @@ for (const url of urls) {
     const out = `${outDir}/lh_${url.replace(/\W+/g, "_")}_${i}.json`;
     execFileSync(
       process.platform === "win32" ? "pnpm.cmd" : "pnpm",
-      ["exec", "lighthouse", url, ...preset, "--output=json", `--output-path=${out}`,
+      ["exec", "lighthouse", url, ...preset, ...cookie, "--output=json", `--output-path=${out}`,
         "--only-categories=performance,accessibility,best-practices,seo",
         "--chrome-flags=--headless=new --no-sandbox", "--quiet"],
       { env, stdio: "ignore", shell: process.platform === "win32" },

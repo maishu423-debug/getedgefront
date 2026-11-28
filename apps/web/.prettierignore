@@ -6,3 +6,5 @@ test-results
 playwright-report
 AGENTS.md
 src/lib/auth/common-passwords.ts
+public/vendor
+public/map

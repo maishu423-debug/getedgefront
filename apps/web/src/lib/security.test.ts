@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { clientIp, hit, resetForTests } from "./ratelimit";
-import { contentSecurityPolicy, securityHeaders } from "./security";
+import { contentSecurityPolicy, mapOrigins, securityHeaders } from "./security";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -36,6 +36,21 @@ describe("security headers", () => {
     expect(contentSecurityPolicy(false)).not.toContain("upgrade-insecure-requests");
     // ignored (with a console warning) in report-only mode, so only sent when enforcing
     expect(contentSecurityPolicy(true, false)).not.toContain("upgrade-insecure-requests");
+  });
+  it("allows the live map's basemap and worker, and nothing else outside", () => {
+    const csp = contentSecurityPolicy(true);
+    expect(csp).toContain("connect-src 'self' https://tiles.openfreemap.org");
+    expect(csp).toContain("img-src 'self' data: blob: https://tiles.openfreemap.org");
+    expect(csp).toContain("worker-src 'self' blob:");
+    expect(csp).toContain("script-src 'self' 'unsafe-inline'"); // no map host for scripts
+    expect(mapOrigins("https://maps.example.org/styles/x.json")).toEqual([
+      "https://tiles.openfreemap.org",
+      "https://maps.example.org",
+    ]);
+    expect(mapOrigins("http://insecure.example.org/s.json")).toEqual([
+      "https://tiles.openfreemap.org",
+    ]);
+    expect(mapOrigins("not a url")).toEqual(["https://tiles.openfreemap.org"]);
   });
   it("defaults: report-only CSP, noindex, no HSTS", () => {
     vi.stubEnv("NODE_ENV", "production");

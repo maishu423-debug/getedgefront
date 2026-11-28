@@ -89,3 +89,34 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 640px;
 }
+
+/* v2 Phase 10 B5: a cluster of stations on the live map (zoomed far out). A real button: the
+   count is the label's start, white on dark (contrast 16:1), visible focus ring. */
+.ef-cluster {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 17px;
+  border: 2px solid #ffffff;
+  background: #101a1c;
+  color: #ffffff;
+  font:
+    700 13px "JetBrains Mono",
+    ui-monospace,
+    monospace;
+  box-shadow:
+    0 0 0 4px rgba(16, 26, 28, 0.18),
+    0 1px 4px rgba(16, 26, 28, 0.3);
+  cursor: pointer;
+}
+.ef-cluster:focus-visible {
+  outline: 3px solid #0a6e69;
+  outline-offset: 2px;
+}
+
+/* v2 Phase 10 B2: delayed 5-minute values keep their numbers, greyed with a solid colour that
+   still has 5.8:1 contrast on white (opacity would drop the text below 4.5:1). */
+.ef-stale,
+.ef-stale * {
+  color: #5e6866 !important;
+}

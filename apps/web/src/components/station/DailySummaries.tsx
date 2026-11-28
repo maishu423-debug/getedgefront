@@ -78,7 +78,12 @@ export function DailySummaries({
           </div>
         </div>
       ) : (
-        <div className="relative overflow-x-auto">
+        <div
+          className="relative overflow-x-auto focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:outline-none"
+          tabIndex={0}
+          role="region"
+          aria-label="Daily summaries table"
+        >
           <table className="w-full border-collapse text-[13px] [&_td]:border-b [&_td]:border-hairline [&_td]:px-3 [&_td]:py-2.5 [&_td]:whitespace-nowrap [&_th]:border-b [&_th]:border-border [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-[11px] [&_th]:font-semibold [&_th]:tracking-[.04em] [&_th]:whitespace-nowrap [&_th]:text-muted-2 [&_th]:uppercase">
             <caption className="sr-only">
               Daily climate reports and ASOS daily summaries for today and yesterday

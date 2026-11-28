@@ -27,6 +27,7 @@ next-env.d.ts
 apps/web/test-results/
 apps/web/playwright-report/
 apps/web/blob-report/
+apps/web/public/vendor/
 
 # OS / editors
 .DS_Store

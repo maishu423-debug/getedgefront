@@ -1,17 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { breakAtGaps } from "@/lib/gaps";
 import { useNearViewport } from "@/lib/hooks";
+import { usePremiumData, usePremiumTier } from "@/lib/premium/client";
+import type { HfSeriesResponse } from "@/lib/premium/types";
+import { fmtFExact } from "@/lib/temp";
 import { formatLocalTime, formatZulu } from "@/lib/time";
 import type { ObservedResponse } from "@/lib/types";
 import { COVER_RANK, cToFDisplay, fmtMetarWind } from "@/lib/units";
 
+import { TrialButton } from "../billing/TrialButton";
 import { LockIcon } from "../Chrome";
 import { NoData, Skeleton } from "../states";
 import { prepare, summarize } from "./observed";
+import { HF_GAP_MIN, hfTooltip, prepareHf, summarizeHf, type PreparedHf } from "./observedHf";
+
+type Mode = "5min" | "metar";
 
 type PanelKey = "temp" | "rh" | "wind" | "sky" | "pres";
 const PANELS: { key: PanelKey; label: string; color: string; height: number }[] = [
@@ -59,7 +65,17 @@ function ToggleButton({
   );
 }
 
+/** Fixed teaser copy: never computed from live Premium data (owner B3). */
+export const CHART_TEASER = "5-minute readings catch peaks and dips between hourly reports.";
+
 export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string }) {
+  const { premium } = usePremiumTier();
+  const hf = usePremiumData<HfSeriesResponse>(
+    `/api/premium/stations/${data.station_id}/hf?hours=24`,
+    premium,
+  );
+  const [chosen, setChosen] = useState<Mode | null>(null);
+  const mode: Mode = premium && hf.status !== "forbidden" ? (chosen ?? "5min") : "metar";
   const [hours, setHours] = useState<6 | 24>(24);
   const [on, setOn] = useState<Record<PanelKey, boolean>>({
     temp: true,
@@ -70,12 +86,25 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
   });
   const [ready, setReady] = useState(false);
   const el = useRef<HTMLDivElement>(null);
-  const near = useNearViewport(el);
+  // Watch the section, not the chart box: the box only exists once there is data to draw (the
+  // 5-minute view shows a skeleton first), and the hook observes the element it sees at mount.
+  const box = useRef<HTMLElement>(null);
+  const near = useNearViewport(box);
   const prep = useMemo(() => prepare(data, hours), [data, hours]);
-  const summary = useMemo(() => summarize(prep, hours, tz), [prep, hours, tz]);
+  const hfPrep = useMemo(
+    () => (mode === "5min" && hf.data ? prepareHf(hf.data, data, hours) : null),
+    [mode, hf.data, data, hours],
+  );
+  const summary = useMemo(
+    () => (hfPrep ? summarizeHf(hfPrep, hours, tz) : summarize(prep, hours, tz)),
+    [hfPrep, prep, hours, tz],
+  );
   const active = PANELS.filter((p) => on[p.key]);
   const height = active.reduce((h, p) => h + p.height + 36, 44);
   const latest = prep.points.at(-1);
+  const latestHf = hfPrep?.points.at(-1);
+  const hfLoading = mode === "5min" && !hfPrep;
+  const empty = hfPrep ? !hfPrep.points.length : !prep.points.length;
 
   useEffect(() => {
     if (!near) return; // ECharts loads only when the chart is near the viewport
@@ -97,7 +126,7 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
       if (disposed || !el.current) return;
       const c = core.init(el.current, undefined, { renderer: "canvas" });
       chart = c;
-      c.setOption(buildOption(prep, active, tz));
+      c.setOption(buildOption(prep, active, tz, hfPrep));
       window.addEventListener("resize", onResize);
       setReady(true);
     })();
@@ -107,10 +136,11 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
       chart?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prep, on, tz, near]);
+  }, [prep, hfPrep, on, tz, near]);
 
   return (
     <section
+      ref={box}
       aria-labelledby="h-chart"
       className="flex flex-col gap-4 rounded-[14px] border border-border bg-surface px-5 pt-[18px] pb-5 below-fold"
     >
@@ -120,17 +150,36 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
             Observed conditions
           </h2>
           <span className="text-[12.5px] text-muted-2">
-            Hourly METAR reports, including SPECI · missing reports are left empty, never filled in
+            {mode === "5min"
+              ? "5-minute ASOS readings with the hourly METAR reports marked · gaps are left empty"
+              : "Hourly METAR reports, including SPECI · missing reports are left empty, never filled in"}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <Link
-            href="/pricing"
-            className="inline-flex min-h-10 items-center gap-2 rounded-[8px] border border-dashed border-[#D9A35A] bg-[#FFF7EC] px-3.5 text-[13px] font-semibold text-premium-text no-underline hover:text-premium-text"
+          <div
+            role="group"
+            aria-label="Data resolution"
+            className="flex rounded-[9px] bg-[#E7EAE6] p-[3px]"
           >
-            <LockIcon size={13} />
-            5-minute data · Premium
-          </Link>
+            {premium ? (
+              <SegButton on={mode === "5min"} onClick={() => setChosen("5min")}>
+                5-minute
+              </SegButton>
+            ) : (
+              <button
+                type="button"
+                aria-disabled="true"
+                aria-describedby="chart-teaser"
+                className="inline-flex min-h-10 cursor-not-allowed items-center gap-1.5 rounded-[7px] px-3 text-[13px] font-medium text-premium-text"
+              >
+                <LockIcon size={12} />
+                5-minute · Premium
+              </button>
+            )}
+            <SegButton on={mode === "metar"} onClick={() => setChosen("metar")}>
+              Hourly METAR
+            </SegButton>
+          </div>
           <div
             role="group"
             aria-label="Time range"
@@ -168,7 +217,41 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
         ))}
       </div>
 
-      {latest ? (
+      {!premium ? (
+        <div
+          id="chart-teaser"
+          className="flex flex-wrap items-center justify-between gap-2.5 rounded-[10px] border border-dashed border-[#D9A35A] bg-[#FFF7EC] px-3.5 py-2.5 text-[13.5px] text-[#6B3A00]"
+        >
+          <span>{CHART_TEASER}</span>
+          <TrialButton />
+        </div>
+      ) : null}
+
+      {latestHf ? (
+        <div className="flex flex-wrap gap-x-[22px] gap-y-1.5 rounded-[8px] bg-[#F7F8F6] px-3 py-2.5 font-mono text-[12.5px] text-text-2">
+          <span className="font-semibold">
+            Latest 5-minute {formatZulu(latestHf.observed_at)} (
+            {formatLocalTime(latestHf.observed_at, tz)})
+          </span>
+          <span>
+            Temp{" "}
+            {latestHf.temp
+              ? `${latestHf.temp.f_rounded}°F (${fmtFExact(latestHf.temp)} unrounded)`
+              : "—"}
+          </span>
+          <span>Dew pt {latestHf.dewF !== null ? `${latestHf.dewF.toFixed(1)}°F` : "—"}</span>
+          <span>RH {latestHf.rh !== null ? `${latestHf.rh}% (computed)` : "—"}</span>
+          <span>
+            Wind{" "}
+            {latestHf.wind_kt === null
+              ? "—"
+              : `${latestHf.wind_dir_deg ?? "—"}° ${latestHf.wind_kt} kt${latestHf.gust_kt ? ` G${latestHf.gust_kt}` : ""}`}
+          </span>
+          <span>
+            Altim {latestHf.altim_inhg !== null ? `${latestHf.altim_inhg.toFixed(2)} inHg` : "—"}
+          </span>
+        </div>
+      ) : latest && mode === "metar" ? (
         <div className="flex flex-wrap gap-x-[22px] gap-y-1.5 rounded-[8px] bg-[#F7F8F6] px-3 py-2.5 font-mono text-[12.5px] text-text-2">
           <span className="font-semibold">
             Latest {latest.report_type} {formatZulu(latest.observed_at)} (
@@ -189,8 +272,17 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
         </div>
       ) : null}
 
-      {!prep.points.length ? (
-        <NoData what="METAR reports">No METAR reports in the last {hours} hours.</NoData>
+      {hfLoading ? (
+        <Skeleton className="h-[420px]" label="Loading 5-minute readings" />
+      ) : empty ? (
+        mode === "5min" ? (
+          <NoData what="5-minute readings">
+            No 5-minute readings in the last {hours} hours
+            {hf.data && !hf.data.in_feed ? " (this station isn't in the 5-minute feed)" : ""}.
+          </NoData>
+        ) : (
+          <NoData what="METAR reports">No METAR reports in the last {hours} hours.</NoData>
+        )
       ) : active.length === 0 ? (
         <p className="text-sm text-muted">Turn on a panel above to see the chart.</p>
       ) : (
@@ -204,6 +296,29 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
           />
         </div>
       )}
+
+      {mode === "5min" && hfPrep?.points.length ? (
+        <div className="flex flex-wrap gap-3.5 text-[11.5px] text-muted">
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden className="h-[3px] w-3.5 bg-[#C24E12]" />
+            Temperature (5-min, unrounded)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden className="h-[3px] w-3.5 bg-[#1F5FA8]" />
+            Dew point
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden className="size-[7px] rounded-full bg-ink" />
+            Hourly METAR
+          </span>
+          {hf.failed ? <span className="text-[#8A4100]">Connection lost · retrying</span> : null}
+          {!hf.failed && hf.updatedAt ? (
+            <span className="font-mono">
+              Updated {formatZulu(new Date(hf.updatedAt).toISOString())}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       {on.sky && prep.points.length ? (
         <div className="flex flex-wrap gap-3.5 text-[11.5px] text-muted">
@@ -234,29 +349,51 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
       ) : null}
       <p className="text-[12.5px] leading-normal text-text-2">
         <span className="font-semibold">Summary: </span>
-        {summary} Wind in knots. Relative humidity is computed from temperature and dew point.
+        {summary} Wind in knots. Relative humidity is computed from temperature and dew point
+        {mode === "5min" ? " (whole °C in the 5-minute data, so it moves in steps)" : ""}.
       </p>
     </section>
   );
 }
 
+function SegButton({ on, onClick, children }: {
+  on: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={onClick}
+      className={`min-h-10 cursor-pointer rounded-[7px] px-3 text-[13px] font-medium ${
+        on ? "bg-surface text-ink shadow-[0_1px_2px_rgba(16,26,28,.14)]" : "text-muted hover:text-ink"
+      }`}
+    >
+      {children}
+    </button>
+  );
+} // prettier-ignore
+
 // ---------------------------------------------------------------- ECharts option
 
 type Prep = ReturnType<typeof prepare>;
 
-function buildOption(p: Prep, panels: typeof PANELS, tz: string) {
+function buildOption(p: Prep, panels: typeof PANELS, tz: string, hf: PreparedHf | null = null) {
   const grids: object[] = [];
   const xAxes: object[] = [];
   const yAxes: object[] = [];
   const series: object[] = [];
   let top = 18;
-  const gapAreas = p.gaps.map((g) => [{ xAxis: g.startMs }, { xAxis: g.endMs }]);
+  const win = hf ?? p;
+  const gapAreas = win.gaps.map((g) => [{ xAxis: g.startMs }, { xAxis: g.endMs }]);
+  const gapMin = hf ? HF_GAP_MIN : 90;
 
   panels.forEach((panel, i) => {
     const last = i === panels.length - 1;
     grids.push({ left: 56, right: 16, top, height: panel.height });
     xAxes.push({
-      type: "time", gridIndex: i, min: p.startMs, max: p.endMs,
+      type: "time", gridIndex: i, min: win.startMs, max: win.endMs,
       axisLabel: last
         ? { show: true, color: "#56625F", fontFamily: "JetBrains Mono", fontSize: 11, hideOverlap: true,
             formatter: (v: number) => `${formatZulu(new Date(v).toISOString())}\n${formatLocalTime(new Date(v).toISOString(), tz)}` }
@@ -280,17 +417,78 @@ function buildOption(p: Prep, panels: typeof PANELS, tz: string) {
     series.push({
       type: "line", xAxisIndex: i, yAxisIndex: i, data: [], silent: true,
       markArea: { silent: true, itemStyle: { color: MISSING },
-        label: { show: i === 0, position: "insideTop", color: "#7A5A1E", fontSize: 11, fontWeight: 600, formatter: "No reports" },
+        label: { show: i === 0, position: "insideTop", color: "#7A5A1E", fontSize: 11, fontWeight: 600, formatter: hf ? "No readings" : "No reports" },
         data: gapAreas },
     }); // prettier-ignore
 
     const line = (key: string, color: string, vals: { t: number; v: number | null }[], width = 2) => ({
-      type: "line", name: key, xAxisIndex: i, yAxisIndex: i, data: breakAtGaps(vals),
-      connectNulls: false, showSymbol: true, symbolSize: 4, lineStyle: { color, width }, itemStyle: { color },
+      type: "line", name: key, xAxisIndex: i, yAxisIndex: i, data: breakAtGaps(vals, gapMin),
+      connectNulls: false, showSymbol: !hf, symbolSize: 4, lineStyle: { color, width }, itemStyle: { color },
       emphasis: { disabled: true },
     }); // prettier-ignore
 
-    if (panel.key === "temp") {
+    if (panel.key === "temp" && hf) {
+      series.push(
+        line(
+          "Temperature (5-min)",
+          "#C24E12",
+          hf.points.map((x) => ({ t: x.t, v: x.tempF })),
+          2,
+        ),
+      );
+      series.push(
+        line(
+          "Dew point",
+          "#1F5FA8",
+          hf.points.map((x) => ({ t: x.t, v: x.dewF })),
+        ),
+      );
+      series.push({
+        type: "scatter",
+        name: "Hourly METAR",
+        xAxisIndex: i,
+        yAxisIndex: i,
+        symbolSize: 7,
+        silent: true,
+        itemStyle: { color: "#101A1C", borderColor: "#FFFFFF", borderWidth: 1 },
+        z: 5,
+        data: hf.metar.map((m) => [m.t, m.tempF]),
+      });
+    } else if (panel.key === "rh" && hf) {
+      series.push(
+        line(
+          "RH (computed)",
+          "#6B4FA0",
+          hf.points.map((x) => ({ t: x.t, v: x.rh })),
+        ),
+      );
+    } else if (panel.key === "pres" && hf) {
+      series.push(
+        line(
+          "Altimeter",
+          "#3D4A47",
+          hf.points.map((x) => ({ t: x.t, v: x.altim_inhg })),
+        ),
+      );
+    } else if (panel.key === "wind" && hf) {
+      series.push(
+        line(
+          "Wind",
+          "#0A6E69",
+          hf.points.map((x) => ({ t: x.t, v: x.wind_kt })),
+        ),
+      );
+      series.push({
+        type: "scatter",
+        name: "Gust",
+        xAxisIndex: i,
+        yAxisIndex: i,
+        symbolSize: 5,
+        silent: true,
+        itemStyle: { color: "#7FB8B4" },
+        data: hf.points.filter((x) => x.gust_kt !== null).map((x) => [x.t, x.gust_kt]),
+      });
+    } else if (panel.key === "temp") {
       series.push(
         line(
           "Temperature",
@@ -384,6 +582,15 @@ function buildOption(p: Prep, panels: typeof PANELS, tz: string) {
       trigger: "axis", confine: true, backgroundColor: "#FFFFFF", borderColor: "#DDE1DC",
       textStyle: { color: "#101A1C", fontSize: 12 },
       formatter: (params: { axisValue: number }[]) => {
+        if (hf) {
+          const t = params[0]?.axisValue ?? 0;
+          let best: (typeof hf.points)[number] | null = null;
+          for (const x of hf.points) if (!best || Math.abs(x.t - t) < Math.abs(best.t - t)) best = x;
+          if (!best || Math.abs(best.t - t) > 7.5 * 60_000) return "No 5-minute reading at this time";
+          const b = best;
+          const m = hf.metar.find((d) => Math.abs(d.t - b.t) <= 150_000);
+          return [...hfTooltip(b, tz), ...(m ? [`Hourly ${m.report_type} ${formatZulu(m.observed_at)}: ${m.tempF.toFixed(2)} °F unrounded`] : [])].join("<br/>");
+        }
         const x = nearest(params[0]?.axisValue ?? 0);
         if (!x) return "No report at this time";
         const rows = [

@@ -111,7 +111,12 @@ export default function PricingPage() {
         </div>
 
         <div className="overflow-hidden rounded-[14px] border border-border bg-surface">
-          <div className="relative overflow-x-auto">
+          <div
+            className="relative overflow-x-auto focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:outline-none"
+            tabIndex={0}
+            role="region"
+            aria-label="Free and Premium features table"
+          >
             <table className="w-full border-collapse text-sm [&_td]:border-b [&_td]:border-hairline [&_td]:px-4 [&_td]:py-3 [&_th]:border-b [&_th]:border-border [&_th]:bg-[#FAFBF9] [&_th]:px-4 [&_th]:py-3 [&_th]:text-left [&_th]:text-xs [&_th]:font-semibold [&_th]:tracking-[.04em] [&_th]:text-muted-2 [&_th]:uppercase">
               <caption className="sr-only">Free and Premium features</caption>
               <thead>

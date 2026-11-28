@@ -96,14 +96,13 @@ export function MapTeaser() {
           Live station map
         </h2>
         <p className="text-[13px] leading-normal text-text-2">
-          Every settlement station on one map, updated from the 5-minute ASOS feed. Part of Premium,
-          coming later.
+          Every settlement station on one map, updated from the 5-minute ASOS feed. Part of Premium.
         </p>
         <Link
-          href="/pricing"
+          href="/map"
           className="inline-flex min-h-10 items-center self-start rounded-[9px] bg-ink px-4 text-sm font-semibold text-white no-underline hover:bg-[#25302F] hover:text-white"
         >
-          See Premium plans
+          Open the map
         </Link>
       </div>
     </section>
