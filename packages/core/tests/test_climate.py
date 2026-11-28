@@ -11,6 +11,7 @@ from edgefront_core.climate import (
     climate_day_bounds,
     high_events,
     high_so_far,
+    low_so_far,
 )
 
 
@@ -27,6 +28,7 @@ class R:
     is_correction: bool = False
     temp_precision: str | None = "tenths"
     max6h_c: Decimal | None = None
+    min6h_c: Decimal | None = None
 
 
 def dec(s: str) -> Decimal:
@@ -182,3 +184,89 @@ def test_whole_precision_is_reported() -> None:
     )
     assert h is not None
     assert h.precision == "whole"
+
+
+# ---------------------------------------------------------------- v2 Phase 9 B6: low so far
+
+# Chicago, LST climate day 2026-11-24 = [06:00Z, 06:00Z next day).
+DAY = climate_day_bounds(date(2026, 11, 24), "America/Chicago")
+
+
+def test_low_so_far_is_the_lowest_report_temperature() -> None:
+    reps = [R(1, utc(2026, 11, 24, 7), dec("3.3")), R(2, utc(2026, 11, 24, 12), dec("-1.1")),
+            R(3, utc(2026, 11, 24, 18), dec("8.9"))]  # fmt: skip
+    lo = low_so_far(reps, *DAY)
+    assert lo is not None
+    assert (lo.value_c, lo.report_id, lo.kind) == (dec("-1.1"), 2, "report")
+
+
+def test_a_speci_lowering_the_low() -> None:
+    reps = [R(1, utc(2026, 11, 24, 11, 53), dec("0.6")),
+            R(2, utc(2026, 11, 24, 12, 14), dec("-0.6"), report_type="SPECI"),
+            R(3, utc(2026, 11, 24, 12, 53), dec("0.0"))]  # fmt: skip
+    lo = low_so_far(reps, *DAY)
+    assert lo is not None
+    assert (lo.value_c, lo.report_id) == (dec("-0.6"), 2)
+
+
+def test_six_hour_minimum_inside_the_day_counts() -> None:
+    # 12:00Z report: 6-hour window 06:00-12:00Z, entirely inside the day.
+    reps = [R(1, utc(2026, 11, 24, 11, 53), dec("1.0"), min6h_c=dec("-2.2"))]
+    lo = low_so_far(reps, *DAY)
+    assert lo is not None
+    assert (lo.value_c, lo.kind, lo.precision) == (dec("-2.2"), "min6h", "tenths")
+
+
+def test_six_hour_minimum_straddling_midnight_is_excluded() -> None:
+    # 06:00Z report = LST midnight: its 6-hour window 00:00-06:00Z is the *previous* day.
+    reps = [R(1, utc(2026, 11, 24, 5, 53), dec("1.0"), min6h_c=dec("-5.0")),
+            R(2, utc(2026, 11, 24, 6, 53), dec("0.5"))]  # fmt: skip
+    lo = low_so_far(reps, *DAY)
+    assert lo is not None
+    assert (lo.value_c, lo.report_id) == (dec("0.5"), 2)
+
+
+def test_lst_midnight_boundary() -> None:
+    # 05:59Z belongs to the previous day, 06:00Z to this one ([start, end)).
+    reps = [R(1, utc(2026, 11, 24, 5, 59), dec("-9.0")), R(2, utc(2026, 11, 24, 6, 0), dec("-3.0")),
+            R(3, utc(2026, 11, 25, 6, 0), dec("-12.0"))]  # fmt: skip
+    lo = low_so_far(reps, *DAY)
+    assert lo is not None
+    assert lo.report_id == 2
+
+
+def test_missing_temperature_is_ignored_never_zero() -> None:
+    reps = [R(1, utc(2026, 11, 24, 7), None), R(2, utc(2026, 11, 24, 8), dec("4.4"))]
+    lo = low_so_far(reps, *DAY)
+    assert lo is not None
+    assert lo.value_c == dec("4.4")
+    assert low_so_far([R(1, utc(2026, 11, 24, 7), None)], *DAY) is None
+
+
+def test_correction_replaces_the_low() -> None:
+    reps = [R(1, utc(2026, 11, 24, 9, 53), dec("-6.1")),
+            R(2, utc(2026, 11, 24, 9, 53), dec("-1.1"), is_correction=True),
+            R(3, utc(2026, 11, 24, 10, 53), dec("-2.2"))]  # fmt: skip
+    lo = low_so_far(reps, *DAY)
+    assert lo is not None
+    assert (lo.value_c, lo.report_id) == (dec("-2.2"), 3)
+
+
+def test_low_on_a_dst_change_day_uses_lst() -> None:
+    # 2026-03-08, New York springs forward. LST day = [05:00Z, 05:00Z next day), 24 h.
+    start, end = climate_day_bounds(date(2026, 3, 8), "America/New_York")
+    reps = [
+        R(1, utc(2026, 3, 8, 4, 51), dec("-8.0")),  # previous LST day
+        R(2, utc(2026, 3, 8, 9, 51), dec("-3.3")),
+        R(3, utc(2026, 3, 9, 4, 51), dec("-4.4")),
+    ]  # 23:51 EST = 00:51 EDT, still this LST day
+    lo = low_so_far(reps, start, end)
+    assert lo is not None
+    assert (lo.value_c, lo.report_id) == (dec("-4.4"), 3)
+
+
+def test_low_ties_keep_the_earliest_report() -> None:
+    reps = [R(1, utc(2026, 11, 24, 9), dec("-1.0")), R(2, utc(2026, 11, 24, 10), dec("-1.0"))]
+    lo = low_so_far(reps, *DAY)
+    assert lo is not None
+    assert lo.report_id == 1

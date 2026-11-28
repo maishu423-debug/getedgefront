@@ -1,0 +1,122 @@
+{
+  "generated_at": "2026-11-28T05:32:39.697686Z",
+  "source": {
+    "source": "5-minute ASOS data (NOAA MADIS)",
+    "producer": "FAA ASOS via NOAA MADIS",
+    "attribution": "5-minute ASOS observations from the NOAA Meteorological Assimilation Data Ingest System (MADIS), provided by the FAA. Data as received; not official METAR observations.",
+    "last_success_at": "2026-11-28T05:32:34.912516Z"
+  },
+  "stations": [
+    {
+      "station_id": "KDFW",
+      "name": "Dallas/Fort Worth Intl",
+      "city": "Dallas",
+      "state": "TX",
+      "lat": null,
+      "lon": null,
+      "status": "stale",
+      "in_feed": true,
+      "hf_latest": {
+        "observed_at": "2026-11-28T05:15:00Z",
+        "age_minutes": 17,
+        "temp": {
+          "c": 12.0,
+          "f_exact": 53.6,
+          "f_rounded": 54,
+          "f_possible": [
+            53,
+            54
+          ],
+          "precision": "whole_c",
+          "source": "hfmetar",
+          "observed_at": "2026-11-28T05:15:00Z"
+        },
+        "temp_c": 12.0,
+        "temp_precision": "whole_c",
+        "dewpt_c": 3.0,
+        "wind_dir_deg": 190,
+        "wind_kt": 9,
+        "gust_kt": null,
+        "altim_inhg": 29.97,
+        "vis_mi": 10.0,
+        "precip_in": 0.0,
+        "qc_temp": "V",
+        "qc_failed": false,
+        "revision": 0,
+        "received_at": "2026-11-28T05:17:21Z",
+        "ingested_at": "2026-11-28T05:27:27.741710Z"
+      },
+      "hf_so_far": {
+        "high": {
+          "value_c": 19.0,
+          "precision": "whole_c",
+          "observed_at": "2026-11-27T23:00:00Z",
+          "temp": {
+            "c": 19.0,
+            "f_exact": 66.2,
+            "f_rounded": 66,
+            "f_possible": [
+              66,
+              67
+            ],
+            "precision": "whole_c",
+            "source": "hfmetar",
+            "observed_at": "2026-11-27T23:00:00Z"
+          }
+        },
+        "low": {
+          "value_c": 12.0,
+          "precision": "whole_c",
+          "observed_at": "2026-11-28T02:50:00Z",
+          "temp": {
+            "c": 12.0,
+            "f_exact": 53.6,
+            "f_rounded": 54,
+            "f_possible": [
+              53,
+              54
+            ],
+            "precision": "whole_c",
+            "source": "hfmetar",
+            "observed_at": "2026-11-28T02:50:00Z"
+          }
+        },
+        "readings": 76,
+        "used": 76,
+        "excluded_qc_count": 0,
+        "excluded_off_grid_count": 0,
+        "missing_temp_count": 0
+      },
+      "metar": {
+        "latest": null,
+        "high_so_far": null,
+        "low_so_far": null
+      }
+    },
+    {
+      "station_id": "KNYC",
+      "name": "New York \u00b7 Central Park",
+      "city": "New York",
+      "state": "NY",
+      "lat": null,
+      "lon": null,
+      "status": "no_data",
+      "in_feed": false,
+      "hf_latest": null,
+      "hf_so_far": {
+        "high": null,
+        "low": null,
+        "readings": 0,
+        "used": 0,
+        "excluded_qc_count": 0,
+        "excluded_off_grid_count": 0,
+        "missing_temp_count": 0
+      },
+      "metar": {
+        "latest": null,
+        "high_so_far": null,
+        "low_so_far": null
+      }
+    }
+  ]
+}

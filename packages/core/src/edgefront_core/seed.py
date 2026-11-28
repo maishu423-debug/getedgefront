@@ -68,6 +68,7 @@ def _station_values(e: StationEntry) -> dict[str, object]:
         "dsm_source": e.dsm_source,
         "aliases": list(e.aliases),
         "cli_location": e.cli_location,
+        "native_temp_unit": e.native_temp_unit,
     }
     if e.dsm_location is not None:
         values["dsm_location"] = e.dsm_location

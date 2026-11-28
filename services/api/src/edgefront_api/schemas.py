@@ -1,10 +1,10 @@
 """Pydantic response models for /api/v1. Temperatures: °C as stored (1 decimal) + whole °F
-for display (half away from zero, §6.1). Times are ISO 8601 UTC."""
+for display (NWS rounding: .5 rounds up, FMH-1 2.6.3; §6.1). Times are ISO 8601 UTC."""
 
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -51,6 +51,23 @@ class SkyLayerOut(BaseModel):
     type: str | None = None
 
 
+class TempValueOut(BaseModel):
+    """A temperature with both the exact and the whole-°F value (v2 Phase 9 B9)."""
+
+    c: float = Field(description="Degrees Celsius as reported")
+    f_exact: float = Field(description="°C * 9/5 + 32, not rounded")
+    f_rounded: int = Field(description="Whole °F, NWS rounding (.5 rounds up, FMH-1 2.6.3)")
+    f_possible: list[int] | None = Field(
+        description="Whole-°F readings an ASOS station (measures in °F) could have made to give "
+        "this °C: one for tenths, one or two for whole °C. None at stations measuring in °C"
+    )
+    precision: Literal["tenths_c", "whole_c"] = Field(
+        description="'whole_c': only good to ±0.5 °C (±0.9 °F); show the uncertainty"
+    )
+    source: Literal["metar_tgroup", "metar_body", "metar_6h_group", "hfmetar"]
+    observed_at: datetime
+
+
 class MetarBrief(BaseModel):
     report_id: int
     report_type: Literal["METAR", "SPECI"]
@@ -59,6 +76,7 @@ class MetarBrief(BaseModel):
     temp_c: float | None
     temp_f: int | None
     temp_precision: Literal["tenths", "whole"] | None
+    temp: TempValueOut | None = Field(None, description="Current temperature, exact and rounded")
 
 
 class MetarOut(MetarBrief):
@@ -95,6 +113,23 @@ class HighSoFarOut(BaseModel):
     report_id: int
     report_type: Literal["METAR", "SPECI"]
     observed_at: datetime = Field(description="Observation time of the report it came from")
+    temp: TempValueOut | None = Field(None, description="The same value, exact and rounded")
+
+
+class LowSoFarOut(BaseModel):
+    """Lowest temperature of the climate day so far, from METAR (v2 Phase 9 B6)."""
+
+    value_c: float
+    value_f: int
+    precision: Literal["tenths", "whole"] | None
+    kind: Literal["report", "min6h"] = Field(
+        description="'report': a METAR/SPECI temperature; 'min6h': a 6-hour minimum group "
+        "whose window lies entirely inside the climate day"
+    )
+    report_id: int
+    report_type: Literal["METAR", "SPECI"]
+    observed_at: datetime = Field(description="Observation time of the report it came from")
+    temp: TempValueOut
 
 
 class StationMeta(BaseModel):
@@ -133,6 +168,7 @@ class BoardRow(BaseModel):
     venues: list[VenueOut]
     latest: MetarBrief | None
     high_so_far: HighSoFarOut | None
+    low_so_far: LowSoFarOut | None = None
     nws_today_high_f: int | None = Field(None, description="Filled from Phase 3 (NWS forecast)")
     is_stale: bool
     fresh_high: bool = Field(description="A new high was observed within the last 60 minutes")
@@ -162,6 +198,7 @@ class CurrentResponse(BaseModel):
     is_stale: bool
     latest: MetarOut | None
     high_so_far: HighSoFarOut | None
+    low_so_far: LowSoFarOut | None = None
     climate_day: ClimateDayOut
 
 
@@ -241,9 +278,60 @@ class SourceStatus(BaseModel):
     healthy: bool = Field(description="Last success within 3x the schedule")
 
 
+class HfStageOut(BaseModel):
+    count: int
+    p50_s: float | None
+    p95_s: float | None
+
+
+class HfLatencyOut(BaseModel):
+    window_hours: int
+    rows: int
+    excluded_backfill: int = Field(
+        description="Readings first stored by a catch-up run (worker start, files deferred by the "
+        "per-run cap): left out of the percentiles"
+    )
+    received: HfStageOut = Field(description="Observation -> MADIS received")
+    file_modified: HfStageOut = Field(description="Observation -> LDM file written")
+    fetched: HfStageOut = Field(description="Observation -> EdgeFront download")
+    ingested: HfStageOut = Field(description="Observation -> stored")
+    per_station: dict[str, dict[str, HfStageOut]]
+
+
+class HfFileOut(BaseModel):
+    """The newest hourly file processed."""
+
+    name: str
+    modified_at: datetime
+    processed_at: datetime
+    our_rows: int
+
+
+class HfRoundingCheckOut(BaseModel):
+    pairs: int = Field(description="5-minute readings paired with a METAR/SPECI at the same minute")
+    matches: int
+    mismatches: int
+    mismatch_examples: list[str] = Field(description="'KDFW 2026-11-27T15:10:00Z', up to 5")
+
+
+class HfStatusOut(BaseModel):
+    """5-minute HFMETAR pipeline (v2 Phase 9 B8). Kept out of `sources` so the public status
+    strip and the web health check are unchanged."""
+
+    last_success_at: datetime | None
+    last_error_at: datetime | None
+    last_file: HfFileOut | None
+    last_reading_at: datetime | None
+    stations_reporting_30m: list[str]
+    stations_missing_30m: list[str] = Field(description="Active stations without a reading")
+    latency: HfLatencyOut
+    rounding_check: HfRoundingCheckOut
+
+
 class StatusResponse(BaseModel):
     generated_at: datetime
     sources: list[SourceStatus]
+    hfmetar: HfStatusOut | None = None
 
 
 # ---------------------------------------------------------------- daily summaries (Phase 3)
@@ -431,3 +519,110 @@ class ModelsResponse(BaseModel):
     window: ModelWindow
     observed: ObservedOverlay
     models: list[ModelSeries]
+
+
+# ---------------------------------------------------------------- Premium: 5-minute data (Phase 9)
+
+HF_LABEL = "5-minute ASOS data (NOAA MADIS)"
+HF_ATTRIBUTION = (
+    "5-minute ASOS observations from the NOAA Meteorological Assimilation Data Ingest System "
+    "(MADIS), provided by the FAA. Data as received; not official METAR observations."
+)
+
+
+class HfSourceRef(BaseModel):
+    source: str = HF_LABEL
+    producer: str = "FAA ASOS via NOAA MADIS"
+    attribution: str = HF_ATTRIBUTION
+    last_success_at: datetime | None = None
+
+
+class HfReadingOut(BaseModel):
+    observed_at: datetime
+    age_minutes: int
+    temp: TempValueOut | None = Field(
+        description="Whole °C from MADIS with exact/rounded °F and the possible station readings; "
+        "None when missing or off its grid"
+    )
+    temp_c: float | None
+    temp_precision: Literal["whole_c", "tenths_c", "off_grid"] | None
+    dewpt_c: float | None
+    wind_dir_deg: int | None
+    wind_kt: int | None
+    gust_kt: int | None
+    altim_inhg: float | None
+    vis_mi: float | None
+    precip_in: float | None
+    qc_temp: str | None = Field(description="MADIS data descriptor for temperature (V, Q, X, …)")
+    qc_failed: bool = Field(description="Temperature descriptor X, Q or B: left out of high/low")
+    qc: dict[str, Any] | None = Field(description="MADIS QC flags per variable, as provided")
+    revision: int = Field(description="How often a measured value of this reading changed")
+    received_at: datetime | None
+    ingested_at: datetime
+
+
+class HfExtremeOut(BaseModel):
+    value_c: float
+    precision: Literal["whole_c", "tenths_c"]
+    observed_at: datetime
+    temp: TempValueOut
+
+
+class HfSoFarOut(BaseModel):
+    """5-minute high and low of the climate day so far (v2 Phase 9 B6)."""
+
+    high: HfExtremeOut | None
+    low: HfExtremeOut | None
+    readings: int = Field(description="5-minute readings inside the climate day so far")
+    used: int
+    excluded_qc_count: int = Field(description="QC-failed readings (X/Q/B) left out")
+    excluded_off_grid_count: int
+    missing_temp_count: int
+
+
+class MetarSideOut(BaseModel):
+    latest: MetarBrief | None
+    high_so_far: HighSoFarOut | None
+    low_so_far: LowSoFarOut | None
+
+
+class HfSeriesResponse(BaseModel):
+    generated_at: datetime
+    station_id: str
+    hours: int
+    in_feed: bool = Field(description="False: this station is not in the 5-minute feed")
+    source: HfSourceRef
+    readings: list[HfReadingOut] = Field(description="Oldest first")
+
+
+class HfCurrentResponse(BaseModel):
+    generated_at: datetime
+    station_id: str
+    status: DataStatus
+    stale_after_minutes: int
+    in_feed: bool
+    source: HfSourceRef
+    latest: HfReadingOut | None
+    so_far: HfSoFarOut
+    metar: MetarSideOut = Field(description="The hourly METAR values, side by side")
+    climate_day: ClimateDayOut
+
+
+class MapStationOut(BaseModel):
+    station_id: str
+    name: str
+    city: str
+    state: str
+    lat: float | None
+    lon: float | None
+    status: DataStatus
+    in_feed: bool
+    hf_latest: HfReadingOut | None
+    hf_so_far: HfSoFarOut
+    metar: MetarSideOut
+
+
+class MapResponse(BaseModel):
+    generated_at: datetime
+    source: HfSourceRef
+    stations: list[MapStationOut]

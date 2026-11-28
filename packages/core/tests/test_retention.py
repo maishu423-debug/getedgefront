@@ -105,3 +105,34 @@ def test_retention_keeps_latest_four_model_runs(session_factory: sessionmaker[Se
 )  # fmt: skip
 def test_database_url_from_railway_is_normalised(given: str, expected: str) -> None:
     assert Settings(_env_file=None, database_url=given).database_url == expected
+
+
+def test_retention_keeps_seven_days_of_hf_observations(
+    session_factory: sessionmaker[Session],
+) -> None:
+    """v2 Phase 9 B4: 5-minute rows older than 7 days go, the file log after 4 days."""
+    from edgefront_core.models import HfFile, HfObservation
+
+    now = datetime(2026, 11, 28, 6, 0, tzinfo=UTC)
+    with session_scope(session_factory) as s:
+        seed(s, load_registry())
+    with session_scope(session_factory) as s:
+        for age_h in (1, 24 * 7 - 1, 24 * 7 + 1, 24 * 30):
+            at = now - timedelta(hours=age_h)
+            s.add(HfObservation(
+                station_id="KDFW", observed_at=at, source_file="hfmetar.x.gz",
+                fetched_at=at, ingested_at=at, updated_at=at, row_hash="0" * 64,
+            ))  # fmt: skip
+        for age_d in (1, 5):
+            at = now - timedelta(days=age_d)
+            s.add(HfFile(
+                name=f"hfmetar.{age_d}.gz", modified_at=at, size_bytes=1, processed_at=at,
+                records=0, our_rows=0,
+            ))  # fmt: skip
+    out = run_retention(session_factory, now=now)
+    assert out.deleted["hf_observations"] == 2
+    assert out.rows["hf_observations"] == 2
+    assert out.deleted["hf_files"] == 1
+    with session_scope(session_factory) as s:
+        oldest = s.execute(select(func.min(HfObservation.observed_at))).scalar_one()
+        assert as_utc(oldest) == now - timedelta(hours=24 * 7 - 1)

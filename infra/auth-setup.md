@@ -91,11 +91,13 @@ Then `pnpm --filter @edgefront/web dev`, open <http://localhost:3000/signin> and
    add each one exactly as shown (Namecheap wants the host *without* the domain, e.g.
    `resend._domainkey`, `send`):
    - **DKIM**: TXT `resend._domainkey` → the long `p=...` value.
-   - **SPF** for the bounce domain: MX `send` → `feedback-smtp.us-east-1.amazonses.com`
-     priority 10, and TXT `send` → `v=spf1 include:amazonses.com ~all`.
-     (These are on the `send.` subdomain, so they do not touch any SPF record on the root.)
+   - **Sending and bounce domains** (what Resend asks for as of 2026-11-27; it replaced the
+     older MX/TXT pair): **CNAME `send` → `send.forge.rmta.net`** and **CNAME `rsend` →
+     `rsend.forge.rmta.net`**. (Subdomains only, so they don't touch anything on the root.)
+     Always copy the exact values Resend shows: they're what it verifies against.
    - **DMARC**: TXT `_dmarc` → `v=DMARC1; p=none; rua=mailto:<an address you read>`.
-     Start with `p=none`; after two clean weeks of reports, move to `p=quarantine`.
+     Started with `p=none`; **move to `p=quarantine` around 2026-12-11** (after two clean weeks
+     of reports): edit the same TXT record to `v=DMARC1; p=quarantine; rua=mailto:<…>`.
 4. Wait for Resend to show the domain **Verified** (minutes to a few hours).
 5. **API keys → Create** with "Sending access" restricted to `getedgefront.com`. Put it in
    `RESEND_API_KEY` on Railway (web). Set `EMAIL_FROM` as in §1.

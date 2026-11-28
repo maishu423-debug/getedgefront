@@ -150,8 +150,12 @@ const DEFS: [string, string][] = [
     "Midnight to midnight local standard time, the day the NWS uses for its climate reports. During daylight saving time it runs from 1:00 AM to 1:00 AM on the local clock.",
   ],
   [
-    "High so far",
-    "The highest temperature in any hourly METAR or SPECI since the start of the climate day, plus 6-hour maximum groups whose whole 6-hour window falls inside the day. It is not a settlement value.",
+    "High and low so far",
+    "The highest (lowest) temperature in any hourly METAR or SPECI since the start of the climate day, plus 6-hour maximum (minimum) groups whose whole 6-hour window falls inside the day. They are not settlement values.",
+  ],
+  [
+    "Rounded and unrounded °F",
+    "The big number is whole °F, rounded the NWS way (a fraction of .5 or more rounds up, so 36.5 → 37 and −8.5 → −8). The small number is the exact conversion of the reported °C. Most airport stations (ASOS) measure in whole °F, and the METAR's tenths of a °C are a conversion of that reading, so the rounded °F is usually the station's own reading. When only whole °C is available (some reports, and the 5-minute data), it can be 1–2 °F off the station's reading, so we show the possible readings. The official daily high and low are in the NWS Daily Climate Report (CLI).",
   ],
   [
     "METAR vs DSM vs CLI",
@@ -163,7 +167,7 @@ const DEFS: [string, string][] = [
   ],
   [
     "Units",
-    "Temperatures in °F, rounded to whole degrees (half away from zero) from the reported °C. METAR wind in knots; DSM and CLI wind in mph, as published. Model wind in knots (PFM is published in mph and converted).",
+    "Temperatures in °F, rounded to whole degrees with the NWS rule (.5 rounds up) from the reported °C, with the unrounded value alongside. METAR wind in knots; DSM and CLI wind in mph, as published. Model wind in knots (PFM is published in mph and converted).",
   ],
 ];
 

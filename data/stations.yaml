@@ -14,6 +14,10 @@
 #   coordinates are clearly nearest this station (Phase 1 discovery, 2026-11-24, <= 3 km and
 #   unambiguous). null = no such point.
 # - aliases: extra search terms for the site search (city nicknames, IATA codes), e.g. NYC, DC.
+# - native_temp_unit: the unit the station measures in (v2 Phase 9, Q36). Default F: ASOS stations
+#   measure in whole °F and their METAR tenths °C are conversions (2026-11-27: every T-group value
+#   of 27 stations within ±0.09 °F of a whole °F, 3,031 reports). KBKF (military) measures in °C
+#   (19 of 94). A weekly worker check warns if a station's data stop matching this.
 # - Seed semantics: a null dsm_location/pfm_point never overwrites a stored value; venues
 #   below are the full truth for each station.
 
@@ -348,6 +352,7 @@
   dsm_source: null
   cli_location: null
   pfm_point: "Buckley AFB-Arapahoe CO"
+  native_temp_unit: C
   venues:
     - {venue: polymarket, kind: high, market: null, settlement_source: null, rules_url: null, verified: false, verified_at: null}
 

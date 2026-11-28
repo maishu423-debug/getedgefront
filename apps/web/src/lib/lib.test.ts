@@ -14,7 +14,7 @@ describe("cToFDisplay — same cases as test_units.py", () => {
     [20.0, 68],
     [-4.4, 24],
     [0.0, 32],
-    [-17.5, 1], // 0.5 → half away from zero → 1
+    [-17.5, 1], // 0.5 → NWS half-up → 1
     [-18.5, -1], // -1.3
     [-20.25, -4], // -4.45
     [-20.28, -5], // -4.504

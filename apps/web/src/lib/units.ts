@@ -1,7 +1,9 @@
 /**
- * °C → whole °F, rounded half away from zero — the same rule as the API
- * (packages/core/src/edgefront_core/units.py `c_to_f_display`). Integer arithmetic, so there
- * is no floating-point drift at .5 boundaries. Missing stays missing (never 0).
+ * °C → whole °F with the NWS rounding rule (FMH-1 §2.6.3): a dropped fraction of .5 or more
+ * rounds up, and a negative number rounds down only when the fraction is more than .5, i.e.
+ * floor(x + 0.5): 36.5 → 37, −8.5 → −8. Same rule as the API
+ * (packages/core/src/edgefront_core/units.py `round_half_up` / `c_to_f_display`). Integer
+ * arithmetic, so no floating-point drift at .5 boundaries. Missing stays missing (never 0).
  */
 export function cToFDisplay(c: number | null | undefined): number | null {
   if (c === null || c === undefined || !Number.isFinite(c)) return null;
@@ -10,9 +12,7 @@ export function cToFDisplay(c: number | null | undefined): number | null {
   // F = C*9/5 + 32  →  numerator / 50000  (all integers)
   const num = scaled * 9 + 32 * 50000;
   const den = 50000;
-  const q = Math.abs(num);
-  const rounded = Math.floor((2 * q + den) / (2 * den)); // half up on |x|
-  const out = num < 0 ? -rounded : rounded;
+  const out = Math.floor((2 * num + den) / (2 * den)); // floor(x + 0.5)
   return out === 0 ? 0 : out; // never "-0"
 }
 

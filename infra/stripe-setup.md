@@ -78,6 +78,9 @@ Make sure the Dashboard shows **Test mode** (toggle at the top) for every step.
        configuration 3)
      - **Bancontact**, **Crypto**
      - **Kakao Pay, Korean cards, Naver Pay, PAYCO, Samsung Pay**
+     **Not the "Default" configuration:** switches there don't affect Managed Payments Checkout
+     (verified 2026-11-27: a Managed Payments session still offered `card` + `cashapp` after
+     Cash App Pay was turned off in "Default").
      Stripe notes that Managed Payments "controls the payment methods available" (support article
      "Payment method configurations for Managed Payments"). If a switch can't be turned off, it's
      a Managed Payments limit: tell me which one. After switching, open a test Checkout: it

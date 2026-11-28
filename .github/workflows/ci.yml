@@ -151,6 +151,15 @@ jobs:
           path: apps/web/test-results/
           retention-days: 14
           if-no-files-found: ignore
+      - name: Stop api and web
+        # The background `uv run` must be gone before setup-uv's post step prunes the uv cache,
+        # or the prune can fail the job (exit 2) after every test passed.
+        if: always()
+        run: |
+          pkill -f "edgefront_api.serve" || true
+          pkill -f "next start" || true
+          pkill -f "@edgefront/web start" || true
+          sleep 2
 
   audit:
     runs-on: ubuntu-latest

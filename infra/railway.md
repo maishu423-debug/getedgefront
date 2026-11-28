@@ -142,6 +142,9 @@ reference variable: type it literally, do not paste the URL.
 | `STALE_METAR_MINUTES` | `90` | |
 | `DB_SIZE_WARN_BYTES` | `3221225472` (3 GB) | |
 | `WORKER_UPSTREAM_ENABLED` | `true` | |
+| `LDM_API_BASE_URL` | `https://ldm.getedgefront.com` (v2 Phase 9) | |
+| `MADIS_API_TOKEN` | the madis-api token ([ldm/README.md](ldm/README.md) step 4) | 🔒 |
+| `HF_INGEST_ENABLED` | `false` until the Phase 9 merge is deployed, then `true` | |
 
 **web**
 

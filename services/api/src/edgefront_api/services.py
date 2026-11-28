@@ -11,7 +11,7 @@ from itertools import pairwise
 from typing import Literal, cast
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from edgefront_api import daily
@@ -22,14 +22,37 @@ from edgefront_core.climate import (
     climate_day_bounds,
     effective_reports,
     high_so_far,
+    low_so_far,
     standard_offset,
+)
+from edgefront_core.hf_store import SOURCE as HF_SOURCE
+from edgefront_core.hf_store import (
+    StageStats,
+    latency_report,
+    rounding_check,
+    stations_reporting,
 )
 from edgefront_core.metar_ingest import SOURCE as METAR_SOURCE
 from edgefront_core.metar_ingest import SOURCE_LABEL as METAR_LABEL
-from edgefront_core.models import DailyHighEvent, MetarReport, SourceHealth, Station, StationVenue
+from edgefront_core.models import (
+    DailyHighEvent,
+    HfFile,
+    HfObservation,
+    MetarReport,
+    SourceHealth,
+    Station,
+    StationVenue,
+)
 from edgefront_core.settings import Settings
 from edgefront_core.sources import known_sources
-from edgefront_core.units import c_to_f_display, compass_point, rh_percent
+from edgefront_core.units import (
+    NativeUnit,
+    TempValue,
+    c_to_f_display,
+    compass_point,
+    metar_temp_value,
+    rh_percent,
+)
 
 GAP_MINUTES = 90
 FRESH_HIGH_MINUTES = 60
@@ -153,6 +176,7 @@ class RV:
     temp_c: Decimal | None
     temp_precision: str | None
     max6h_c: Decimal | None
+    min6h_c: Decimal | None
 
     @classmethod
     def of(cls, r: MetarReport) -> RV:
@@ -165,6 +189,7 @@ class RV:
             r.temp_c,
             r.temp_precision,
             r.max6h_c,
+            r.min6h_c,
         )
 
 
@@ -189,7 +214,11 @@ def _rtype(t: str) -> Literal["METAR", "SPECI"]:
     return "SPECI" if t == "SPECI" else "METAR"
 
 
-def metar_brief(r: RV, now: datetime) -> s.MetarBrief:
+def _unit(st: Station) -> NativeUnit:
+    return "C" if st.native_temp_unit == "C" else "F"
+
+
+def metar_brief(r: RV, now: datetime, native: NativeUnit = "F") -> s.MetarBrief:
     return s.MetarBrief(
         report_id=r.id,
         report_type=_rtype(r.report_type),
@@ -198,6 +227,23 @@ def metar_brief(r: RV, now: datetime) -> s.MetarBrief:
         temp_c=_num(r.temp_c),
         temp_f=c_to_f_display(r.temp_c),
         temp_precision=_precision(r.temp_precision),
+        temp=_temp_out(
+            metar_temp_value(r.temp_c, r.temp_precision, r.observed_at, native_unit=native)
+        )
+        if r.temp_c is not None
+        else None,
+    )
+
+
+def _temp_out(t: TempValue) -> s.TempValueOut:
+    return s.TempValueOut(
+        c=float(t.c),
+        f_exact=float(t.f_exact),
+        f_rounded=t.f_rounded,
+        f_possible=list(t.f_possible) if t.f_possible is not None else None,
+        precision=t.precision,
+        source=t.source,
+        observed_at=t.observed_at,
     )
 
 
@@ -205,10 +251,12 @@ def _sky(r: MetarReport) -> list[s.SkyLayerOut]:
     return [s.SkyLayerOut.model_validate(layer) for layer in (r.sky or [])]
 
 
-def metar_out(r: RV, now: datetime, superseded: bool = False) -> s.MetarOut:
+def metar_out(
+    r: RV, now: datetime, superseded: bool = False, native: NativeUnit = "F"
+) -> s.MetarOut:
     m = r.row
     return s.MetarOut(
-        **metar_brief(r, now).model_dump(),
+        **metar_brief(r, now, native).model_dump(),
         raw_text=m.raw_text,
         is_correction=m.is_correction,
         superseded=superseded,
@@ -243,10 +291,46 @@ def _high_out(reports: list[RV], st: Station, now: datetime) -> s.HighSoFarOut |
         value_c=float(h.value_c),
         value_f=c_to_f_display(h.value_c),
         precision=_precision(h.precision),
-        kind=h.kind,
+        kind="max6h" if h.kind == "max6h" else "report",
         report_id=h.report_id,
         report_type=_rtype(src.report_type),
         observed_at=h.observed_at,
+        temp=_temp_out(
+            metar_temp_value(
+                h.value_c,
+                h.precision,
+                h.observed_at,
+                six_hour=h.kind == "max6h",
+                native_unit=_unit(st),
+            )
+        ),
+    )
+
+
+def _low_out(reports: list[RV], st: Station, now: datetime) -> s.LowSoFarOut | None:
+    b = basis(st)
+    start, end = climate_day_bounds(climate_date(now, st.tz, b), st.tz, b)
+    lo = low_so_far(reports, start, end)
+    if lo is None:
+        return None
+    src = next(r for r in reports if r.id == lo.report_id)
+    return s.LowSoFarOut(
+        value_c=float(lo.value_c),
+        value_f=c_to_f_display(lo.value_c),
+        precision=_precision(lo.precision),
+        kind="min6h" if lo.kind == "min6h" else "report",
+        report_id=lo.report_id,
+        report_type=_rtype(src.report_type),
+        observed_at=lo.observed_at,
+        temp=_temp_out(
+            metar_temp_value(
+                lo.value_c,
+                lo.precision,
+                lo.observed_at,
+                six_hour=lo.kind == "min6h",
+                native_unit=_unit(st),
+            )
+        ),
     )
 
 
@@ -306,8 +390,9 @@ def board(
                 std_utc_offset_minutes=off,
                 local_time=now.astimezone(ZoneInfo(st.tz)),
                 venues=venues.get(st.id, []),
-                latest=metar_brief(latest, now) if latest else None,
+                latest=metar_brief(latest, now, _unit(st)) if latest else None,
                 high_so_far=_high_out(reps, st, now),
+                low_so_far=_low_out(reps, st, now),
                 nws_today_high_f=daily.today_high_f(daily.latest_forecast(session, st.id), st, now),
                 is_stale=latest is None
                 or _age(now, latest.observed_at) > settings.stale_metar_minutes,
@@ -335,8 +420,9 @@ def current(session: Session, st: Station, now: datetime, settings: Settings) ->
         source=_metar_source(session),
         stale_after_minutes=settings.stale_metar_minutes,
         is_stale=status != "ok",
-        latest=metar_out(latest, now) if latest else None,
+        latest=metar_out(latest, now, native=_unit(st)) if latest else None,
         high_so_far=_high_out(reps, st, now),
+        low_so_far=_low_out(reps, st, now),
         climate_day=climate_day_out(st, now),
     )
 
@@ -354,7 +440,9 @@ def metars(
         status=_status(latest, now, settings.stale_metar_minutes),
         hours=hours,
         source=_metar_source(session),
-        reports=[metar_out(r, now, superseded=r.id not in eff) for r in newest_first],
+        reports=[
+            metar_out(r, now, superseded=r.id not in eff, native=_unit(st)) for r in newest_first
+        ],
     )
 
 
@@ -458,4 +546,50 @@ def status(session: Session, now: datetime, settings: Settings) -> s.StatusRespo
                 and (now - last_ok).total_seconds() <= src.unhealthy_after_seconds,
             )
         )
-    return s.StatusResponse(generated_at=now, sources=out)
+    return s.StatusResponse(generated_at=now, sources=out, hfmetar=hf_status(session, now))
+
+
+def _stage(v: StageStats) -> s.HfStageOut:
+    return s.HfStageOut(count=v.count, p50_s=v.p50_s, p95_s=v.p95_s)
+
+
+def hf_status(session: Session, now: datetime) -> s.HfStatusOut:
+    """v2 Phase 9 B8: the 5-minute pipeline on /status (a block of its own, not in `sources`)."""
+    h = session.get(SourceHealth, HF_SOURCE)
+    newest = select(HfFile).order_by(HfFile.name.desc()).limit(1)  # the newest hour
+    f = session.scalars(newest).first()
+    last = session.scalar(select(func.max(HfObservation.observed_at)))
+    active = list(session.scalars(select(Station.id).where(Station.active).order_by(Station.id)))
+    reporting = [sid for sid in stations_reporting(session, now, 30) if sid in set(active)]
+    lat = latency_report(session, now, hours=6)
+    rc = rounding_check(session, now - timedelta(days=7))
+    return s.HfStatusOut(
+        last_success_at=utc(h.last_success_at) if h and h.last_success_at else None,
+        last_error_at=utc(h.last_error_at) if h and h.last_error_at else None,
+        last_file=s.HfFileOut(
+            name=f.name,
+            modified_at=utc(f.modified_at),
+            processed_at=utc(f.processed_at),
+            our_rows=f.our_rows,
+        )
+        if f
+        else None,
+        last_reading_at=utc(last) if last else None,
+        stations_reporting_30m=reporting,
+        stations_missing_30m=[sid for sid in active if sid not in set(reporting)],
+        latency=s.HfLatencyOut(
+            window_hours=lat.window_hours,
+            rows=lat.rows,
+            excluded_backfill=lat.excluded_backfill,
+            **{k: _stage(v) for k, v in lat.overall.items()},
+            per_station={
+                sid: {k: _stage(v) for k, v in st.items()} for sid, st in lat.per_station.items()
+            },
+        ),
+        rounding_check=s.HfRoundingCheckOut(
+            pairs=rc.pairs,
+            matches=rc.matches,
+            mismatches=len(rc.mismatches),
+            mismatch_examples=[f"{m['station']} {m['observed_at']}" for m in rc.mismatches[:5]],
+        ),
+    )

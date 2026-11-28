@@ -17,7 +17,8 @@ from starlette.responses import Response as StarletteResponse
 from edgefront_api import daily, model_guidance, services
 from edgefront_api import schemas as s
 from edgefront_api.health import check_health
-from edgefront_api.internal import internal_router, require_internal_token
+from edgefront_api.internal import INTERNAL_PREFIX, internal_router, require_internal_token
+from edgefront_api.premium import premium_router
 from edgefront_core.db import get_engine, make_sessionmaker
 from edgefront_core.logs import configure_logging
 from edgefront_core.models import Station
@@ -190,6 +191,10 @@ async def cache_headers(
     """Cache-Control: max-age=30 + strong ETag on successful read endpoints (§8)."""
     response = await call_next(request)
     path = request.url.path
+    if path == INTERNAL_PREFIX or path.startswith(INTERNAL_PREFIX + "/"):
+        # Premium data for the Next.js server: never stored by any cache (v2 Phase 9 B7)
+        response.headers["Cache-Control"] = "private, no-store"
+        return response
     if (
         request.method != "GET"
         or response.status_code != 200
@@ -239,6 +244,7 @@ def create_app(
     app.middleware("http")(require_internal_token)  # added last = runs first
     app.include_router(router)
     app.include_router(internal_router)
+    app.include_router(premium_router)
     return app
 
 

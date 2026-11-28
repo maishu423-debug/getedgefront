@@ -3,6 +3,7 @@
 - metar_reports, daily_high_events, cli_products, dsm_products: 400 days
 - nws_forecasts: latest 3 per station (already enforced by every forecast ingest; checked here)
 - model_runs / model_run_stations / model_values: latest 4 runs per model (per office for PFM)
+- hf_observations (5-minute data, v2 Phase 9): 7 days; hf_files (processed-file log): 4 days
 A warning is logged when the database is larger than `DB_SIZE_WARN_BYTES` (default 3 GB of the
 5 GB Railway volume).
 """
@@ -24,6 +25,8 @@ from edgefront_core.models import (
     CliProduct,
     DailyHighEvent,
     DsmProduct,
+    HfFile,
+    HfObservation,
     MetarReport,
     ModelRun,
     ModelRunStation,
@@ -39,11 +42,13 @@ from edgefront_core.timeutil import utcnow
 log = logging.getLogger("edgefront.retention")
 SOURCE = "retention"
 KEEP_DAYS = 400
+HF_KEEP_DAYS = 7
+HF_FILES_KEEP_DAYS = 4  # LDM keeps far less; only the change detection needs these rows
 DEFAULT_WARN_BYTES = 3 * 1024**3
 
 COUNTED = (
     Station, StationVenue, MetarReport, DailyHighEvent, CliProduct, DsmProduct, NwsForecast,
-    ModelRun, ModelRunStation, ModelValue, SourceHealth,
+    ModelRun, ModelRunStation, ModelValue, SourceHealth, HfObservation, HfFile,
 )  # fmt: skip
 
 
@@ -110,6 +115,16 @@ def run_retention(
             for m in MODELS:
                 runs += apply_retention(s, m.id)
             out.deleted["model_runs"] = runs
+            out.deleted["hf_observations"] = _rows(
+                s,
+                delete(HfObservation).where(
+                    HfObservation.observed_at < now - timedelta(days=HF_KEEP_DAYS)
+                ),
+            )
+            out.deleted["hf_files"] = _rows(
+                s,
+                delete(HfFile).where(HfFile.modified_at < now - timedelta(days=HF_FILES_KEEP_DAYS)),
+            )
         with session_scope(factory) as s:
             for model in COUNTED:
                 out.rows[model.__tablename__] = int(
