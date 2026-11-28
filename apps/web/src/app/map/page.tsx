@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 
 import { PageShell } from "@/components/Chrome";
 import { MapPage } from "@/components/map/MapPage";
+import { COVERAGE } from "@/lib/coverage";
 
 export const metadata: Metadata = {
   title: "Live station map",
-  description:
-    "Premium: 5-minute ASOS temperatures for every Kalshi, Polymarket and Robinhood settlement station on one map, with high and low so far.",
+  description: `Premium: every Kalshi, Polymarket and Robinhood settlement station on one map, with ${COVERAGE.sentence.replace("5-minute data", "5-minute ASOS temperatures")} and the high and low so far.`,
   alternates: { canonical: "/map" },
 };
 

@@ -50,6 +50,8 @@ class StationEntry(BaseModel):
     pfm_point: str | None = None
     # Unit the station measures in (v2 Phase 9, Q36): ASOS = whole °F (default), KBKF = °C.
     native_temp_unit: Literal["F", "C"] = "F"
+    # In the NOAA MADIS 5-minute ASOS feed (v2 Phase 9/10): false for KNYC and KBKF.
+    five_minute_feed: bool = True
     venues: list[VenueEntry] = Field(default_factory=list)
 
     @field_validator("tz")

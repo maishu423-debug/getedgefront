@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 
+import { inFiveMinuteFeed, NOT_IN_FEED_NOTE } from "@/lib/coverage";
 import { useNow } from "@/lib/hooks";
 import { usePremiumData, usePremiumTier } from "@/lib/premium/client";
 import type { HfCurrentResponse, HfExtreme } from "@/lib/premium/types";
@@ -25,12 +26,15 @@ export const INFO_TEXT =
 
 export function StationNow({ initial, tz }: { initial: CurrentResponse; tz: string }) {
   const { premium } = usePremiumTier();
+  const inFeed = inFiveMinuteFeed(initial.station_id); // registry: KNYC and KBKF are not
   const hf = usePremiumData<HfCurrentResponse>(
     `/api/premium/stations/${initial.station_id}/hf-current`,
-    premium,
+    premium && inFeed,
   );
   let body: React.ReactNode;
-  if (!premium || hf.status === "forbidden") {
+  if (premium && !inFeed) {
+    body = <CurrentCards initial={initial} tz={tz} note={<Note>{NOT_IN_FEED_NOTE}</Note>} />;
+  } else if (!premium || hf.status === "forbidden") {
     body = <CurrentCards initial={initial} tz={tz} />;
   } else if (!hf.data) {
     body =
@@ -44,17 +48,7 @@ export function StationNow({ initial, tz }: { initial: CurrentResponse; tz: stri
         <PremiumSkeleton />
       );
   } else if (!hf.data.in_feed) {
-    body = (
-      <CurrentCards
-        initial={initial}
-        tz={tz}
-        note={
-          <Note>
-            This station isn&apos;t in the 5-minute feed. Values are from the hourly METAR.
-          </Note>
-        }
-      />
-    );
+    body = <CurrentCards initial={initial} tz={tz} note={<Note>{NOT_IN_FEED_NOTE}</Note>} />;
   } else {
     body = <PremiumCards data={hf.data} tz={tz} failed={hf.failed} updatedAt={hf.updatedAt} />;
   }

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useNearViewport, useNow } from "@/lib/hooks";
+import { inFiveMinuteFeed } from "@/lib/coverage";
 import { usePremiumData, usePremiumTier } from "@/lib/premium/client";
 import type { HfSeriesResponse } from "@/lib/premium/types";
 import { formatLocalTime, formatZulu } from "@/lib/time";
@@ -216,7 +217,7 @@ export function ModelGuidance({
   const { premium } = usePremiumTier();
   const hf = usePremiumData<HfSeriesResponse>(
     `/api/premium/stations/${stationId}/hf?hours=24`,
-    premium,
+    premium && inFiveMinuteFeed(stationId),
   );
   const data = useMemo(() => {
     const d = load.status === "ok" ? load.data : null;

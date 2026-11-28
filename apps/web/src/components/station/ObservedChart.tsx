@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { breakAtGaps } from "@/lib/gaps";
+import { inFiveMinuteFeed, NOT_IN_FEED_NOTE } from "@/lib/coverage";
 import { useNearViewport } from "@/lib/hooks";
 import { usePremiumData, usePremiumTier } from "@/lib/premium/client";
 import type { HfSeriesResponse } from "@/lib/premium/types";
@@ -70,12 +71,13 @@ export const CHART_TEASER = "5-minute readings catch peaks and dips between hour
 
 export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string }) {
   const { premium } = usePremiumTier();
+  const inFeed = inFiveMinuteFeed(data.station_id); // registry: KNYC and KBKF are not
   const hf = usePremiumData<HfSeriesResponse>(
     `/api/premium/stations/${data.station_id}/hf?hours=24`,
-    premium,
+    premium && inFeed,
   );
   const [chosen, setChosen] = useState<Mode | null>(null);
-  const mode: Mode = premium && hf.status !== "forbidden" ? (chosen ?? "5min") : "metar";
+  const mode: Mode = premium && inFeed && hf.status !== "forbidden" ? (chosen ?? "5min") : "metar";
   const [hours, setHours] = useState<6 | 24>(24);
   const [on, setOn] = useState<Record<PanelKey, boolean>>({
     temp: true,
@@ -161,10 +163,20 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
             aria-label="Data resolution"
             className="flex rounded-[9px] bg-[#E7EAE6] p-[3px]"
           >
-            {premium ? (
+            {premium && inFeed ? (
               <SegButton on={mode === "5min"} onClick={() => setChosen("5min")}>
                 5-minute
               </SegButton>
+            ) : !inFeed ? (
+              <button
+                type="button"
+                aria-disabled="true"
+                aria-describedby="chart-not-in-feed"
+                className="inline-flex min-h-10 cursor-not-allowed items-center gap-1.5 rounded-[7px] px-3 text-[13px] font-medium text-muted"
+              >
+                {premium ? null : <LockIcon size={12} />}
+                5-minute{premium ? "" : " · Premium"}
+              </button>
             ) : (
               <button
                 type="button"
@@ -217,7 +229,15 @@ export function ObservedChart({ data, tz }: { data: ObservedResponse; tz: string
         ))}
       </div>
 
-      {!premium ? (
+      {!inFeed ? (
+        <p
+          id="chart-not-in-feed"
+          role="note"
+          className="rounded-[10px] border border-[#CFE3E1] bg-[#E6F2F1] px-3.5 py-2.5 text-[13.5px] text-[#064F4B]"
+        >
+          {NOT_IN_FEED_NOTE} Premium shows the same hourly METAR here.
+        </p>
+      ) : !premium ? (
         <div
           id="chart-teaser"
           className="flex flex-wrap items-center justify-between gap-2.5 rounded-[10px] border border-dashed border-[#D9A35A] bg-[#FFF7EC] px-3.5 py-2.5 text-[13.5px] text-[#6B3A00]"

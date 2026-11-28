@@ -6,11 +6,11 @@ import { PageShell } from "@/components/Chrome";
 import { PremiumPrice } from "@/components/billing/PremiumPrice";
 import { PremiumCta } from "@/components/billing/PremiumCta";
 import { TRIAL_REMINDER_DAYS } from "@/lib/billing/entitlement";
+import { COVERAGE } from "@/lib/coverage";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description:
-    "EdgeFront Free and Premium. Free needs no account; Premium adds 5-minute ASOS data and a live station map, with a 7-day free trial.",
+  description: `EdgeFront Free and Premium. Free needs no account; Premium adds ${COVERAGE.sentence.replace("5-minute data", "5-minute ASOS data")} and a live station map, with a 7-day free trial.`,
   alternates: { canonical: "/pricing" },
 };
 
@@ -26,9 +26,9 @@ const ROWS: [string, string, string][] = [
   [
     "Current temperature, high so far and observed chart",
     "From hourly METARs",
-    "From 5-minute ASOS data",
+    `From 5-minute ASOS data (${COVERAGE.count}; hourly METAR for ${COVERAGE.outside.join(" and ")})`,
   ],
-  ["Continuous 5-minute ASOS data", "—", "yes"],
+  [`Continuous 5-minute ASOS data`, "—", `${COVERAGE.inFeed} of ${COVERAGE.total} stations`],
   ["Live station map", "—", "yes"],
   ["More data sources", "—", "Later"],
 ];
@@ -36,7 +36,7 @@ const ROWS: [string, string, string][] = [
 const FAQ: [string, string][] = [
   [
     "What does “5-minute data” mean?",
-    "Automated airport weather stations (ASOS) measure every few minutes, but the hourly METAR only reports one value per hour (plus special reports). Premium will show the high-frequency 5-minute observations NOAA distributes, so you can see what happens between hourly reports.",
+    `Automated airport weather stations (ASOS) measure every few minutes, but the hourly METAR only reports one value per hour (plus special reports). Premium shows the 5-minute observations NOAA distributes, so you can see what happens between hourly reports. They exist for ${COVERAGE.inFeed} of our ${COVERAGE.total} stations: ${COVERAGE.outside.join(" and ")} are not in NOAA's 5-minute feed, so Premium shows their hourly METAR. 5-minute temperatures are whole °C, so each value can be 1–2 °F off the station's own reading; we show the possible readings.`,
   ],
   [
     "Where does the data come from?",
@@ -74,8 +74,9 @@ export default function PricingPage() {
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-[36px] font-bold tracking-[-0.02em]">Pricing</h1>
           <p className="max-w-2xl text-text-2">
-            Free gives you the official hourly reports. Premium adds the 5-minute ASOS readings and
-            a live map of every settlement station.
+            Free gives you the official hourly reports. Premium adds{" "}
+            {COVERAGE.sentence.replace("5-minute data", "5-minute ASOS readings")} and a live map of
+            all {COVERAGE.total} settlement stations.
           </p>
         </div>
 

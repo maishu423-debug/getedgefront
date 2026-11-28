@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type APIRequestContext, type Page, test } from "@playwright/test";
 
+import registry from "../src/generated/stations.json" with { type: "json" };
+
 import {
   blockOpenFreeMap,
   isPhone,
@@ -15,6 +17,10 @@ import {
 // a QC spike and two stations outside the feed) and DATABASE_URL pointing at it, plus the email
 // outbox for sign-up. OpenFreeMap is blocked in every test: the map must work without it.
 test.skip(!process.env.E2E_EMAIL_OUTBOX || !process.env.DATABASE_URL, "needs E2E_EMAIL_OUTBOX and DATABASE_URL"); // prettier-ignore
+
+const NOTE = "This station isn't in the 5-minute feed. Values are from the hourly METAR.";
+const TOTAL = registry.stations.length;
+const IN_FEED = registry.stations.filter((s) => s.fiveMinute !== false).length;
 
 const PREMIUM_ROUTES = [
   "/api/premium/map",
@@ -157,12 +163,46 @@ test.describe("station page, Premium", () => {
     await expect(now.getByText("5-MIN", { exact: true })).toHaveCount(3);
   });
 
-  test("a station not in the 5-minute feed keeps METAR, with a note", async ({ page }, info) => {
+  test("a station not in the 5-minute feed keeps METAR, with a note, and asks for nothing", async ({ page }, info) => {
     await userIn(page, info, "trialing");
+    const urls = recordRequests(page);
     await page.goto("/station/KNYC");
-    await expect(page.getByText("This station isn't in the 5-minute feed. Values are from the hourly METAR.")).toBeVisible(); // prettier-ignore
+    await expect(page.getByText(NOTE).first()).toBeVisible();
     await expect(page.getByTestId("premium-now")).toHaveCount(0);
-  });
+    await page.getByRole("heading", { name: "Observed conditions" }).scrollIntoViewIfNeeded();
+    await expect(page.locator("#chart-not-in-feed")).toContainText(NOTE);
+    await expect(page.getByRole("button", { name: "Hourly METAR", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("button", { name: "5-minute", exact: true })).toHaveAttribute("aria-disabled", "true");
+    await page.waitForTimeout(1500);
+    expect(urls.filter((u) => u.includes("/api/premium/stations/KNYC"))).toEqual([]);
+  }); // prettier-ignore
+
+  test("free users see the same note on the locked tab of KNYC and KBKF (no trial pitch)", async ({ page }) => {
+    for (const id of ["KNYC", "KBKF"]) {
+      await page.goto(`/station/${id}`);
+      await page.getByRole("heading", { name: "Observed conditions" }).scrollIntoViewIfNeeded();
+      const tab = page.getByRole("button", { name: /5-minute · Premium/ });
+      await expect(tab).toHaveAttribute("aria-disabled", "true");
+      await expect(tab).toHaveAccessibleDescription(new RegExp(NOTE.replace(/[.']/g, ".")));
+      await expect(page.locator("#chart-teaser")).toHaveCount(0);
+    }
+    await page.goto("/station/KDFW"); // a station in the feed keeps the teaser
+    await page.getByRole("heading", { name: "Observed conditions" }).scrollIntoViewIfNeeded();
+    await expect(page.locator("#chart-teaser")).toBeVisible();
+  }); // prettier-ignore
+
+  test("coverage copy is counted from the registry, never 'every station'", async ({ page }) => {
+    const sentence = `${IN_FEED} of ${TOTAL} stations`;
+    for (const path of ["/pricing", "/map", "/sources", "/"]) {
+      const html = await (await page.request.get(path)).text();
+      expect(html, path).toContain(sentence);
+      expect(html, path).not.toMatch(/5-minute[^.<]{0,60}(every settlement station|all 28)/i);
+    }
+    await page.goto("/pricing");
+    await expect(page.getByText(/not in NOAA.s 5-minute feed/)).toBeAttached();
+    const meta = await page.locator('meta[name="description"]').getAttribute("content");
+    expect(meta).toContain(sentence);
+  }); // prettier-ignore
 
   test("API error: free cards stay, with a retry note", async ({ page }, info) => {
     await userIn(page, info, "trialing");
