@@ -23,7 +23,23 @@ volume-restored database.
 
 ## Owner setup (one time)
 
-**Cloudflare R2** (recommended; no egress fees) or **Backblaze B2**:
+**AWS S3** (the owner's choice, named in the Privacy Policy: bucket `edgefront-backups`, US-East):
+1. S3 → Create bucket `edgefront-backups` in **US East (N. Virginia) `us-east-1`** (or Ohio
+   `us-east-2`; the region in the endpoint and `BACKUP_S3_REGION` must be the bucket's). Keep
+   **Block all public access** on. Objects are encrypted at rest (SSE-S3, the S3 default).
+2. IAM → Users → create `edgefront-backup` (no console access) with an inline policy limited to the
+   bucket: `s3:ListBucket` on `arn:aws:s3:::edgefront-backups` and `s3:PutObject`, `s3:GetObject`,
+   `s3:DeleteObject` on `arn:aws:s3:::edgefront-backups/*`. Create an access key for it. For the
+   restore drill, a second user with `s3:ListBucket` + `s3:GetObject` only.
+3. In Railway → `backup` → Variables: `BACKUP_S3_ENDPOINT=https://s3.us-east-1.amazonaws.com`,
+   `BACKUP_S3_BUCKET=edgefront-backups`, `BACKUP_S3_REGION=us-east-1`, the key pair, and
+   `DATABASE_URL=${{Postgres.DATABASE_URL}}`. (With `BACKUP_S3_REGION` left at `auto` the job reads
+   the region from an AWS endpoint.) Deploy, then **Run now** once and check the bucket.
+4. GitHub → Settings → Secrets → Actions: the same `BACKUP_S3_*` values (the read-only key) for the
+   restore drill.
+
+Alternatively **Cloudflare R2** (no egress fees) or **Backblaze B2** (the Privacy Policy's provider
+row would then have to change):
 1. Create a **private** bucket, e.g. `edgefront-backups` (R2: R2 → Create bucket; B2: Buckets →
    Create, "Private"). Leave public access off. R2/B2 encrypt objects at rest.
 2. Create an access key limited to that bucket with read/write/delete (R2: "Manage R2 API tokens" →

@@ -179,6 +179,9 @@ test.describe("accounts", () => {
     await verify(page, email); // fresh session: no password needed
     await page.goto("/account");
     await page.getByRole("button", { name: "Delete account" }).click();
+    await expect(page.getByTestId("delete-subscription-warning")).toHaveText(
+      /Deleting your account immediately cancels any active subscription\. You lose Premium right away/,
+    );
     await page.getByRole("button", { name: "Delete my account permanently" }).click();
     await expect(page).toHaveURL(/\/\?account=deleted/);
     await expectSignedOut(page);

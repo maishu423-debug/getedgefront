@@ -104,10 +104,7 @@ const portalFeatures = {
     enabled: true,
     mode: "at_period_end",
     proration_behavior: "none",
-    cancellation_reason: {
-      enabled: true,
-      options: ["too_expensive", "missing_features", "switched_service", "unused", "other"],
-    },
+    cancellation_reason: { enabled: false }, // owner: no "why are you cancelling?" question
   },
   subscription_update: { enabled: false }, // no plan switching, no quantity changes
 };

@@ -96,7 +96,7 @@ export default function PricingPage() {
               7-DAY FREE TRIAL
             </span>
             <h2 className="font-display text-xl font-semibold">Premium</h2>
-            <Suspense fallback={<span aria-hidden className="block min-h-[84px]" />}>
+            <Suspense fallback={<span aria-hidden className="block min-h-[40px]" />}>
               <PremiumPrice />
             </Suspense>
             <Suspense

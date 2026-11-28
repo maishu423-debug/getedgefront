@@ -10,7 +10,8 @@ export interface Email {
     | "password_changed"
     | "account_deleted"
     | "existing_account"
-    | "trial_ending";
+    | "trial_ending"
+    | "subscription_cancelled";
   to: string;
   subject: string;
   html: string;
@@ -147,4 +148,18 @@ export const trialEnding = (to: string, when: string, amount: string, accountUrl
       "To keep Premium, you don't need to do anything. To cancel, open your account page and choose Manage billing.",
     ],
     { label: "Manage billing", url: accountUrl },
+  );
+
+/** v2 legal pages (owner's text, Refund & Cancellation Policy): sent once when a webhook shows the
+ * subscription newly set to cancel. `until` is when Premium ends ("Dec 3, 2026"). */
+export const subscriptionCancelled = (to: string, until: string, accountUrl: string) =>
+  make(
+    "subscription_cancelled",
+    to,
+    "Your EdgeFront Premium subscription is cancelled",
+    "Your subscription is cancelled",
+    [
+      `Your Premium subscription is cancelled. You keep Premium until ${until}. You won't be charged again.`,
+    ],
+    { label: "Open your account", url: accountUrl },
   );

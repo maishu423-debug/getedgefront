@@ -136,3 +136,65 @@ def test_retention_keeps_seven_days_of_hf_observations(
     with session_scope(session_factory) as s:
         oldest = s.execute(select(func.min(HfObservation.observed_at))).scalar_one()
         assert as_utc(oldest) == now - timedelta(hours=24 * 7 - 1)
+
+
+def test_retention_prunes_old_rate_limits_and_long_expired_sessions(
+    session_factory: sessionmaker[Session],
+) -> None:
+    """Privacy Policy §5: rate-limit rows after 1 day, expired sessions 7 days after expiry."""
+    from sqlalchemy import insert
+
+    from edgefront_core.retention import auth_table, iso_ms, prune_auth
+
+    now = datetime(2026, 11, 28, 12, 0, tzinfo=UTC)
+    with session_scope(session_factory) as s:
+        pg = s.get_bind().dialect.name == "postgresql"
+
+        def ts(d: datetime) -> object:  # what Better Auth writes on each database
+            return d if pg else iso_ms(d)
+
+        user = auth_table(
+            s, "user", "id", "name", "email", "emailVerified", "createdAt", "updatedAt"
+        )
+        sess = auth_table(
+            s, "session", "id", "expiresAt", "token", "createdAt", "updatedAt", "userId"
+        )
+        rl = auth_table(s, "rateLimit", "id", "key", "count", "lastRequest")
+        s.execute(
+            insert(user).values(
+                id="u1",
+                name="Test",
+                email="t@example.org",
+                emailVerified=True,
+                createdAt=ts(now),
+                updatedAt=ts(now),
+            )
+        )
+        for sid, exp in [
+            ("live", now + timedelta(days=20)),
+            ("expired-2d", now - timedelta(days=2)),
+            ("expired-8d", now - timedelta(days=8)),
+        ]:
+            s.execute(
+                insert(sess).values(
+                    id=sid,
+                    expiresAt=ts(exp),
+                    token=f"tok-{sid}",
+                    createdAt=ts(now),
+                    updatedAt=ts(now),
+                    userId="u1",
+                )
+            )
+        for key, last in [("fresh", now - timedelta(hours=3)), ("old", now - timedelta(hours=30))]:
+            s.execute(
+                insert(rl).values(
+                    id=key, key=key, count=1, lastRequest=int(last.timestamp() * 1000)
+                )
+            )
+    with session_scope(session_factory) as s:
+        assert prune_auth(s, now) == {"auth_rate_limits": 1, "auth_expired_sessions": 1}
+    with session_scope(session_factory) as s:
+        sessions = set(s.execute(select(sess.c.id)).scalars())
+        limits = set(s.execute(select(rl.c.key)).scalars())
+    assert sessions == {"live", "expired-2d"}
+    assert limits == {"fresh"}

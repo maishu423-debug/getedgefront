@@ -1,6 +1,6 @@
 import { expect, type APIRequestContext, type Page, test } from "@playwright/test";
 
-import { formAlert, signIn, signUp, uniqueEmail, verify } from "./auth-helpers";
+import { formAlert, mails, signIn, signUp, uniqueEmail, verify } from "./auth-helpers";
 
 // Billing (v2 Phase 8) against the local fake Stripe (e2e/fake-stripe.mjs): never real Stripe.
 // Needs the web server started with E2E_FAKE_STRIPE_URL, STRIPE_* test values and the email
@@ -88,6 +88,11 @@ test.describe("billing", () => {
     await expect(card.getByText("CANCELLED", { exact: true })).toBeVisible();
     await expect(card).toContainText("Premium until");
     await expect(card).toContainText("until your trial ends");
+    // EdgeFront's own confirmation (Refund & Cancellation Policy), exactly once
+    await expect.poll(() => mails(email, "subscription_cancelled").length).toBe(1);
+    expect(mails(email, "subscription_cancelled")[0]!.text).toMatch(
+      /Your Premium subscription is cancelled\. You keep Premium until \w{3} \d+, \d{4}\. You won't be charged again\./,
+    );
     await page.getByRole("button", { name: "Resume or manage" }).click();
     await page.getByRole("button", { name: "Renew plan" }).click();
     await expectBillingState(page, "trialing");
@@ -161,9 +166,8 @@ test.describe("billing", () => {
 
   test("the price shown comes from Stripe", async ({ page }) => {
     await page.goto("/pricing");
-    await expect(
-      page.getByText("Free for 7 days, then $20/month plus tax where applicable. Cancel anytime."),
-    ).toBeVisible();
+    await expect(page.getByTestId("premium-price")).toHaveText(/\$20\s*per month/);
+    await expect(page.getByText(/Free for 7 days/)).toHaveCount(0); // the full terms only, once
     await expect(page.getByText(/Sales tax is added at checkout where it applies/)).toBeVisible();
     await expect(
       page.getByText(/Sold through Link \(Stripe\), the seller of record/),

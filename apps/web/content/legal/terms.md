@@ -2,7 +2,7 @@
 
 **Effective date:** [OWNER: effective date]
 
-These Terms of Service ("Terms") are an agreement between you and **[OWNER: full legal name]**, a sole proprietor doing business as **EdgeFront** in the State of Florida, USA ("EdgeFront", "we", "us"). They govern your use of getedgefront.com and its related services (the "Service").
+These Terms of Service ("Terms") are an agreement between you and **EdgeFront**, a sole proprietorship based in Florida, USA ("EdgeFront", "we", "us"). They govern your use of getedgefront.com and its related services (the "Service").
 
 By using the Service, or by creating an account, you agree to these Terms, to our [Privacy Policy](/privacy) and to our [Refund & Cancellation Policy](/refund). If you don't agree, don't use the Service.
 
@@ -26,7 +26,7 @@ EdgeFront shows weather observations, daily climate reports, forecasts and model
 ## 4. Your account
 - Give accurate information and keep your sign-in details secure. You are responsible for activity on your account.
 - An account is for **one person**. Don't share your account or your Premium access.
-- Tell us at [OWNER: support email, e.g. support@getedgefront.com] if you think your account has been used without permission.
+- Tell us at [OWNER: support email] if you think your account has been used without permission.
 
 ## 5. Premium subscription, free trial and automatic renewal
 **Price.** Premium costs **$20.00 per month plus any applicable sales tax, VAT or GST** ("tax"), unless a different price is shown to you at checkout. The price shown at checkout is the price you agree to.
@@ -34,7 +34,7 @@ EdgeFront shows weather observations, daily climate reports, forecasts and model
 **Free trial.**
 - New subscribers get a **7-day free trial**. A payment card is required to start it.
 - **Unless you cancel before the trial ends, your subscription starts automatically and you will be charged $20.00 plus tax** on the day the trial ends.
-- Each person may use the free trial **only once**.
+- Each account may use the free trial **only once**.
 - We will email you a reminder before the trial ends (3 days before it ends).
 
 **AUTOMATIC RENEWAL.** **Your Premium subscription renews automatically every month and your payment method is charged $20.00 plus tax at the start of each monthly period, until you cancel.**
@@ -83,7 +83,7 @@ The Service relies on and links to third-party services. Examples include sign-i
 ## 9. Changes, suspension and termination
 - We may change, add or remove features, stations or data sources.
 - We may suspend or end your access if you break these Terms, if we must for legal or security reasons, or if we stop offering the Service. If we stop offering Premium for reasons other than your breach, we will refund any prepaid, unused part of your current period.
-- You may stop using the Service and delete your account at any time from **Account**. Deleting your account does not by itself cancel an active subscription; cancel it first under **Account → Manage billing** [VERIFY: the system does the opposite: deleting the account cancels any active subscription at Stripe immediately (Premium ends at once, no refund of the rest of the period) before the account is removed. Owner to choose the wording].
+- You may stop using the Service and delete your account at any time from **Account**. Deleting your account immediately cancels any active subscription. You lose Premium right away and unused time isn't refunded. To keep Premium until the end of your paid period, cancel under **Account → Manage billing** first and delete your account later.
 
 ## 10. Disclaimer of warranties
 THE SERVICE AND ALL DATA ARE PROVIDED **"AS IS" AND "AS AVAILABLE"**, WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED. THIS INCLUDES ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, TIMELINESS AND NON-INFRINGEMENT, TO THE FULLEST EXTENT ALLOWED BY LAW. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE OR SECURE, OR THAT ANY DATA IS CORRECT.
@@ -100,7 +100,7 @@ You will defend and indemnify EdgeFront against claims, losses and costs (includ
 
 ## 13. Governing law and disputes
 - These Terms are governed by the laws of the **State of Florida**, without regard to its conflict-of-law rules, and by applicable U.S. federal law.
-- Any dispute will be brought only in the state or federal courts located in **[OWNER: county] County, Florida**, and you and we consent to those courts' jurisdiction. Either party may instead bring an individual claim in small claims court if it qualifies.
+- Any dispute will be brought only in the state or federal courts located in the **State of Florida**, and you and we consent to those courts' jurisdiction. Either party may instead bring an individual claim in small claims court if it qualifies.
 - Please contact us first at [OWNER: support email] so we can try to resolve the problem informally.
 - If you are a consumer living outside the United States, you keep any protections of your country's mandatory consumer laws.
 
@@ -118,6 +118,4 @@ You will defend and indemnify EdgeFront against claims, losses and costs (includ
 - **Events beyond our control.** We are not liable for delays or failures caused by events beyond our reasonable control. Examples include outages of data providers or hosting.
 
 ## 16. Contact
-[OWNER: full legal name], doing business as EdgeFront
-[OWNER: mailing address]
-Email: [OWNER: support email]
+EdgeFront · Email: [OWNER: support email]

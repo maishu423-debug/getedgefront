@@ -5,17 +5,19 @@ Runs once and exits (Railway cron service). Steps:
 2. Upload as `<prefix>daily/edgefront-YYYYMMDDTHHMMSSZ.dump`; on Sundays (UTC) also as
    `<prefix>weekly/…`.
 3. Keep the newest 14 daily and 8 weekly objects; delete older ones.
-Every step logs one JSON line (Railway log view). The bucket must be private; R2 and B2 encrypt
-objects at rest.
+Every step logs one JSON line (Railway log view). The bucket must be private; AWS S3, R2 and B2
+encrypt objects at rest (S3: SSE-S3 by default since January 2023).
 
 Environment (all secrets except the prefix/region):
   DATABASE_URL                 postgresql://… (Railway reference to the Postgres service)
-  BACKUP_S3_ENDPOINT           e.g. https://<account>.r2.cloudflarestorage.com or
+  BACKUP_S3_ENDPOINT           AWS S3 (owner's choice): https://s3.us-east-1.amazonaws.com; also
+                               https://<account>.r2.cloudflarestorage.com or
                                https://s3.<region>.backblazeb2.com
   BACKUP_S3_BUCKET             bucket name
   BACKUP_S3_ACCESS_KEY_ID      bucket-scoped key
   BACKUP_S3_SECRET_ACCESS_KEY
-  BACKUP_S3_REGION             "auto" for R2, the B2 region otherwise (default auto)
+  BACKUP_S3_REGION             the bucket's region (us-east-1); "auto" for R2 (default auto: on
+                               AWS the region is then read from the endpoint)
   BACKUP_PREFIX                default "edgefront/"
   BACKUP_KEEP_DAILY / BACKUP_KEEP_WEEKLY   default 14 / 8
 """
@@ -24,6 +26,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -48,6 +51,13 @@ def pg_url(url: str) -> str:
     return url
 
 
+def s3_region(endpoint: str, region: str) -> str:
+    """AWS signs requests per region, so "auto" (R2's value) is replaced by the region in an AWS
+    endpoint (https://s3.us-east-1.amazonaws.com or https://s3-us-east-1.amazonaws.com)."""
+    m = re.match(r"https://s3[.-]([a-z0-9-]+)\.amazonaws\.com/?$", endpoint)
+    return m.group(1) if region == "auto" and m else region
+
+
 def s3_client() -> Any:  # boto3 has no type stubs in the image
     import boto3  # from Debian's python3-boto3 in the image
 
@@ -56,7 +66,9 @@ def s3_client() -> Any:  # boto3 has no type stubs in the image
         endpoint_url=os.environ["BACKUP_S3_ENDPOINT"],
         aws_access_key_id=os.environ["BACKUP_S3_ACCESS_KEY_ID"],
         aws_secret_access_key=os.environ["BACKUP_S3_SECRET_ACCESS_KEY"],
-        region_name=os.environ.get("BACKUP_S3_REGION", "auto"),
+        region_name=s3_region(
+            os.environ["BACKUP_S3_ENDPOINT"], os.environ.get("BACKUP_S3_REGION", "auto")
+        ),
     )
 
 

@@ -9,7 +9,7 @@ This policy is part of our [Terms of Service](/terms). It applies to the EdgeFro
 - **If you don't cancel before the trial ends, you will automatically be charged $20.00 plus applicable tax on the day the trial ends, and every month after that until you cancel.**
 - We email you a reminder before the trial ends (3 days before it ends).
 - If you cancel during the trial, you will not be charged.
-- The free trial is available **once per person**.
+- The free trial is available **once per account**.
 
 ## Cancel anytime
 You can cancel online at any time. You don't need to call or email anyone.
@@ -22,7 +22,7 @@ You can also cancel from your **Link account** at link.com.
 - Your cancellation takes effect at the **end of your current paid period**.
 - You keep Premium until then.
 - You **won't be charged again**.
-- You'll receive a confirmation email [VERIFY: EdgeFront sends no cancellation email today, and Stripe's documentation does not confirm that Link sends one under Managed Payments. Proposal: EdgeFront sends its own confirmation when a subscription is set to cancel. Owner to decide].
+- You'll receive a confirmation email from EdgeFront with the date your Premium ends.
 
 ## Refunds
 Subscription payments are **non-refundable**, including for partial months, unused time, or if you forget to cancel. The exceptions are:
@@ -55,6 +55,4 @@ Please contact us before disputing a charge with your bank. Most billing problem
 - If you don't want to continue at the new price, cancel before the change takes effect and you won't be charged the new price.
 
 ## Contact
-[OWNER: full legal name], doing business as EdgeFront
-[OWNER: mailing address]
-Email: [OWNER: support email]
+EdgeFront · Email: [OWNER: support email]
