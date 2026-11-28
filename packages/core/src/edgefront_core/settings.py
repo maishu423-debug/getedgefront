@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     hf_max_files_per_run: int = 6  # newest first; a first-run backfill spreads over a few runs
     hf_backfill_hours: int = 24
     hf_stale_minutes: int = 15  # alert: no new 5-minute reading for this long while /health ok
+    # A station's 5-minute data counts as stale after this long (api). Measured 2026-11-28: a
+    # reading reaches the LDM file 12 min (P50) / 17 min (P95) after it was observed.
+    hf_station_stale_minutes: int = 30
 
     @field_validator("database_url")
     @classmethod

@@ -95,5 +95,11 @@ values are written once, QC fields are kept current; a value change would bump `
 
 ## Latency
 
-`receivedTime − observationTime` for our stations: P50 142 s, P95 146 s. Then LDM write → publish
-~30 s, plus our poll interval (60 s). Measured end to end by the worker (`/status`).
+`receivedTime − observationTime` for our stations: P50 142 s, P95 146 s. **But a reading only
+reaches the hourly file much later:** in a live run on 2026-11-28 (13 polls, 43 live readings),
+observation → LDM file written was P50 715 s / P95 1,015 s, observation → stored P50 800 s /
+P95 1,048 s. Example (2026-11-27): the 19:25Z readings (received 19:27Z) were not in the 19:32:42
+file version and first appeared in the 19:37:58 one. The delay is in MADIS's file production and
+LDM delivery, upstream of EdgeFront; the publisher adds ~30 s and our poll up to 60 s. So a
+station's 5-minute data counts as stale after 30 min (`HF_STATION_STALE_MINUTES`), while the
+worker alert for "no new readings at all" stays at 15 min. Measured continuously on `/status`.

@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-11-28T05:32:39.671726Z",
+  "station_id": "KDFW",
+  "status": "stale",
+  "stale_after_minutes": 15,
+  "in_feed": true,
+  "source": {
+    "source": "5-minute ASOS data (NOAA MADIS)",
+    "producer": "FAA ASOS via NOAA MADIS",
+    "attribution": "5-minute ASOS observations from the NOAA Meteorological Assimilation Data Ingest System (MADIS), provided by the FAA. Data as received; not official METAR observations.",
+    "last_success_at": "2026-11-28T05:32:34.912516Z"
+  },
+  "latest": {
+    "observed_at": "2026-11-28T05:15:00Z",
+    "age_minutes": 17,
+    "temp": {
+      "c": 12.0,
+      "f_exact": 53.6,
+      "f_rounded": 54,
+      "f_possible": [
+        53,
+        54
+      ],
+      "precision": "whole_c",
+      "source": "hfmetar",
+      "observed_at": "2026-11-28T05:15:00Z"
+    },
+    "temp_c": 12.0,
+    "temp_precision": "whole_c",
+    "dewpt_c": 3.0,
+    "wind_dir_deg": 190,
+    "wind_kt": 9,
+    "gust_kt": null,
+    "altim_inhg": 29.97,
+    "vis_mi": 10.0,
+    "precip_in": 0.0,
+    "qc_temp": "V",
+    "qc_failed": false,
+    "revision": 0,
+    "received_at": "2026-11-28T05:17:21Z",
+    "ingested_at": "2026-11-28T05:27:27.741710Z"
+  },
+  "so_far": {
+    "high": {
+      "value_c": 19.0,
+      "precision": "whole_c",
+      "observed_at": "2026-11-27T23:00:00Z",
+      "temp": {
+        "c": 19.0,
+        "f_exact": 66.2,
+        "f_rounded": 66,
+        "f_possible": [
+          66,
+          67
+        ],
+        "precision": "whole_c",
+        "source": "hfmetar",
+        "observed_at": "2026-11-27T23:00:00Z"
+      }
+    },
+    "low": {
+      "value_c": 12.0,
+      "precision": "whole_c",
+      "observed_at": "2026-11-28T02:50:00Z",
+      "temp": {
+        "c": 12.0,
+        "f_exact": 53.6,
+        "f_rounded": 54,
+        "f_possible": [
+          53,
+          54
+        ],
+        "precision": "whole_c",
+        "source": "hfmetar",
+        "observed_at": "2026-11-28T02:50:00Z"
+      }
+    },
+    "readings": 76,
+    "used": 76,
+    "excluded_qc_count": 0,
+    "excluded_off_grid_count": 0,
+    "missing_temp_count": 0
+  },
+  "metar": {
+    "latest": null,
+    "high_so_far": null,
+    "low_so_far": null
+  },
+  "climate_day": {
+    "date": "2026-11-27",
+    "basis": "LST",
+    "start": "2026-11-27T06:00:00Z",
+    "end": "2026-11-28T06:00:00Z",
+    "ends_in_minutes": 27,
+    "elapsed_fraction": 0.981
+  }
+}

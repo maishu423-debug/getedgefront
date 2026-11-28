@@ -134,7 +134,7 @@ def test_hf_series_hours_and_validation(loaded: Engine) -> None:
 
 def test_hf_current_side_by_side_with_metar(loaded: Engine) -> None:
     body = client(loaded).get("/api/v1/internal/stations/KDFW/hf-current", headers=H).json()
-    assert (body["status"], body["stale_after_minutes"], body["in_feed"]) == ("ok", 15, True)
+    assert (body["status"], body["stale_after_minutes"], body["in_feed"]) == ("ok", 30, True)
     assert body["latest"]["observed_at"] == "2026-11-27T21:00:00Z"
     so = body["so_far"]
     assert so["high"]["value_c"] == 20.0  # the questioned 30 °C spike is left out …

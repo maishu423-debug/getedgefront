@@ -165,7 +165,7 @@ Railway → `worker` → Variables (then Deploy):
 | `HF_INGEST_ENABLED` | `false` until the Phase 9 PR is merged and deployed, then `true` |
 
 Optional (defaults shown): `HF_POLL_SECONDS=60`, `HF_MAX_FILES_PER_RUN=6`, `HF_BACKFILL_HOURS=24`,
-`HF_STALE_MINUTES=15`. The worker refuses to start the job without a token or with an `http://`
+`HF_STALE_MINUTES=15` (worker alert). The worker refuses to start the job without a token or with an `http://`
 URL (logged as `hfmetar job not started`); the other jobs keep running.
 
 What to look for in the worker logs after switching it on: one `hfmetar ingest` line per minute
