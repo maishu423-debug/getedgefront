@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { PageShell } from "@/components/Chrome";
 import { DailySummaries } from "@/components/station/DailySummaries";
 import { ForecastCard } from "@/components/station/ForecastCard";
+import { HfReadings } from "@/components/station/HfReadings";
 import { MetarReports } from "@/components/station/MetarReports";
 import { ModelGuidance } from "@/components/station/ModelGuidance";
 import { ObservedChart } from "@/components/station/ObservedChart";
@@ -199,6 +200,7 @@ async function StationContent({ params }: { params: PageProps<"/station/[id]">["
       <Suspense fallback={<Skeleton className="h-[260px]" label="Loading daily summaries" />}>
         <DailySection sid={sid} />
       </Suspense>
+      <HfReadings stationId={sid} tz={st.tz} />
       <Suspense fallback={<Skeleton className="h-[520px]" label="Loading observed conditions" />}>
         <ObservedSection sid={sid} tz={st.tz} />
       </Suspense>

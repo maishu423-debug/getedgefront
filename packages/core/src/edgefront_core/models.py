@@ -423,6 +423,12 @@ class HfObservation(Base):
     precip_in: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
     # Per variable, as provided: {"temperature": {"dd": "V", "qca": 1023, "qcr": 0}, ...}
     qc: Mapped[Any | None] = mapped_column(JsonType)
+    # v2 Phase 10b: the record exactly as transmitted (a comma-separated MADIS LDAD record, not a
+    # METAR), sky layers [{"cover": "BKN", "base_ft": 1500}] and present weather ("-RA"). Like QC,
+    # these are kept current on rewrites without counting as a value revision.
+    raw_message: Mapped[str | None] = mapped_column(Text)
+    sky: Mapped[Any | None] = mapped_column(JsonType)
+    pres_wx: Mapped[str | None] = mapped_column(String(40))
     source_file: Mapped[str] = mapped_column(String(40))  # first file the reading appeared in
     received_at: Mapped[datetime | None] = _ts()  # MADIS receivedTime
     file_modified_at: Mapped[datetime | None] = _ts()  # modified_at of that first file version

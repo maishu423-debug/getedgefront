@@ -399,3 +399,24 @@ def test_registry_feed_flags_match_the_real_files() -> None:
     flagged = {st.id for st in load_registry() if st.five_minute_feed}
     assert seen == flagged
     assert OURS - flagged == {"KNYC", "KBKF"}
+
+
+def test_raw_record_sky_and_weather_come_from_the_file() -> None:
+    """v2 Phase 10b: the raw LDAD record exactly as transmitted, sky layers with bases back in
+    whole hundreds of feet (CLR without a base), present weather as reported."""
+    by = {(r.station_id, r.observed_at): r for r in parse_file(F17B, OURS).readings}
+    at = datetime(2026, 11, 27, 17, 0, tzinfo=UTC)
+    dfw = by[("KDFW", at)]
+    assert dfw.raw_message is not None
+    assert dfw.raw_message.startswith("KDFW,1,26/11/27 17:00:00,")
+    assert dfw.sky == [{"cover": "CLR", "base_ft": None}]
+    sea = by[("KSEA", at)]
+    assert sea.sky is not None
+    assert sea.sky[0] == {"cover": "BKN", "base_ft": 1500}
+    rows = list(by.values())
+    assert all(r.raw_message for r in rows)
+    assert all(
+        layer["base_ft"] is None or layer["base_ft"] % 100 == 0
+        for r in rows
+        for layer in (r.sky or [])
+    )

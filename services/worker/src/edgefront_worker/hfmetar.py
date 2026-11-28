@@ -58,6 +58,10 @@ QC_VARS = (
 NEEDED = (
     "observationTime",
     "receivedTime",
+    "rawMessage",
+    "skyCvr",
+    "skyCovLayerBase",
+    "presWx",
     *(f"{q}{s}" for q in QC_VARS for s in ("", "DD", "QCA", "QCR")),
 )
 ALERT_REPEAT = timedelta(hours=1)
@@ -134,6 +138,28 @@ def _char(v: Any) -> str | None:
     return s or None
 
 
+FT_PER_M = Decimal(1) / Decimal("0.3048")
+
+
+def _sky(covers: Any, bases: Any) -> list[dict[str, Any]] | None:
+    """Sky layers as reported ([{"cover": "BKN", "base_ft": 1500}]); bases in the file are metres
+    of a value reported in hundreds of feet, so they snap back to whole hundreds (else whole feet).
+    CLR has no base (the file carries the sensor's 12,500 ft limit there)."""
+    out: list[dict[str, Any]] = []
+    for c, b in zip(covers, bases, strict=False):
+        cover = _text(c)
+        if not cover:
+            continue
+        m = _num(b)
+        base = None
+        if m is not None and cover not in ("CLR", "SKC"):
+            ft = Decimal(repr(m)) * FT_PER_M
+            hundreds = (ft / 100).to_integral_value() * 100
+            base = int(hundreds) if abs(ft - hundreds) <= 2 else int(ft.to_integral_value())
+        out.append({"cover": cover, "base_ft": base})
+    return out or None
+
+
 @dataclass
 class ParsedFile:
     records: int = 0  # every record in the file (all stations)
@@ -164,6 +190,7 @@ def parse_file(gz: bytes, stations: set[str]) -> ParsedFile:
         sids = [_text(r) for r in v["stationId"][:]]
         provider = [_text(r) for r in v["dataProvider"][:]] if "dataProvider" in v else None
         cols = {k: v[k][:] for k in NEEDED if k in v}  # not the ~60 other variables
+        has_sky = "skyCvr" in cols and "skyCovLayerBase" in cols
         best: dict[tuple[str, datetime], tuple[float, _Row]] = {}
         for i in (int(k) for k in np.flatnonzero([s in stations for s in sids])):
             sid = sids[i]
@@ -210,6 +237,9 @@ def parse_file(gz: bytes, stations: set[str]) -> ParsedFile:
                 precip_in=_grid_dec(val("precipAccum"), MM_PER_IN, Decimal("0.01"), off,
                                     "precipAccum", Decimal("0.01")),
                 qc=qc | ({"off_grid": off} if off else {}),
+                raw_message=_text(cols["rawMessage"][i]) or None if "rawMessage" in cols else None,
+                sky=_sky(cols["skyCvr"][i], cols["skyCovLayerBase"][i]) if has_sky else None,
+                pres_wx=_text(cols["presWx"][i]) or None if "presWx" in cols else None,
             )  # fmt: skip
             key = (sid, reading.observed_at)
             rank = rec_s if rec_s is not None else -1.0

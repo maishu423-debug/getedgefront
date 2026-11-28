@@ -57,6 +57,13 @@ class HfReading:
     vis_mi: Decimal | None = None
     precip_in: Decimal | None = None
     qc: dict[str, Any] = field(default_factory=dict)
+    raw_message: str | None = None
+    sky: list[dict[str, Any]] | None = None
+    pres_wx: str | None = None
+
+
+# Kept current like QC (no revision): the raw record, sky layers, present weather.
+META_FIELDS = ("raw_message", "sky", "pres_wx")
 
 
 def _canon(v: object) -> str:
@@ -119,6 +126,7 @@ def upsert_readings(
                 observed_at=r.observed_at,
                 **{f: getattr(r, f) for f in VALUE_FIELDS},
                 qc=r.qc,
+                **{f: getattr(r, f) for f in META_FIELDS},
                 source_file=source_file,
                 received_at=r.received_at,
                 file_modified_at=file_modified_at,
@@ -154,8 +162,15 @@ def upsert_readings(
                     "file": source_file,
                 },
             )
-        if (row.qc or {}) != r.qc:
+        meta_new = [getattr(r, f) for f in META_FIELDS]
+        meta_old = [getattr(row, f) for f in META_FIELDS]
+        if (row.qc or {}) != r.qc or (
+            meta_new != meta_old and any(x is not None for x in meta_new)
+        ):
             row.qc = r.qc
+            for f, v in zip(META_FIELDS, meta_new, strict=True):
+                if v is not None:  # a rewrite never blanks what an earlier version had
+                    setattr(row, f, v)
             if not changed:
                 res.qc_changed += 1
             changed = True

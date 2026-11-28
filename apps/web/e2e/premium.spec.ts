@@ -361,3 +361,63 @@ test.describe("live map", () => {
     await expect(page.getByTestId("map-panel")).toContainText("KATL");
   }); // prettier-ignore
 });
+
+test.describe("5-minute readings table", () => {
+  test("Premium: rows newest first, hour dividers, QC chip, conversion tooltip, Raw, ranges", async ({ page }, info) => {
+    await userIn(page, info, "trialing");
+    await page.goto("/station/KDFW");
+    const sec = page.getByTestId("hf-readings");
+    await sec.scrollIntoViewIfNeeded();
+    await expect(sec.getByRole("heading", { name: "5-minute readings" })).toBeVisible();
+    await expect(sec.getByTestId("hf-latest")).toContainText(/^Latest \d\d:\d\dZ · received \d\d:\d\dZ$/);
+    const rows = sec.getByTestId("hf-row");
+    await expect.poll(() => rows.count()).toBeGreaterThanOrEqual(20);
+    expect(await rows.count()).toBeLessThanOrEqual(25); // 2 hours by default
+    await expect(sec.locator("th[scope=rowgroup]").first()).toHaveText(/^\d\dZ · \d{1,2} (AM|PM)$/);
+    const chip = sec.locator('[title^="MADIS quality control"]');
+    await expect(chip).toHaveCount(1);
+    await expect(chip).toHaveAttribute("title", /^MADIS quality control: Q = questioned/);
+    const t = rows.first().locator("td").nth(5);
+    await expect(t).toHaveAttribute("title", /^Converted from -?\d+ °C → -?\d+\.\d °F, rounds to -?\d+ °F\. The station's own reading was/);
+    for (const h of ["Time (UTC)", "Local", "Wind", "Visibility", "Sky", "Temp °F", "Exact °F", "°C", "Dew °F", "Altimeter"]) {
+      await expect(sec.getByRole("columnheader", { name: h, exact: true })).toBeVisible();
+    }
+    await sec.getByRole("button", { name: "Show 6 hours" }).click();
+    await expect.poll(() => rows.count()).toBeGreaterThan(60);
+    await sec.getByRole("button", { name: "Raw", exact: true }).click();
+    await expect(rows.first()).toContainText("E2E-TEST,KDFW,");
+    await expect(sec).toContainText("Raw = the record exactly as transmitted to MADIS");
+    await sec.getByRole("button", { name: "Decoded", exact: true }).click();
+    await axe(page, "5-minute table");
+  }); // prettier-ignore
+
+  test("stale station: the header says delayed; a gap shows as one muted row", async ({ page }, info) => {
+    await userIn(page, info, "trialing");
+    await page.goto("/station/KSEA");
+    const sec = page.getByTestId("hf-readings");
+    await sec.scrollIntoViewIfNeeded();
+    await expect(sec.getByTestId("hf-latest")).toContainText(/ · delayed$/);
+    await page.goto("/station/KBOS");
+    const bos = page.getByTestId("hf-readings");
+    await bos.scrollIntoViewIfNeeded();
+    await bos.getByRole("button", { name: "Show 6 hours" }).click();
+    await expect(bos.getByTestId("hf-gap").filter({ hasText: /^No readings \d\d:\d\dZ–\d\d:\d\dZ$/ })).toHaveCount(1);
+  }); // prettier-ignore
+
+  test("free and signed out: a locked block with placeholder bars only; KNYC: the note", async ({ page }, info) => {
+    await page.goto("/station/KDFW");
+    const sec = page.getByTestId("hf-readings");
+    await sec.scrollIntoViewIfNeeded();
+    await expect(sec.getByTestId("hf-locked")).toBeVisible();
+    await expect(sec.getByTestId("hf-locked")).toHaveText(/^Every 5-minute reading for this station, newest firstStart 7-day free trial$/);
+    await expect(sec.getByTestId("hf-row")).toHaveCount(0);
+    await page.goto("/station/KNYC");
+    await page.getByTestId("hf-readings").scrollIntoViewIfNeeded();
+    await expect(page.getByTestId("hf-not-in-feed")).toHaveText("This station isn't in the 5-minute feed.");
+    await expect(page.getByTestId("hf-locked")).toHaveCount(0);
+    await userIn(page, info, "trialing");
+    await page.goto("/station/KNYC");
+    await expect(page.getByTestId("hf-not-in-feed")).toBeAttached();
+    await expect(page.getByTestId("hf-row")).toHaveCount(0);
+  }); // prettier-ignore
+});

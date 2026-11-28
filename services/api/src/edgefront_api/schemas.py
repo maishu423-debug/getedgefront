@@ -557,6 +557,11 @@ class HfReadingOut(BaseModel):
     qc_failed: bool = Field(description="Temperature descriptor X, Q or B: left out of high/low")
     qc: dict[str, Any] | None = Field(description="MADIS QC flags per variable, as provided")
     revision: int = Field(description="How often a measured value of this reading changed")
+    raw_message: str | None = Field(
+        None, description="The record exactly as transmitted (MADIS LDAD record, not a METAR)"
+    )
+    sky: list[SkyLayerOut] | None = Field(None, description="Sky layers as reported")
+    pres_wx: str | None = Field(None, description="Present weather as reported, e.g. -RA")
     received_at: datetime | None
     ingested_at: datetime
 
@@ -590,6 +595,7 @@ class HfSeriesResponse(BaseModel):
     generated_at: datetime
     station_id: str
     hours: int
+    stale_after_minutes: int = Field(30, description="Delayed when the newest reading is older")
     in_feed: bool = Field(description="False: this station is not in the 5-minute feed")
     source: HfSourceRef
     readings: list[HfReadingOut] = Field(description="Oldest first")

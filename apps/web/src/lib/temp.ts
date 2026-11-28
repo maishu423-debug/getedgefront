@@ -97,5 +97,18 @@ export function spokenTemp(label: string, t: TempValue, at?: string): string {
   return `${label} ${t.f_rounded} °F (${fmtFExact(t)} °F unrounded${reading})${at ? `, at ${at}` : ""}`;
 }
 
+/**
+ * Tooltip / accessible text for a converted temperature (v2 Phase 10b, 5-minute table):
+ *   "Converted from 17 °C → 62.6 °F, rounds to 63 °F. The station's own reading was 62 or 63 °F."
+ * The possible readings are only known for stations that measure in °F (f_possible).
+ */
+export function conversionTooltip(t: Pick<TempValue, "c" | "f_exact" | "f_rounded" | "f_possible" | "precision">): string {
+  const base = `Converted from ${fmtC(t)} °C → ${fmtFExact(t)} °F, rounds to ${t.f_rounded} °F.`;
+  const p = t.f_possible ?? [];
+  if (!p.length) return base;
+  const list = p.length === 1 ? `${p[0]}` : `${p.slice(0, -1).join(", ")} or ${p[p.length - 1]}`;
+  return `${base} The station's own reading was ${list} °F.`;
+} // prettier-ignore
+
 /** A whole-°C value is only good to ±0.5 °C, i.e. ±0.9 °F. */
 export const WHOLE_C_UNCERTAINTY_F = 0.9;

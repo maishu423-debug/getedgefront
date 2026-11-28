@@ -112,6 +112,7 @@ def test_hf_series_hours_and_validation(loaded: Engine) -> None:
     six = c.get("/api/v1/internal/stations/KDFW/hf?hours=6", headers=H).json()
     day = c.get("/api/v1/internal/stations/KDFW/hf?hours=24", headers=H).json()
     assert six["in_feed"] is True
+    assert six["stale_after_minutes"] == 30
     assert six["source"]["source"] == "5-minute ASOS data (NOAA MADIS)"
     assert "not official METAR" in six["source"]["attribution"]
     times = [x["observed_at"] for x in six["readings"]]

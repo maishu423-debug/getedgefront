@@ -48,9 +48,17 @@ OURS = {
 }
 VALUES = ["temperature", "dewpoint", "altimeter", "windDir", "windSpeed", "windGust",
           "visibility", "precipAccum"]  # fmt: skip
-KEEP = ["stationId", "dataProvider", "observationTime", "receivedTime", "reportTime"] + [
-    f"{v}{s}" for v in VALUES for s in ("", "DD", "QCA", "QCR")
-]
+KEEP = [
+    "stationId",
+    "dataProvider",
+    "observationTime",
+    "receivedTime",
+    "reportTime",
+    "rawMessage",
+    "skyCvr",
+    "skyCovLayerBase",
+    "presWx",
+] + [f"{v}{s}" for v in VALUES for s in ("", "DD", "QCA", "QCR")]
 
 
 def crop(src: Path, dst: Path) -> int:

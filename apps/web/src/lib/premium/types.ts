@@ -32,6 +32,10 @@ export interface HfReading {
   qc_failed: boolean;
   qc: Record<string, unknown> | null;
   revision: number;
+  /** the record exactly as transmitted (MADIS LDAD record, not a METAR); null before Phase 10b */
+  raw_message?: string | null;
+  sky?: { cover: string; base_ft: number | null }[] | null;
+  pres_wx?: string | null;
   received_at: string | null;
   ingested_at: string;
 }
@@ -63,6 +67,7 @@ export interface HfSeriesResponse {
   generated_at: string;
   station_id: string;
   hours: number;
+  stale_after_minutes?: number;
   in_feed: boolean;
   source: HfSourceRef;
   /** oldest first */

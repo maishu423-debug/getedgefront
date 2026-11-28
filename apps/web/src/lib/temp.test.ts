@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import {
+  conversionTooltip,
   fmtC,
   fmtFExact,
   fToC,
@@ -80,3 +81,22 @@ describe("UI strings", () => {
     expect(spokenTemp("Low so far", tv(17, "whole_c"))).toBe("Low so far 63 °F (62.6 °F unrounded; station reading 62–63 °F)");
   });
 }); // prettier-ignore
+
+describe("conversion tooltip (5-minute table)", () => {
+  it("whole °C: converted, rounded and the station's possible readings", () => {
+    expect(conversionTooltip(tempFromC(17, "whole_c"))).toBe(
+      "Converted from 17 °C → 62.6 °F, rounds to 63 °F. The station's own reading was 62 or 63 °F.",
+    );
+    expect(conversionTooltip(tempFromC(20, "whole_c"))).toBe(
+      "Converted from 20 °C → 68.0 °F, rounds to 68 °F. The station's own reading was 68 °F.",
+    );
+  });
+  it("tenths °C, and stations measuring in °C (no possible readings)", () => {
+    expect(conversionTooltip(tempFromC(17.2, "tenths_c"))).toBe(
+      "Converted from 17.2 °C → 62.96 °F, rounds to 63 °F. The station's own reading was 63 °F.",
+    );
+    expect(conversionTooltip(tempFromC(17, "whole_c", "C"))).toBe(
+      "Converted from 17 °C → 62.6 °F, rounds to 63 °F.",
+    );
+  });
+});

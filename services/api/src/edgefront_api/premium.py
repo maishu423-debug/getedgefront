@@ -106,6 +106,10 @@ def reading_out(r: HfObservation, st: Station, now: datetime) -> s.HfReadingOut:
         qc_failed=qc_failed(qc),
         qc=qc or None,
         revision=r.revision or 0,
+        raw_message=r.raw_message,
+        sky=[s.SkyLayerOut(cover=x["cover"], base_ft=x.get("base_ft")) for x in (r.sky or [])]
+        or None,
+        pres_wx=r.pres_wx,
         received_at=as_utc(r.received_at) if r.received_at else None,
         ingested_at=as_utc(r.ingested_at),
     )
@@ -179,6 +183,7 @@ def hf_series(
     session: SessionDep,
     st: StationDep,
     now: NowDep,
+    cfg: CfgDep,
     hours: Annotated[int, Query(description="6 or 24")] = 6,
 ) -> s.HfSeriesResponse:
     if hours not in (6, 24):
@@ -196,6 +201,7 @@ def hf_series(
         generated_at=now,
         station_id=st.id,
         hours=hours,
+        stale_after_minutes=cfg.hf_station_stale_minutes,
         in_feed=bool(rows) or st.id in _in_feed(session, [st.id]),
         source=_source(session),
         readings=[reading_out(r, st, now) for r in rows],

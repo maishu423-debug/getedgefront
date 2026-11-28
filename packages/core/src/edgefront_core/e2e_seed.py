@@ -141,6 +141,8 @@ def hf_reading(st: Station, at: datetime, spike_at: datetime | None = None) -> H
         vis_mi=Decimal(10),
         precip_in=Decimal(0),
         qc={"temperature": {"dd": dd, "qca": 123, "qcr": 0 if dd == "V" else 16}},
+        raw_message=f"E2E-TEST,{st.id},{at:%y/%m/%d %H:%M:%S},{c},{f_to_c(f - 14)},180,8,30.07",
+        sky=[{"cover": "SCT", "base_ft": 4500}],
     )
 
 
